@@ -1,0 +1,61 @@
+{% load static %}
+
+
+<nav id="main-navbar" class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item logo" href="home">
+      <img src="{% static 'img/ualg-logo.png' %}" alt="FCT">
+    </a>
+
+    
+  </div>
+
+  <div class="navbar-menu">
+    <div class="navbar-start">
+      
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Pedidos
+        </a>
+        <div class="navbar-dropdown">
+          <a href="{% url 'main:Sala'%}" class="navbar-item">Sala</a>
+          <a href="{% url 'main:site2'%}" class="navbar-item">Horarios</a>
+          <a href="{% url 'main:UnidadeCurricular'%}" class="navbar-item">Unidades Curriculares</a>
+          <a href="{% url 'main:outros'%}" class="navbar-item">Outros</a>
+        </div>
+      </div>
+      <div class="navbar-item has-dropdown is-hoverable">
+          <a href="tableHorario" class="navbar-item">Meus Pedidos</a>
+       
+      </div>
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a href="UploadRUC" class="navbar-item">Import RUC</a>
+     
+    </div>
+    <div class="navbar-item has-dropdown is-hoverable">
+      <a href="tableEstatisticaPedido" class="navbar-item">Estatistica Pedidos</a>
+   
+  </div>
+      </div>
+      <div class="navbar-end">
+      <a href="register" class="navbar-item">
+        Registo
+      </a>
+      <a href="" class="navbar-item">
+        Login
+      </a>
+      </div>
+   
+
+    
+
+</nav>
+      
+
+
+{% block scripts %}
+<script>
+ 
+</script>
+
+{% endblock scripts %}

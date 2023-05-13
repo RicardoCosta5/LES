@@ -1,0 +1,157 @@
+{% extends 'main/app.html' %}
+{% load static %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.4/dist/sweetalert2.min.js"></script>
+
+<style>
+    table {
+      width: 100%;
+      table-layout: fixed
+      ;  
+    }
+    table th:first-child {
+    max-width: 100px;
+    min-width: 100px;
+}
+
+table th:nth-child(2) {
+    max-width: 600px;
+    min-width: 1000px;
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+table th:nth-child(3) {
+    max-width: 100px;
+}
+
+table th:nth-child(4),
+table th:nth-child(5) {
+    max-width: 150px;
+}
+.notification {
+  position: fixed;
+  bottom: 50px;
+  right: 10px;
+}
+  </style>
+<div class="columns is-centered">
+ 
+  <table class="table is-striped">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Número de pedidos</th>
+        <th>Tempo médio de processamento</abbr></th>
+        <th>Variação no tempo de processamento</th>
+        <th>Percentagem</th>
+      </tr>
+    </thead>
+    {% for n in Pedido %}
+      <tbody>
+        <tr>
+          <td>{{n.Status}}</td>
+          <td class="wide-column">{{n.NmrPedido}}</td>
+          <td>{{n.TempoMedio}}</td>
+          <td>{{n.VarTempo}}</td>
+          <td>{{n.percetagem}}</td>
+      </tbody>
+    {% endfor %}
+  </table>
+  <div id="msg-container"></div>
+  
+</div>
+<script>
+  // Ocultar as linhas "hidden-row" quando a página é carregada
+  document.querySelectorAll('.hidden-row').forEach(function(row) {
+      row.style.display = 'none';
+  });
+
+  // Quando o botão "View" é clicado, exibir os detalhes do pedido
+  document.querySelectorAll('.button.is-info').forEach(function(button) {
+      button.addEventListener('click', function(event) {
+          // Encontre o elemento pai "tr"
+          var row = event.target.closest('tr');
+          // Encontre a próxima linha oculta com a classe "hidden-row"
+          var hiddenRow = row.nextElementSibling;
+          while (hiddenRow && !hiddenRow.classList.contains('hidden-row')) {
+              hiddenRow = hiddenRow.nextElementSibling;
+          }
+          // Exiba a linha oculta
+          // Exiba ou oculte a linha oculta
+          if (hiddenRow.style.display === 'none') {
+              hiddenRow.style.display = 'table-row';
+          } else {
+              hiddenRow.style.display = 'none';
+          }
+      });
+  });
+
+  // Ocultar as linhas "hidden-row" quando a página é carregada
+document.querySelectorAll('.hidden-row2').forEach(function(row) {
+row.style.display = 'none';
+});
+// Quando o botão "Associar" é clicado, exibir os detalhes do pedido
+document.querySelectorAll('.button.is-info2').forEach(function(button) {
+button.addEventListener('click', function(event) {
+// Encontre o elemento pai "tr"
+var row = event.target.closest('tr');
+// Encontre a próxima linha oculta com a classe "hidden-row"
+var hiddenRow = row.nextElementSibling;
+while (hiddenRow && !hiddenRow.classList.contains('hidden-row2')) {
+hiddenRow = hiddenRow.nextElementSibling;
+}
+// Exiba a linha oculta
+// Exiba ou oculte a linha oculta
+if (hiddenRow.style.display === 'none') {
+hiddenRow.style.display = 'table-row';
+} else {
+hiddenRow.style.display = 'none';
+}
+});
+});
+
+function myFunction() {
+  document.getElementById("green-rectangle").style.display = "block";
+  document.forms[0].submit();
+}
+
+
+ // exibe a mensagem de sucesso no canto inferior direito
+ var msg = $('<div>').addClass('notification is-success').text('Ano letivo selecionado com sucesso.');
+
+$('#msg-container').append(msg);
+
+// esconde a mensagem após 3 segundos
+setTimeout(function() {
+  msg.fadeOut(300, function() {
+    $(this).remove();
+  });
+}, 1000);
+</script>
+
+<style>
+  .hidden-row {
+      display: none;
+  }
+  .pedido-details {
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+  }
+
+  .hidden-row2 {
+      display: none;
+  }
+  .pedido-details2 {
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+  }
+
+  
+
+</style>
+
+  {% endblock content %}

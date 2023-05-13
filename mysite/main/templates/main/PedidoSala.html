@@ -1,0 +1,176 @@
+
+{% extends 'main/app.html' %}
+
+{% block title %}- Pedidos Sala{% endblock title %}
+
+{% block content %}
+
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<div>
+    <form method="POST">{% csrf_token %}
+        {{form}}
+  <div class="section">
+    <div class="column">
+        <div class="columns is-centered">
+            
+        <div class="column is-7">
+            <h1 class="title has-text-centered">Pedidos Sala</h1>
+           
+                <div class="field">
+                  <label class="label">Assunto</label>
+                  <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}">
+                 
+                </div>
+
+          
+          <div class="field">
+            <label class="label">Descrição</label>
+            <div class="control">
+              <textarea class="textarea" id="desc"placeholder="Escreva os detalhes do pedido" name="desc">{{ desc }}</textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Dia</label>
+           
+                <input type="date" id="data" name="dia" value="{{ dia|date:'Y-m-d' }}">
+          </div>
+          <div class="field">
+            <label class="label">Edificio</label>
+            <div class="control">
+              <div class="select">
+                <select name="edifi" id="edifi">
+                  {% for u in Edificio %}
+                      {% if u.nome == edifi %}
+                          <option selected>{{ u.nome }}</option>
+                      {% else %}
+                          <option>{{ u.nome }}</option>
+                      {% endif %}
+                  {% endfor %}
+              </select>
+              </div>
+            </div>
+
+          <div class="field">
+            <label class="label">Sala</label>
+            <div class="control">
+              <div class="select">
+                <select name="salaa" id="salaa">
+                  {% for u in Sala %}
+                      {% if u.NumeroSala == salaa %}
+                          <option selected>{{ u.NumeroSala }}</option>
+                      {% else %}
+                          <option>{{ u.NumeroSala }}</option>
+                      {% endif %}
+                  {% endfor %}
+              </select>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Hora de Inicio</label>
+            <input class="input" type="text" id="hora_inicio" name="hora_inicio" placeholder="HH:MM:SS" value="{{ hora_inicio|time:'H:i:s' }}">
+
+           
+          </div>
+
+          <div class="field">
+            <label class="label">Hora de Fim</label>
+            <input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{hora_fim|time:'H:i:s'}}">
+          </div>
+        </div>
+        <div id="popup" class="modal">
+          <div class="modal-background"></div>
+          <div class="modal-content">
+            <div class="box">
+              <p>Submissão feita com sucesso!</p>
+              <div class="buttons">
+                <button id="confirm-btn" class="button is-success">OK</button>
+              </div>
+            </div>
+          </div>
+          <button class="modal-close is-large" aria-label="close"></button>
+        </div>
+          
+          <div class="field is-grouped">
+            <div class="control">
+              <button id="submit-btn" class="button is-link" onclick="showPopUp(event)">Submit</button>
+            </div>
+          </form>
+          <button id="cancel-btn" class="button is-link is-light" onclick="window.location.reload()">Cancel</button>
+
+          
+          </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<script>
+  const cancelButton = document.querySelector('#cancel-btn');
+ cancelButton.addEventListener('click', function(event) {
+   event.preventDefault();
+   const form = document.querySelector('form');
+   form.reset();
+ });
+
+ function showPopUp(event) {
+    event.preventDefault();
+
+    if (validateForm()) {
+      // Get the pop-up element
+      var popup = document.getElementById("popup");
+
+      // Show the pop-up
+      popup.classList.add("is-active");
+
+      // Get the confirm and cancel buttons
+      var confirmBtn = document.getElementById("confirm-btn");
+
+      // Add click listeners to the buttons
+      confirmBtn.addEventListener("click", submitForm);
+      setTimeout(function() {
+          popup.style.display = "none";
+      }, 5000); // Wait for 5 seconds before hiding the popup
+    }
+  }
+
+  function hidePopUp() {
+    // Get the pop-up element
+    var popup = document.getElementById("popup");
+
+    // Hide the pop-up
+    popup.classList.remove("is-active");
+  }
+
+  function submitForm() {
+    // Submit the form
+    document.getElementById("submit-btn").click();
+  }
+
+
+  function validateForm() {
+    // Get the values of the form inputs
+    const edifi = document.querySelector("#edifi").value;
+    const salaa = document.querySelector("#salaa").value;
+    const hora_fim = document.querySelector('#hora_fim').value;
+    const hora_inicio = document.querySelector('#hora_inicio').value;
+    const data = document.querySelector('#data').value;
+    const desc = document.querySelector('#desc').value;
+
+
+    // Check if any of the required fields are empty
+    if (!salaa || !data || !desc || !hora_fim || !hora_inicio || !edifi) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return false;
+    }
+
+    return true;
+  }
+
+ </script>
+
+
+{% endblock content%}
+

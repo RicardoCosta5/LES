@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<head>
+
+    <title>tHIS IS PAGE 2</title>
+    <link rel="stylesheet" href="{% static 'designUC.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  
+<!-- The navigation menu -->
+<div class="navbar">
+  <a href="home">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo-img">
+  </a>
+  <div class="dropdown">
+    <button class="dropbtn">Pedidos 
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="">Sala</a>
+      <a href="horario">Horario</a>
+      <a href="uc">Unidade Curricular</a>
+      <a href="#"> Outros</a>
+    </div>
+  </div> 
+  <a href="" class="pedidos"> Os meus Pedidos</a>
+  <a href="contact" class="navbar-right"> Login</a>
+</div>
+</div> 
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      Pedido de Unidade Curricular
+    </div>
+    <div class="card-body">
+      <form>
+        <div class="form-group">
+          <label>Regente:</label>
+          <select class="form-control" id="regente" name="regente">
+            <option disabled selected value>Regente:</option>
+            <option value="UC1">Docente 1</option>
+            <option value="UC2">Docente 2</option>
+            <option value="UC3">Docente 3</option>
+          </select>
+        </div>
+        <div class="form-group2">
+          <label>Faculdade:</label>
+          <select class="form-control" id="faculdade" name="faculdade">
+            <option disabled selected value>Faculdade:</option>
+            <option value="UC1">FCT - Faculdade de Ciencias e Tecnologia</option>
+            <option value="UC2">FE - Faculdade de Economia</option>
+            <option value="UC3">FM - Faculdade de Medicina</option>
+          </select>
+        </div>
+        <div class="form-group4">
+          <label>Curso:</label>
+          <select class="form-control" id="faculdade" name="faculdade">
+            <option disabled selected value>Curso:</option>
+            <option value="UC1">Engenharia Informática</option>
+            <option value="UC2">Bioengenharia</option>
+            <option value="UC3">Matematica aplicada à economia e à gestão</option>
+          </select>
+        </div>
+        <div class="form-group3">
+          <label>Unidade Curricular:</label>
+          <select class="form-control" id="uc" name="uc">
+            <option disabled selected value>Unidade Curricular:</option>
+            <option value="UC1">Unidade Curricular 1</option>
+            <option value="UC2">Unidade Curricular 2</option>
+            <option value="UC3">Unidade Curricular 3</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </form>
+    </div>
+  </div>
+  
+
+</body>
+</html>

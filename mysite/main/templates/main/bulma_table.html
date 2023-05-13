@@ -1,0 +1,61 @@
+{% extends 'main/app.html' %}
+{% load static %}
+{% block content %}
+<style>
+    table {
+      width: 100%;
+      table-layout: fixed
+      ;  
+    }
+    table th:first-child {
+    max-width: 100px;
+    min-width: 100px;
+}
+
+table th:nth-child(2) {
+    max-width: 600px;
+    min-width: 1000px;
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+table th:nth-child(3) {
+    max-width: 100px;
+}
+
+table th:nth-child(4),
+table th:nth-child(5) {
+    max-width: 150px;
+}
+  </style>
+<div class="columns is-centered">
+
+<table class="table is-striped">
+    <thead>
+      <tr>
+        <th><abbr title="Assunto">Assunto</abbr></th>
+        <th>Descrição</th>
+        <th><abbr title="Dia">Dia</abbr></th>
+        <th>Update</th>
+        <th>Remove</th>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for n in Pedido %}
+      <tr>
+
+
+        <td>{{n.assunto}}</td>
+        <td class="wide-column">{{n.descricao|linebreaksbr|truncatechars:20 }}</td>
+        <td>{{n.dia}}</td>
+        <td ><a class="button is-warning is-active" href="{% url 'main:update_outros' n.id %}">Update</button></td>
+        <td ><a class="button is-danger is-active" href="{% url 'main:delete_outros' n.id %}">Delete</button></td>
+      </tr>
+ 
+    </tbody>
+    {%endfor%}
+  </table>
+</div>
+  {% endblock content %}

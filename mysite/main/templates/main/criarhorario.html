@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<head>
+
+    <title>Pedido Horário</title>
+    <link rel="stylesheet" href="{% static 'pedidoHorario.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  
+<!-- The navigation menu -->
+<div class="navbar">
+  <a href="home">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo-img">
+  </a>
+  <div class="dropdown">
+    <button class="dropbtn">Pedidos 
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="">Sala</a>
+      <a href="horario">Horario</a>
+      <a href="uc">Unidade Curricular</a>
+      <a href="#"> Outros</a>
+    </div>
+  </div> 
+  <a href="" class="pedidos"> Os meus Pedidos</a>
+  <a href="contact" class="navbar-right"> Login</a>
+</div>
+</div> 
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      Pedido de Horário
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        {{form}}
+        <div class="form-group3">
+          <label for="unidade">Docentes:</label>
+          <select class="form-control" id="unidade" name="unidade">
+            {% for Docente in nome %}
+            <option value="{{ Docente.id }}">{{ Docente.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group2">
+          <label for="unidade">Unidade Curricular:</label>
+          <select class="form-control" id="unidade" name="unidade">
+            {% for u in UC %}
+              <option value="UC1">{{ u.NomeDaUC }}</option>
+            {% endfor %}
+            
+           </select>
+        </div>
+        <div class="form-group">
+          <label for="horario">Horário:</label>
+          <input type="date" id="data" name="data">
+        </div>
+        <div class="form-group4">
+          <label for="hora_inicio">Hora de início:</label>
+          <input type="time" id="hora_inicio" name="hora_inicio">
+        </div>
+        
+        <div class="form-group5">
+          <label for="hora_fim">Hora de fim:</label>
+          <input type="time" id="hora_fim" name="hora_fim">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </form>
+    </div>
+  </div>
+  
+
+</body>
+</html>

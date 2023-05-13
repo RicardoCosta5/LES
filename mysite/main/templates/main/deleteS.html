@@ -1,0 +1,20 @@
+{% extends 'main/app.html' %}
+{% load static %}
+{% block content %}
+
+
+
+
+<div class="column is-align-items-center" style="margin-top: 15%;">
+<h1 class="title has-text-centered">Tem a certeza que quer eliminar este Pedido?</h1>
+<form action="{% url 'main:delete_Sala' item.id %}" method="POST">
+<div class="buttons is-centered">
+    {% csrf_token%}
+    <button class="button is-success" name="Confirm">Confirmar</button>
+    <a class="button is-danger" href="{% url 'main:tableSala' %}">Cancel</a>
+</div>
+</form>
+</div>
+
+
+{% endblock content %}

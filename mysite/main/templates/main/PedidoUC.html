@@ -1,0 +1,193 @@
+
+{% extends 'main/app.html' %}
+
+{% block title %}- Pedido Unidade Curricular{% endblock title %}
+
+{% block content %}
+
+{% load static %}
+<div>
+    <form method="POST">{% csrf_token %}
+        {{form}}
+  <div class="section">
+    <div class="column">
+        <div class="columns is-centered">
+            
+        <div class="column is-7">
+            <h1 class="title has-text-centered">Pedidos Unidade Curricular</h1>
+           
+          
+              <div class="field">
+                <label class="label">Assunto</label>
+                <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}">
+               
+              </div>
+          
+          <div class="field">
+            <label class="label">Descrição</label>
+            <div class="control">
+              <textarea class="textarea" id="desc" placeholder="Escreva os detalhes do pedido" name="desc">{{ desc }}</textarea>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Dia</label>
+           
+                <input type="date" id="data" name="data" value="{{ dia|date:'Y-m-d' }}">
+          </div>
+        
+          <a id="frase">Clique aqui para adicionar uma Unidade Curricular</a>
+          <br>
+          <div id="novo-campo-uc"></div>
+          <br>
+          <input type="hidden" id="num-requests-input" name="num_requests" value="0">
+          
+          <div id="popup" class="modal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="box">
+                <p>Submissão feita com sucesso!</p>
+                <div class="buttons">
+                  <button id="confirm-btn" class="button is-success">OK</button>
+                </div>
+              </div>
+            </div>
+            <button class="modal-close is-large" aria-label="close"></button>
+          </div>
+          
+          <div class="field is-grouped">
+            <div class="control">
+              <button id="submit-btn" class="button is-link" onclick="showPopUp(event)">Submit</button>
+            </div>
+            <div class="control">
+              <button id="cancel-btn" class="button is-link is-light" onclick="window.location.reload()">Cancel</button>
+            </form>
+            </div>
+          </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<script>
+  var numRequests = 0;
+  const cancelButton = document.querySelector('#cancel-btn');
+ cancelButton.addEventListener('click', function(event) {
+   event.preventDefault();
+   const form = document.querySelector('form');
+   form.reset();
+ });
+
+ function showPopUp(event) {
+    event.preventDefault();
+
+    if (validateForm()) {
+      // Get the pop-up element
+      var popup = document.getElementById("popup");
+
+      // Show the pop-up
+      popup.classList.add("is-active");
+
+      // Get the confirm and cancel buttons
+      var confirmBtn = document.getElementById("confirm-btn");
+
+      // Add click listeners to the buttons
+      confirmBtn.addEventListener("click", submitForm);
+      setTimeout(function() {
+          popup.style.display = "none";
+      }, 5000); // Wait for 5 seconds before hiding the popup
+    }
+  }
+
+  function hidePopUp() {
+    // Get the pop-up element
+    var popup = document.getElementById("popup");
+
+    // Hide the pop-up
+    popup.classList.remove("is-active");
+  }
+
+  function submitForm() {
+    // Submit the form
+    form.appendChild(numRequestsInput);
+    document.getElementById("submit-btn").click();
+  }
+
+
+  function validateForm() {
+    // Get the values of the form inputs
+
+    const assunto = document.querySelector('#assunto').value;
+    const data = document.querySelector('#data').value;
+    const desc = document.querySelector('#desc').value;
+
+
+    // Check if any of the required fields are empty
+    if (!assunto || !data || !desc)  {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return false;
+    }
+
+    return true;
+  }
+
+  document.getElementById("frase").addEventListener("click", adicionarCampo);
+  function adicionarCampo() {
+  numRequests += 1;
+  var novoCampo = document.createElement("div");
+  novoCampo.innerHTML = '<div class="field is-horizontal">' +
+  '<div class="field-body">' +
+    '<div class="field">' +
+      '<label class="label">Unidade curricular</label>' +
+      '<div class="control">' +
+        '<div class="select">' +
+          '<select name="unc_' + numRequests + '" id="unc">' +
+            '{% for u in UC %}' +
+              '{% if u.NomeDaUC == unc %}' +
+                '<option selected>{{ u.NomeDaUC }}</option>' +
+              '{% else %}' +
+                '<option>{{ u.NomeDaUC }}</option>' +
+              '{% endif %}' +
+            '{% endfor %}' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field">' +
+      '<label class="label">Tarefa</label>' +
+      '<div class="control">' +
+        '<div class="select">' +
+          '<select name="tarefa_' + numRequests + '" id="tarefa">' +
+            '<option value="Criar">Criar</option>' +
+            '<option value="Editar">Editar</option>' +
+            '<option value="Apagar">Apagar</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field">' +
+            '<label class="label">Descrição</label>' +
+            '<div class="control">' +
+              '<input class="input" type="text" id="desc_' + numRequests + '" name="desc_' + numRequests + '" value="{{descri}}">' +
+            '</div>' +
+          '</div>' +
+    '<div class="field is-grouped">' +
+      '<div class="control">' +
+        '<br>' +
+        '<button type="button" class="button is-danger is-active remover-campo">Remover</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+'</div>';
+  document.getElementById("novo-campo-uc").appendChild(novoCampo);
+  var botoesRemover = document.getElementsByClassName("remover-campo");
+  for (var i = 0; i < botoesRemover.length; i++) {
+    botoesRemover[i].addEventListener("click", function() {
+      this.closest('.field.is-horizontal').remove();
+      numRequestsInput.value = numRequests - 1;
+    });
+  }
+}
+ </script>
+
+{% endblock content%}
+

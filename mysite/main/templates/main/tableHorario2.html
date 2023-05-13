@@ -1,0 +1,64 @@
+{% extends 'main/app.html' %}
+{% load static %}
+{% block content %}
+<style>
+    table {
+      width: 100%;
+      table-layout: fixed
+      ;  
+    }
+    table th:first-child {
+    max-width: 100px;
+    min-width: 100px;
+}
+
+table th:nth-child(2) {
+    max-width: 600px;
+    min-width: 1000px;
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+table th:nth-child(3) {
+    max-width: 100px;
+}
+
+table th:nth-child(4),
+table th:nth-child(5) {
+    max-width: 150px;
+}
+th, td {
+    text-align: center;
+}
+  </style>
+<div class="columns is-centered">
+
+<table class="table is-striped">
+    <thead>
+      <tr>
+        <th>Unidades Curriculares</th>
+        <th>Hora de Inicio</th>
+        <th>Hora de Fim</th>
+        <th>Descrição</th>
+        <th>Tarefa</th>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for n in Pedido %}
+      <tr>
+
+
+        <td>{{n.uc}}</tb>
+        <td>{{ n.hora_inicio|time:"H:i:s" }}</td>
+        <td>{{n.hora_fim|time:"H:i:s"}}</td>
+        <td class="wide-column">{{n.descri|linebreaksbr|truncatechars:12 }}</td>
+        <td>{{n.tarefa}}</td>  
+      </tr>
+ 
+    </tbody>
+    {%endfor%}
+  </table>
+</div>
+  {% endblock content %}
