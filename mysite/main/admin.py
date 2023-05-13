@@ -14,4 +14,6 @@ admin.site.register(Sala)
 admin.site.register(Edificio)
 admin.site.register(UnidadesCurriculares)
 admin.site.register(EstatisticaPedido)
+admin.site.register(AnoLetivo)
+admin.site.register(DSD)
 

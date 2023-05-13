@@ -16,6 +16,7 @@
             
         <div class="column is-7">
             <h1 class="title has-text-centered">Pedidos Horários</h1>
+            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}</div>
             <div id="error">{{ error }}</div>
               <div class="field ">
                 <label class="label">Assunto</label>
@@ -253,6 +254,16 @@ function showPopUp(event) {
   #error {
   display: none;
   background-color: red;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+#succes {
+  display: none;
+  background-color: green;
   text-align: center;
   color: white;
   padding: 10px;

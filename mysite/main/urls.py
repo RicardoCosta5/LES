@@ -63,6 +63,13 @@ urlpatterns = [
 
 #Uploads
     path ("UploadRUC",views.uploadRUC,name="upload_RUC"),
+    path("upload_DSD", views.uploadDSD, name="upload_DSD"),
+
+#Ano letivo
+    path("AnoLetivo", views.AnoLetivoAdd, name="AnoLetivo"),
+    path ("tableAL", views.tableAL, name="tableAL"),
+    path ("delete_AL/<str:pk>/",views.deletAL,name="delete_AL"),
+    path ("update_AL/<str:pk>/",views.updateAL,name="update_AL"),    
 
 
 

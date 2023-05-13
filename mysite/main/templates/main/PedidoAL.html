@@ -1,0 +1,104 @@
+
+{% extends 'main/app.html' %}
+
+{% block title %}- Pedido Unidade Curricular{% endblock title %}
+
+{% block content %}
+
+{% load static %}
+<div>
+    <form method="POST">{% csrf_token %}
+        {{form}}
+  <div class="section">
+    <div class="column">
+        <div class="columns is-centered">
+            
+        <div class="column is-7">
+            <h1 class="title has-text-centered">Ano Letivo</h1>
+          
+              <div class="field">
+                <label class="label">Ano letivo</label>
+                <input class="input" type="text" id="anoletivo" name="anoletivo" value="{{anoletivo}}">
+               
+              </div>
+          <div class="field">
+            <label class="label">Inicio do Ano Letivo</label>
+                <input type="date" id="datainicio" name="datainicio" value="{{ dia|date:'Y-m-d' }}">
+          </div>
+          <div class="field">
+            <label class="label">Fim do Ano Letivo</label>
+                <input type="date" id="datafinal" name="datafinal" value="{{ dia|date:'Y-m-d' }}">
+          </div>
+          <div id="popup" class="modal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="box">
+                <p>Submissão feita com sucesso!</p>
+                <div class="buttons">
+                  <button id="confirm-btn" class="button is-success">OK</button>
+                </div>
+              </div>
+            </div>
+            <button class="modal-close is-large" aria-label="close"></button>
+          </div>
+          
+          <div class="field is-grouped">
+            <div class="control">
+              <button id="submit-btn" class="button is-link" onclick="showPopUp(event)">Submit</button>
+            </div>
+            <div class="control">
+              <button id="cancel-btn" class="button is-link is-light" onclick="window.location.reload()">Cancel</button>
+            </form>
+            </div>
+          </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<script>
+  var numRequests = 0;
+  const cancelButton = document.querySelector('#cancel-btn');
+ cancelButton.addEventListener('click', function(event) {
+   event.preventDefault();
+   const form = document.querySelector('form');
+   form.reset();
+ });
+
+ function showPopUp(event) {
+    event.preventDefault();
+      // Get the pop-up element
+      var popup = document.getElementById("popup");
+
+      // Show the pop-up
+      popup.classList.add("is-active");
+
+      // Get the confirm and cancel buttons
+      var confirmBtn = document.getElementById("confirm-btn");
+
+      // Add click listeners to the buttons
+      confirmBtn.addEventListener("click", submitForm);
+      setTimeout(function() {
+          popup.style.display = "none";
+      }, 5000); // Wait for 5 seconds before hiding the popup
+    
+  }
+
+  function hidePopUp() {
+    // Get the pop-up element
+    var popup = document.getElementById("popup");
+
+    // Hide the pop-up
+    popup.classList.remove("is-active");
+  }
+
+  function submitForm() {
+    // Submit the form
+    form.appendChild(numRequestsInput);
+    document.getElementById("submit-btn").click();
+  }
+
+ </script>
+
+{% endblock content%}
+

@@ -4,6 +4,7 @@ from django.urls import reverse
 from .models import *
 from django.contrib.auth.forms import UserCreationForm
 import pandas as pd
+from datetime import datetime
 
 
 
@@ -28,6 +29,13 @@ def PedidoHorarios(request):
             # Se já existir, retorne uma mensagem de erro
             error = 'Já existe um pedido com o mesmo assunto'
             return render(request, 'main/PedidoHorario.html', {'error': error, "nome": name,"UC": UC})
+      for hora_inicio, hora_fim in zip(hora_inicio_list, hora_fim_list):
+         try:
+            datetime.strptime(hora_inicio, '%H:%M:%S')
+            datetime.strptime(hora_fim, '%H:%M:%S')
+         except ValueError:
+            error = 'Formato de hora inválido'
+            return render(request, 'main/PedidoHorario.html', {'error': error, "nome": name,"UC": UC})
         
       
       new_pedido = Pedido(assunto=assunto,desc=desc,dia=dia, tipo="Horário")
@@ -44,6 +52,9 @@ def PedidoHorarios(request):
             dia=dia2[i]
          )
          new_pedido_hor.save()
+      
+      succes = 'Enviado para a base de dados'
+      return render(request, template_name="main/PedidoHorario.html",context={"nome": name,"UC": UC,"succes": succes})
   
    return render(request, template_name="main/PedidoHorario.html",context={"nome": name,"UC": UC})
 
@@ -161,6 +172,52 @@ def uploadRUC(request):
     return render(request=request, template_name='main/IMPORTCSV.html')
 
 
+def uploadDSD(request):
+    if request.method == 'POST':
+        if not request.FILES:
+            error = 'Selecione um arquivo para fazer o upload'
+            return render(request=request, template_name='main/upload_DSD.html', context={'error': error})
+        if not request.FILES['file'].name.endswith('.xls'):
+            error = 'O arquivo deve estar no formato .xls'
+            return render(request=request, template_name='main/upload_DSD.html', context={'error': error})
+        excel_file = request.FILES['file']
+        excel_data = pd.ExcelFile(excel_file)
+        sheetx = pd.read_excel(excel_data, sheet_name=0)
+        testes = sheetx[['Período', 'Cód. disciplina', 'Disciplina', 'Inst. discip.', 'Inst. disciplina', 'Depart. disciplina', 'Turma', 'Código curso', 'Curso',
+                         'Cód. Docente', 'Docente', 'Função docente', 'Inst. docente', 'Depart. docente', 'Horas semanais', 'Horas período', 'Factor', 
+                         'Horas serviço', 'Data início', 'Data fim', 'Nome Docente', 'Agrupamento']] 
+
+        for index, row in testes.iterrows():
+            Periodo = row['Período']
+            codDisci = row['Cód. disciplina']
+            disciplina = row['Disciplina']
+            instituic = row['Inst. discip.']
+            instituto = row['Inst. disciplina']
+            departamento = row['Depart. disciplina']
+            turma = row['Turma']
+            codCurso = row['Código curso']
+            curso = row['Curso']
+            codDocente = row['Cód. Docente']
+            docente = row['Docente']
+            funcDocente = row['Função docente']
+            instDocente = row['Inst. docente']
+            departDocente = row['Depart. docente']
+            horasSem = row['Horas semanais']
+            horasPeri = row['Horas período']
+            factor = row['Factor']
+            horasServ = row['Horas serviço']
+            Datainicial = row['Data início']
+            DataFim = row['Data fim']
+            Nome = row['Nome Docente']
+            Agrupamento = row['Agrupamento']
+            novAUC = DSD(Periodo = Periodo, codDisci =  codDisci, disciplina = disciplina, instituic = instituic, instituto = instituto, departamento = departamento,
+                         turma = turma, codCurso = codCurso, curso = curso, codDocente = codDocente, docente = docente, funcDocente = funcDocente, instDocente = instDocente,
+                         horasSem = horasSem, horasPeri = horasPeri, factor = factor, Datainicial = Datainicial, DataFim = DataFim, Nome = Nome, Agrupamento = Agrupamento)
+            novAUC.save()
+        success = 'Dados do DSD importados com sucesso'
+        return render(request=request, template_name='main/upload_DSD.html', context={'success': success})
+    return render(request=request, template_name='main/upload_DSD.html')
+
 
 def updateHorario2(request, pk):
     pedido_horario = PedidoHorario.objects.get(id=pk)
@@ -195,24 +252,31 @@ def deletHorario2(request,pk):
    return render(request, template_name="main/deleteH2.html",context={'item': PedidosHor})
 
 def PedidoUnidadeCurricular(request):
-   UC = UnidadesCurriculares.objects.all()
-   if request.method == "POST":
-      num_requests = int(request.POST.get('num_requests', 0))
-      date = request.POST['data']
-      assunto = request.POST['assunto']
-      desc = request.POST['desc']
-      new_Pedido = Pedido(assunto=assunto,desc=desc,dia=date)
-      new_Pedido.save()
-      pedido_id = new_Pedido.id
-      pedido = Pedido.objects.get(id=pedido_id)
-      for i in range(num_requests):
-         uc = request.POST.get(f'unc_{i}')
-         tarefa = request.POST.get(f'tarefa_{i}')
-         descri = request.POST.get(f'descri_{i}')
+      UC = UnidadesCurriculares.objects.all()
+      if request.method == "POST":
+         date = request.POST['data']
+         assunto = request.POST['assunto']
+         desc = request.POST['desc']
 
-         new_PedidoUC = PedidoUC(uc=uc,tarefa=tarefa,descri=descri,pedido=pedido)
-         new_PedidoUC.save() # save the new_PedidoUC object to the database
-   return render(request, template_name="main/PedidoUC.html",context={"UC": UC})
+         uc_list = request.POST.getlist('unc')
+         tarefa = request.POST.getlist('tarefa')
+         regente = request.POST.getlist('regente')
+         descri = request.POST.getlist('descri')
+
+         new_Pedido = Pedido(assunto=assunto,desc=desc,dia=date,tipo="Unidade Curricular")
+         new_Pedido.save()
+
+         
+         for i in range(len(uc_list)):
+            new_PedidoUC = PedidoUC(
+               uc=uc_list[i],
+               tarefa=tarefa[i],
+               regente=regente[i],
+               descri=descri[i], 
+               pedido = new_Pedido
+            )
+            new_PedidoUC.save()
+      return render(request, template_name="main/PedidoUC.html",context={"UC": UC})
 
 def tableUC(request):
    pedidosUC = PedidoUC.objects.all()
@@ -287,6 +351,49 @@ def deletSala(request,pk):
    return render(request, template_name="main/deleteS.html",context={'item': PedidosSala})
 
 
+
+def AnoLetivoAdd(request):
+   UC = UnidadesCurriculares.objects.all()
+   if request.method == "POST":
+      anoletivo = request.POST['anoletivo']
+      datainicio = request.POST['datainicio']
+      datafinal = request.POST['datafinal']
+      new_ano = AnoLetivo(
+         anoletivo = anoletivo,
+         datainicio = datainicio,
+         datafinal = datafinal
+      )
+      new_ano.save()
+   return render(request, template_name="main/PedidoAL.html",context={"UC": UC})
+
+def tableAL(request):
+   pedidosAL = AnoLetivo.objects.all()
+   return render(request, template_name="main/tableAL.html",context={"AnoLetivo":pedidosAL})
+
+def updateAL(request, pk):
+    pedido = AnoLetivo.objects.get(id=pk)
+    if request.method == "POST":
+        pedido.anoletivo = request.POST['anoletivo']
+        pedido.datainicio = request.POST['datainicio']
+        pedido.datafinal = request.POST['datafinal']
+        pedido.save()
+        return redirect('main:tableAL')
+    return render(request, template_name="main/PedidoAL2.html", context={
+        "anoletivo": pedido.anoletivo,
+        "datainicio": pedido.datainicio,
+        "datafinal": pedido.datafinal,
+      
+    })
+
+def deletAL(request,pk):
+   PedidosAL = AnoLetivo.objects.get(id=pk)
+   if request.method == "POST":
+      PedidosAL.delete()
+      return redirect('/tableAL')
+   return render(request, template_name="main/deleteAL.html",context={'item': PedidosAL})
+
+
+
 def tableEstatisticaPedido(request):
    
    num_pedidos = Pedido.objects.all().count()
@@ -348,3 +455,4 @@ def tableEstatisticaPedido(request):
 
    pedidosSala = EstatisticaPedido.objects.all()
    return render(request, template_name="main/tableEstatisticaPedidos.html",context={"Pedido":pedidosSala})
+

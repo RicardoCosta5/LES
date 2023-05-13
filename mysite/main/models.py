@@ -96,11 +96,12 @@ class PedidosOutros(models.Model):
     dia = models.DateField()
 
 class PedidoUC(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, default=Funcionario.objects.first().id)
     uc = models.CharField(max_length=255,default="LES")
-      
     descri = models.CharField(max_length=1200,default= "Default description")
+    tipo = models.CharField(max_length=255, default = "Unidades Curriculares")
     tarefa = models.CharField(max_length=255,default="Criar")
-
+    regente = models.CharField(max_length=1200,default= "Default description")
  
 
 
@@ -122,3 +123,33 @@ class EstatisticaPedido(models.Model):
     TempoMedio = models.CharField(max_length=255, default="1 dia")
     VarTempo = models.CharField(max_length=255, default="3 dias")
     percetagem = models.CharField(max_length=255, default="40%")
+
+class AnoLetivo(models.Model):
+    anoletivo = models.CharField(max_length=9, default="2022/2023")
+    ativo = models.BooleanField(default=True)
+    datainicio = models.DateField()
+    datafinal = models.DateField()    
+
+class DSD(models.Model):
+    Periodo = models.CharField(max_length=9, default="2022/2023")
+    codDisci = models.IntegerField()
+    disciplina = models.CharField(max_length=9, default="2022/2023")
+    instituic = models.CharField(max_length=9, default="2022/2023")
+    instituto = models.CharField(max_length=9, default="2022/2023")
+    departamento = models.CharField(max_length=9, default="2022/2023")
+    turma = models.CharField(max_length=9, default="2022/2023")
+    codCurso = models.CharField(max_length=9)
+    curso = models.CharField(max_length=9, default="2022/2023")
+    codDocente = models.CharField(max_length=9)
+    docente = models.CharField(max_length=9, default="2022/2023")
+    funcDocente = models.CharField(max_length=9, default="2022/2023")
+    instDocente = models.CharField(max_length=9, default="2022/2023")
+    departDocente = models.CharField(max_length=9, default="2022/2023")
+    horasSem = models.CharField(max_length=9)
+    horasPeri = models.CharField(max_length=9)
+    factor = models.CharField(max_length=9, default="2022/2023")
+    horasServ = models.CharField(max_length=9)
+    Datainicial = models.CharField(max_length=9)
+    DataFim = models.CharField(max_length=9)
+    Nome = models.CharField(max_length=9, default="2022/2023")
+    Agrupamento = models.CharField(max_length=9, default="2022/2023")    

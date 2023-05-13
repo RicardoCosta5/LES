@@ -140,12 +140,12 @@
       '<label class="label">Unidade curricular</label>' +
       '<div class="control">' +
         '<div class="select">' +
-          '<select name="unc_' + numRequests + '" id="unc">' +
+          '<select name="unc" id="unc">' +
             '{% for u in UC %}' +
-              '{% if u.NomeDaUC == unc %}' +
-                '<option selected>{{ u.NomeDaUC }}</option>' +
+              '{% if u.Regência == unc %}' +
+                '<option selected>{{ u.Regência }}</option>' +
               '{% else %}' +
-                '<option>{{ u.NomeDaUC }}</option>' +
+                '<option>{{ u.Regência }}</option>' +
               '{% endif %}' +
             '{% endfor %}' +
           '</select>' +
@@ -156,7 +156,7 @@
       '<label class="label">Tarefa</label>' +
       '<div class="control">' +
         '<div class="select">' +
-          '<select name="tarefa_' + numRequests + '" id="tarefa">' +
+          '<select name="tarefa" id="tarefa">' +
             '<option value="Criar">Criar</option>' +
             '<option value="Editar">Editar</option>' +
             '<option value="Apagar">Apagar</option>' +
@@ -165,9 +165,15 @@
       '</div>' +
     '</div>' +
     '<div class="field">' +
+            '<label class="label">Regente</label>' +
+            '<div class="control">' +
+              '<input class="input" type="text" id="regente" name="regente" value="{{regente}}">' +
+            '</div>' +
+          '</div>' +
+    '<div class="field">' +
             '<label class="label">Descrição</label>' +
             '<div class="control">' +
-              '<input class="input" type="text" id="desc_' + numRequests + '" name="desc_' + numRequests + '" value="{{descri}}">' +
+              '<input class="input" type="text" id="descri" name="descri" value="{{descri}}">' +
             '</div>' +
           '</div>' +
     '<div class="field is-grouped">' +

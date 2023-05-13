@@ -29,9 +29,15 @@
        
       </div>
       <div class="navbar-item has-dropdown is-hoverable">
-        <a href="{% url 'main:upload_RUC'%}" class="navbar-item">Import RUC</a>
-     
-    </div>
+        <a class="navbar-link">
+          Upload
+        </a>
+        <div class="navbar-dropdown">
+          <a href="{% url 'main:upload_RUC'%}" class="navbar-item">Import RUC</a>
+          <a href="{% url 'main:upload_DSD'%}" class="navbar-item">Import DSD</a>
+
+        </div>
+      </div>
     <div class="navbar-item has-dropdown is-hoverable">
       <a href="tableEstatisticaPedido" class="navbar-item">Estatistica Pedidos</a>
    
