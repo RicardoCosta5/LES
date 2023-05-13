@@ -10,10 +10,8 @@ import pandas as pd
 def homepage(request):
    return render(request, template_name="main/inicio.html")
 
-def homepage1(request):
-   return render(request, template_name="main/criarUC.html")
 
-def homepage2(request):
+def PedidoHorarios(request):
    name=Docente.objects.all()
    UC = UnidadesCurriculares.objects.all()
    if request.method == "POST":
@@ -93,7 +91,7 @@ def deletOutros(request,pk):
    return render(request, template_name="main/delete.html",context={'item': PedidosOut})
 
 
-def tableHorario(request):
+def tablePedidos(request):
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
    funciona = Funcionario.objects.all()
@@ -196,7 +194,7 @@ def deletHorario2(request,pk):
       return redirect(reverse('main:tableHorario2', kwargs={'pk': PedidosHor.pedido.id}))
    return render(request, template_name="main/deleteH2.html",context={'item': PedidosHor})
 
-def UnidadeCurricular(request):
+def PedidoUnidadeCurricular(request):
    UC = UnidadesCurriculares.objects.all()
    if request.method == "POST":
       num_requests = int(request.POST.get('num_requests', 0))
