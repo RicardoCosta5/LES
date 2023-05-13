@@ -1,0 +1,12 @@
+ASSOCIAR DESSOCIAR Funcionário na tabela (Por fazer)
+validar apenas quando tiver funcionario associado (Por fazer)
+adicionar os filtros (Por fazer)
+Estatisticas é pra tirar status. apenas conhece 4 (Por fazer)
+estatisticas é graficos (Por fazer)
+normalizar base de dados por exemplo, DescSala apenas tem que ter sala, pro ai adiante (Por fazer)
+nao podemos trabalhar com sql lite (Por fazer)
+Ano letivo existente (Por fazer)
+Data nao pode ser inferior ao dantes (Por fazer)
+Não se pode apagar se houver pedidos associados (Por fazer)
+
+
