@@ -2,6 +2,14 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
+### Pessoa que é atribuida o pedido ###
+class Funcionario(models.Model):
+    nome = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
+    telefone = models.IntegerField()
+    ativo = models.BooleanField()
+
+### ver o que é importante pegar ###
 class Docente(models.Model):
     codigo = models.IntegerField()
     docente = models.CharField(max_length=255)
@@ -21,12 +29,7 @@ class Docente(models.Model):
     digito_verificacao = models.CharField(max_length=255)
     nbsp = models.CharField(max_length=255)
 
-class Funcionario(models.Model):
-    nome = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
-    telefone = models.IntegerField()
-    ativo = models.BooleanField()
-    
+ ### Literalmente nao é utilizado em nada ###   
 class Horario(models.Model):
     data = models.DateField()
     tipo = models.IntegerField()
@@ -42,20 +45,7 @@ class Horario(models.Model):
              'pedido_horario_pedido_docente_id'),
         )
 
-class Outros(models.Model):
-    desc_pedido = models.CharField(max_length=255)
-    pedido_unidades_curriculares_id = models.IntegerField()
-    pedidos_outros_id = models.IntegerField()
-    pedidos_outros_pedido_id = models.IntegerField()
-    pedidos_outros_pedido_funcionario_id = models.IntegerField()
-    pedidos_outros_pedido_docente_id = models.IntegerField()
-    class Meta:
-        unique_together = (
-            ('id', 'pedido_unidades_curriculares_id', 'pedidos_outros_id', 
-             'pedidos_outros_pedido_id', 'pedidos_outros_pedido_funcionario_id', 
-             'pedidos_outros_pedido_docente_id'),
-        )
-
+### Parte mais importante deste models ####
 class Pedido(models.Model):
     
     tipo = models.CharField(max_length=255,default="nossa")
@@ -66,8 +56,7 @@ class Pedido(models.Model):
     atribuido = models.CharField(max_length=255, default="Não Atribuido")
     Funcionario=models.ForeignKey(Funcionario, on_delete=models.CASCADE, default=Funcionario.objects.first().id)
     
-
-
+### Pedidos ( Horario - Outros - UC - Sala) , desta parte esta ok
 class PedidoHorario(models.Model):
    
     uc = models.CharField(max_length=255,default="LES")
@@ -77,29 +66,6 @@ class PedidoHorario(models.Model):
     descri = models.CharField(max_length=1200,default= "Default description")
     tarefa = models.CharField(max_length=255,default="Criar")
     dia = models.DateField(default=datetime.date.today)
-    
-
-  
-class Edificio(models.Model):
-    nome = models.CharField(max_length=255, default = "Default name")
-
-class Sala(models.Model):
-    id = models.IntegerField(primary_key=True, default=1)
-
-    Edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE)
-    TipoSala = models.CharField(max_length=255)
-    Capacidade = models.IntegerField()
-    NumeroSala = models.FloatField()
-
-class PedidoSala(models.Model):
-    edi = models.CharField(max_length=255, default = "Default name")
-    sal = models.CharField(max_length=255, default = "Default name")
-    tipo = models.CharField(max_length=255, default = "Sala")
-    assunto = models.CharField(max_length=255, default="assunto")  
-    dia = models.DateField()
-    hora_de_inicio = models.TimeField()
-    hora_de_fim = models.TimeField()
-    desc = models.CharField(max_length=1200, default="Default description")
 
 
 class PedidosOutros(models.Model):
@@ -115,34 +81,45 @@ class PedidoUC(models.Model):
     tipo = models.CharField(max_length=255, default = "Unidades Curriculares")
     tarefa = models.CharField(max_length=255,default="Criar")
     regente = models.CharField(max_length=1200,default= "Default description")
- 
 
+class PedidoSala(models.Model):
+    edi = models.CharField(max_length=255, default = "Default name")
+    sal = models.CharField(max_length=255, default = "Default name")
+    tipo = models.CharField(max_length=255, default = "Sala")
+    assunto = models.CharField(max_length=255, default="assunto")  
+    dia = models.DateField()
+    hora_de_inicio = models.TimeField()
+    hora_de_fim = models.TimeField()
+    desc = models.CharField(max_length=1200, default="Default description")
 
-class UnidadesCurriculares(models.Model):
-    
-    AnoLetivo = models.CharField(max_length=255)
-    Regência = models.CharField(max_length=255)
-    Docentes = models.CharField(max_length=255, default="Zézinha")
-    Tipo = models.CharField(max_length=200,default="Null")
-    Horas = models.CharField(max_length=255, default="00h")
-    Curso = models.CharField(max_length=255)
-    Código = models.IntegerField(default=1)
-    Descriçao = models.CharField(max_length=255)
-    
+### vai ser utilizado para obtermos as salas do edificio ###
+class Edificio(models.Model):
+    nome = models.CharField(max_length=255, default = "Default name")
 
-class EstatisticaPedido(models.Model):
-    Status = models.CharField(max_length=255, default="Em Análise")
-    NmrPedido = models.IntegerField(default=1)
-    TempoMedio = models.CharField(max_length=255, default="1 dia")
-    VarTempo = models.CharField(max_length=255, default="3 dias")
-    percetagem = models.CharField(max_length=255, default="40%")
+### sinto que a utilidade deste models seja inutil ###
+class Sala(models.Model):
+    id = models.IntegerField(primary_key=True, default=1)
+    Edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE)
+    TipoSala = models.CharField(max_length=255)
+    Capacidade = models.IntegerField()
+    NumeroSala = models.FloatField()  
 
-class AnoLetivo(models.Model):
-    anoletivo = models.CharField(max_length=9, default="2022/2023")
-    ativo = models.BooleanField(default=True)
-    datainicio = models.DateField()
-    datafinal = models.DateField()    
+    ### Literalmente nao é utilizado em nada ###
+class Outros(models.Model):
+    desc_pedido = models.CharField(max_length=255)
+    pedido_unidades_curriculares_id = models.IntegerField()
+    pedidos_outros_id = models.IntegerField()
+    pedidos_outros_pedido_id = models.IntegerField()
+    pedidos_outros_pedido_funcionario_id = models.IntegerField()
+    pedidos_outros_pedido_docente_id = models.IntegerField()
+    class Meta:
+        unique_together = (
+            ('id', 'pedido_unidades_curriculares_id', 'pedidos_outros_id', 
+             'pedidos_outros_pedido_id', 'pedidos_outros_pedido_funcionario_id', 
+             'pedidos_outros_pedido_docente_id'),
+        )
 
+### ver o que é importante pegar ###
 class DSD(models.Model):
     Periodo = models.CharField(max_length=9, default="2022/2023")
     codDisci = models.IntegerField()
@@ -166,3 +143,30 @@ class DSD(models.Model):
     DataFim = models.CharField(max_length=9)
     Nome = models.CharField(max_length=9, default="2022/2023")
     Agrupamento = models.CharField(max_length=9, default="2022/2023")    
+
+    ### ver o que é importante pegar ###
+class UnidadesCurriculares(models.Model):
+    
+    AnoLetivo = models.CharField(max_length=255)
+    Regência = models.CharField(max_length=255)
+    Docentes = models.CharField(max_length=255, default="Zézinha")
+    Tipo = models.CharField(max_length=200,default="Null")
+    Horas = models.CharField(max_length=255, default="00h")
+    Curso = models.CharField(max_length=255)
+    Código = models.IntegerField(default=1)
+    Descriçao = models.CharField(max_length=255)
+
+### Ano letivo ###
+class AnoLetivo(models.Model):
+    anoletivo = models.CharField(max_length=9, default="2022/2023")
+    ativo = models.BooleanField(default=True)
+    datainicio = models.DateField()
+    datafinal = models.DateField()  
+
+###estatisticas dos Pedidos ###
+class EstatisticaPedido(models.Model):
+    Status = models.CharField(max_length=255, default="Em Análise")
+    NmrPedido = models.IntegerField(default=1)
+    TempoMedio = models.CharField(max_length=255, default="1 dia")
+    VarTempo = models.CharField(max_length=255, default="3 dias")
+    percetagem = models.CharField(max_length=255, default="40%")
