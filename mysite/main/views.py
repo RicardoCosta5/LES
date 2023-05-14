@@ -69,6 +69,19 @@ def PeidosOUT(request):
         new_PedidoOutros = PedidosOutros(assunto=assunto, descricao=descricao, dia=data)
         new_PedidoOutros.save()
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     return render(request, template_name="main/PedidosOutros.html", context={"nome": name})
 
 def UPDATEPeidosOUT(request, pk):
