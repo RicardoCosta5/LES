@@ -234,13 +234,20 @@ def tablePedidos(request):
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
    funciona = Funcionario.objects.all()
+   
    if request.method == 'POST':
-      nome = request.POST.get('funcionari')
-      funcionario = Funcionario.objects.get(nome=nome)
       pedido_id = request.POST.get('pedido_id') 
       pedido = Pedido.objects.get(id=pedido_id)
-      pedido.Funcionario = funcionario
-      pedido.atribuido ="Atribuido"
+      
+      if request.POST.get('desassociar'):
+         pedido.Funcionario = None
+         pedido.atribuido = "Não Atribuido"
+      else:
+         nome = request.POST.get('funcionari')
+         funcionario = Funcionario.objects.get(nome=nome)
+         pedido.Funcionario = funcionario
+         pedido.atribuido = "Atribuido"
+      
       pedido.save()
   
    return render(request, template_name="main/tableHorario.html",context={"Pedido":pedidoshorario, "item":pedidoshorarios, "funcio":funciona})
