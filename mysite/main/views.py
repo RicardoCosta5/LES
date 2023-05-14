@@ -4,7 +4,8 @@ from django.urls import reverse
 from .models import *
 from django.contrib.auth.forms import UserCreationForm
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
+
 
 ### Pagina Inicial ###
 def homepage(request):
@@ -32,17 +33,23 @@ def PedidoHorarios(request):
       hora_fim_list = request.POST.getlist('hora_fim')
       tarefa = request.POST.getlist('tarefa')
       dia2 =request.POST.getlist('data2')
+
+      # Verifica se a data escolhida é anterior ao dia de hoje
+      if datetime.strptime(dia, '%Y-%m-%d').date() < date.today():
+         error = 'A data escolhida é anterior ao dia de hoje!'
+         return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
+      
       if Pedido.objects.filter(assunto=assunto, dia=dia).exists():
             # Se já existir, retorne uma mensagem de erro
-            error = 'Já existe um pedido com o mesmo assunto'
-            return render(request, 'main/PedidoHorario.html', {'error': error, "nome": name,"UC": UC})
+            error = 'Já existe um pedido com o mesmo assunto!'
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
       for hora_inicio, hora_fim in zip(hora_inicio_list, hora_fim_list):
          try:
             datetime.strptime(hora_inicio, '%H:%M:%S')
             datetime.strptime(hora_fim, '%H:%M:%S')
          except ValueError:
-            error = 'Formato de hora inválido'
-            return render(request, 'main/PedidoHorario.html', {'error': error, "nome": name,"UC": UC})
+            error = 'Formato de hora inválido!'
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
         
       
       new_pedido = Pedido(assunto=assunto,desc=desc,dia=dia, tipo="Horário")
@@ -58,6 +65,23 @@ def PedidoHorarios(request):
             tarefa=tarefa[i],
             dia=dia2[i]
          )
+         if PedidoHorario.objects.filter(uc=uc_list[i], dia=dia2[i],hora_inicio=hora_inicio_list[i],hora_fim=hora_fim_list[i],tarefa=tarefa[i]).exists():
+            error = 'Pedido de Horário igual!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
+         if datetime.strptime(dia2[i], '%Y-%m-%d').date() < date.today():
+            error = 'A data escolhida é anterior ao dia de hoje!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
+         hora_inicio_list[i] = datetime.strptime(hora_inicio, '%H:%M:%S')
+         hora_fim_list[i] = datetime.strptime(hora_fim, '%H:%M:%S')
+         if hora_inicio_list[i] >= hora_fim_list[i]:
+            error = 'A hora de fim deve ser maior que a hora de início!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
          new_pedido_hor.save()
       
       succes = 'Enviado para a base de dados'
