@@ -8,5 +8,4 @@ nao podemos trabalhar com sql lite (Por fazer)
 Ano letivo existente (Por fazer)
 Data nao pode ser inferior ao dantes (Por fazer)
 Não se pode apagar se houver pedidos associados (Feito)
-
-
+Ramiro
