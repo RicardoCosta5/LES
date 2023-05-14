@@ -136,18 +136,40 @@ def PedidoSalas(request):
 ### Update dos Pedidos ###
 def updateHorario(request, pk):
     pedido = Pedido.objects.get(id=pk)
-    pedido_horario = PedidoHorario.objects.filter(pedido=pk).first()
+    pedido_horario = PedidoHorario.objects.filter(pedido=pk).all()
     UC = UnidadesCurriculares.objects.all()
     if request.method == "POST":
         pedido.dia = request.POST['data']
         pedido.assunto = request.POST['assunto']
         pedido.desc = request.POST['desc']
         pedido.save()
-        return redirect('main:tableHorario')
+
+        uc_list = request.POST.getlist('unc')
+        descri_list = request.POST.getlist('descri')
+        hora_inicio_list = request.POST.getlist('hora_inicio')
+        hora_fim_list = request.POST.getlist('hora_fim')
+        tarefa = request.POST.getlist('tarefa')
+        dia2 =request.POST.getlist('data2')
+        # Combine as listas em uma lista de tuplas
+        updates = zip(pedido_horario, uc_list, descri_list, hora_inicio_list, hora_fim_list, tarefa, dia2)
+
+        # Atualize os objetos PedidoHorario
+        for pedido_horario, uc, descri, hora_inicio, hora_fim, tarefa, dia2 in updates:
+            pedido_horario.uc = uc
+            pedido_horario.descri = descri
+            pedido_horario.hora_inicio = hora_inicio
+            pedido_horario.hora_fim = hora_fim
+            pedido_horario.tarefa = tarefa
+            pedido_horario.dia = dia2
+            pedido_horario.save()
+
+        return redirect('main:tablePedidos')
     return render(request, template_name="main/PedidoHorario2.html", context={
         "assunto": pedido.assunto,
         "desc": pedido.desc,
         "dia": pedido.dia,
+        "pedido_horario":pedido_horario,
+        "UC": UC,
     })
 
 

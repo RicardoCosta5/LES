@@ -40,18 +40,21 @@
           
           
           <br>
+          <ul>
+          {% for ph in pedido_horario %}
+          <li>
           <div id="novo-campo-uc"><div class="field is-horizontal">
             <div class="field-body">
               <div class="field">
             <label class="label" style="white-space: nowrap;">Unidade Curricular</label>
             <div class="control">
               <div class="select">
-                <select name="unc" id="unc">
+                <select name="unc" id="unc" maxlength="50"  style="width: 300px;">
                   {% for u in UC %}
-                    {% if u.NomeDaUC == unc %}
-                      <option selected>{{ u.NomeDaUC }}</option>
+                    {% if u.Regência == ph.uc %}
+                      <option selected>{{ u.Regência }}</option>
                     {% else %}
-                      <option>{{ u.NomeDaUC }}</option>
+                      <option>{{ u.Regência }}</option>
                     {% endif %}
                   {% endfor %}
                 </select>
@@ -60,20 +63,41 @@
           </div>
               <div class="field">
                       <label class="label">Hora de Inicio</label>
-                      <input class="input" type="text" id="hora_inicio" name="hora_inicio" placeholder="HH:MM:SS" value="{{ hora_inicio|time:'H:i:s' }}" required>
+                      <input class="input" type="text" id="hora_inicio" name="hora_inicio" placeholder="HH:MM:SS" value="{{ ph.hora_inicio|time:'H:i:s' }}" required>
                     </div>
                     <div class="field">
                      <label class="label">Hora de Fim</label>
-                     <input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{hora_fim|time:'H:i:s'}}"required>
+                     <input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{ph.hora_fim|time:'H:i:s'}}"required>
                     </div>
+                    <div class="field">
+                      <label class="label">Tarefa</label>
+                      <div class="control">
+                        <div class="select">
+                          <select name="tarefa" id="tarefa">
+                            <option value="Criar" {% if ph.tarefa == 'Criar' %} selected {% endif %}>Criar</option>
+                            <option value="Editar" {% if ph.tarefa == 'Editar' %} selected {% endif %}>Editar</option>
+                            <option value="Apagar" {% if ph.tarefa == 'Apagar' %} selected {% endif %}>Apagar</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field">
+                            <label class="label">Dia</label>
+                           
+                                <input type="date" id="data2" name="data2" value="{{ ph.dia|date:'Y-m-d' }}" required>
+                          </div>
                     <div class="field">
                      <label class="label">Descrição</label>
                       <div class="control">
-                        <input class="input" id="descri" placeholder="Escreva os detalhes do pedido" name="descri" value="{{ descri }}" required>
+                        <input class="input" id="descri" placeholder="Escreva os detalhes do pedido" name="descri" value="{{ ph.descri }}" required>
                       </div>
                     </div>
                   </div>
                   </div>
+                  {% empty %}
+                  <li>Não há pedidos horários para este pedido.</li>
+              {% endfor %}
+                </ul>
           <br>
           <input type="hidden" id="num-requests-input" name="num_requests" value="0">
 
