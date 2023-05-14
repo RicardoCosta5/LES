@@ -1,0 +1,57 @@
+
+{% extends 'main/app.html' %}
+
+{% block title %}- Upload Docentes{% endblock title %}
+
+{% block content %}
+
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<div class="section">
+    <div class="column">
+        <div class="columns is-centered">
+            
+        <div class="column is-7">
+            
+            <h1 class="title has-text-centered">Import Docentes</h1>
+            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}</div>
+            <div id="error" {% if error %}style="display: block;"{% endif %}>{{ error }}</div>
+              <div class="field has-text-centered">
+                <h1>Upload de arquivo</h1>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="file">
+                    <button type="submit">Enviar</button>
+                </form>
+                            
+              </div>
+<div>
+</div>
+</div>
+        </div>
+
+ <style>
+  #error {
+  display: none;
+  background-color: red;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+#succes {
+  display: none;
+  background-color: green;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+ </style>
+
+{% endblock content%}
+

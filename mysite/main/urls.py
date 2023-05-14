@@ -36,7 +36,7 @@ urlpatterns = [
     path ("delete_horario/<str:pk>/",views.deletHorario,name="delete_horario"),
 
     
-    path ("outros", views.PeidosOUT, name="outros"),
+    path ("outros", views.PedidosOUT, name="outros"),
     path ("update_outros/<str:pk>/",views.UPDATEPeidosOUT,name="update_outros"),
     path ("delete_outros/<str:pk>/",views.deletOutros,name="delete_outros"),
 
@@ -48,7 +48,6 @@ urlpatterns = [
 #Login e register
 
     path ("register", views.meus, name="register"),
-    path ("meus", views.meus, name="meus"),
 
 
 #Tabelas
@@ -64,6 +63,7 @@ urlpatterns = [
 #Uploads
     path ("UploadRUC",views.uploadRUC,name="upload_RUC"),
     path("upload_DSD", views.uploadDSD, name="upload_DSD"),
+    path('Upload_Docentes/', views.uploadDocente, name='Upload_Docentes'),
 
 #Ano letivo
     path("AnoLetivo", views.AnoLetivoAdd, name="AnoLetivo"),

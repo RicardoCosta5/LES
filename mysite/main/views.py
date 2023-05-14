@@ -58,44 +58,41 @@ def PedidoHorarios(request):
   
    return render(request, template_name="main/PedidoHorario.html",context={"nome": name,"UC": UC})
 
-
-def PeidosOUT(request):
+### Criar Pedido Outros ###
+def PedidosOUT(request):
     name = Docente.objects.all()
     if request.method == "POST":
         assunto = request.POST['assunto']
         descricao = request.POST['desc']
         data = request.POST['dia']
+        arquivo = request.FILES.getlist('resume')
 
-        new_PedidoOutros = PedidosOutros(assunto=assunto, descricao=descricao, dia=data)
-        new_PedidoOutros.save()
+        new_Pedido = Pedido(assunto=assunto, desc=descricao, dia=data, tipo = "outros")
+        new_Pedido.save()
 
-
-
-
-
-
-
-
-
-
-
-
-
+        for i in range(len(arquivo)):
+           new_pedido_outros = PedidosOutros(
+           arquivo = arquivo[i],
+           pedido = new_Pedido   
+           )
+           new_pedido_outros.save()
 
     return render(request, template_name="main/PedidosOutros.html", context={"nome": name})
 
-def UPDATEPeidosOUT(request, pk):
-    PedidosOut = PedidosOutros.objects.get(id=pk)
-    if request.method == "POST":
-        PedidosOut.assunto = request.POST['assunto']
-        PedidosOut.descricao = request.POST['desc']
-        PedidosOut.dia = request.POST['dia']
 
-        PedidosOut.save()
+### Update Pedidos ###
+def UPDATEPeidosOUT(request, pk):
+    pedido = Pedido.objects.get(id=pk)
+    if request.method == "POST":
+        pedido.assunto = request.POST['assunto']
+        pedido.desc = request.POST['desc']
+        pedido.dia = request.POST['data']
+        pedido.save()
         return redirect('main:meus')
 
-    return render(request, template_name="main/PedidosOutros.html", context={"assunto": PedidosOut.assunto,"desc": PedidosOut.descricao, "dia":PedidosOut.dia})
+    return render(request, template_name="main/PedidosOutros2.html", context={"assunto": pedido.assunto,"desc": pedido.desc, "dia":pedido.dia})
 
+### Tabela Pedidos Outros ###
 def meus(request):
    pedidosoutro = PedidosOutros.objects.all()
    return render(request, template_name="main/bulma_table.html",context={"Pedido":pedidosoutro})
@@ -230,6 +227,46 @@ def uploadDSD(request):
         success = 'Dados do DSD importados com sucesso'
         return render(request=request, template_name='main/upload_DSD.html', context={'success': success})
     return render(request=request, template_name='main/upload_DSD.html')
+
+
+
+def uploadDocente(request):
+    if request.method == 'POST':
+        if not request.FILES:
+            error = 'Selecione um arquivo para fazer o upload'
+            return render(request=request, template_name='main/Upload_Docentes.html', context={'error': error})
+        if not request.FILES['file'].name.endswith('.xls'):
+            error = 'O arquivo deve estar no formato .xls'
+            return render(request=request, template_name='main/Upload_Docentes.html', context={'error': error})
+        excel_file = request.FILES['file']
+        excel_data = pd.ExcelFile(excel_file)
+        sheetx = pd.read_excel(excel_data, sheet_name=0)
+        testes = sheetx[['Código', 'Docente', 'Ativo', 'Nome', 'Indivíduo', 'Data de nascimento', 'Sexo', 'Tipo de identificação', 'Identificação', 'Data de emissão da identificação', 'Nacionalidade', 'Arquivo', 'Data de validade da identificação', 'NIF', 'País fiscal', 'Digito verificação', '&nbsp;']] 
+
+        for index, row in testes.iterrows():
+            codigo = row['Código']
+            docente = row['Docente']
+            ativo = row['Ativo']
+            nome = row['Nome']
+            individuo = row['Indivíduo']
+            data_nascimento = row['Data de nascimento']
+            sexo = row['Sexo']
+            tipo_identificacao = row['Tipo de identificação']
+            identificacao = row['Identificação']
+            data_emissao_identificacao = row['Data de emissão da identificação']
+            nacionalidade = row['Nacionalidade']
+            arquivo = row['Arquivo']
+            data_validade_identificacao = row['Data de validade da identificação']
+            nif = row['NIF']
+            pais_fiscal = row['País fiscal']
+            digito_verificacao = row['Digito verificação']
+            nbsp = row['&nbsp;']
+
+            novoDocente = Docente(codigo=codigo, docente=docente, ativo=ativo, nome=nome, individuo=individuo, data_nascimento=data_nascimento, sexo=sexo, tipo_identificacao=tipo_identificacao, identificacao=identificacao, data_emissao_identificacao=data_emissao_identificacao, nacionalidade=nacionalidade, arquivo=arquivo, data_validade_identificacao=data_validade_identificacao, nif=nif, pais_fiscal=pais_fiscal, digito_verificacao=digito_verificacao, nbsp=nbsp)
+            novoDocente.save()
+            succes = 'Importado para a base de dados'
+        return render(request=request, template_name='main/Upload_Docentes.html', context={"succes": succes})
+    return render(request=request, template_name='main/Upload_Docentes.html')
 
 
 def updateHorario2(request, pk):

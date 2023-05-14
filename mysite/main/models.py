@@ -3,10 +3,23 @@ from django.db import models
 from django.utils import timezone
 
 class Docente(models.Model):
+    codigo = models.IntegerField()
+    docente = models.CharField(max_length=255)
+    ativo = models.CharField(max_length=2)
     nome = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
-    telefone = models.IntegerField()
-    ativo = models.BooleanField()
+    individuo = models.IntegerField()
+    data_nascimento = models.CharField(max_length=255)
+    sexo = models.CharField(max_length=2)
+    tipo_identificacao = models.IntegerField()
+    identificacao = models.CharField(max_length=255)
+    data_emissao_identificacao = models.CharField(max_length=255)
+    nacionalidade = models.IntegerField()
+    arquivo = models.CharField(max_length=255)
+    data_validade_identificacao = models.CharField(max_length=255)
+    nif = models.CharField(max_length=9)
+    pais_fiscal = models.CharField(max_length=255)
+    digito_verificacao = models.CharField(max_length=255)
+    nbsp = models.CharField(max_length=255)
 
 class Funcionario(models.Model):
     nome = models.CharField(max_length=255)

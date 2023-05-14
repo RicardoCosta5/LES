@@ -8,7 +8,7 @@
 {% load static %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <div>
-    <form method="POST">{% csrf_token %}
+    <form method="POST" enctype="multipart/form-data">{% csrf_token %}
         {{form}}
   <div class="section">
     <div class="column">
@@ -18,20 +18,27 @@
             <h1 class="title has-text-centered">Pedidos Outros</h1>
             <div class="field">
               <label class="label">Assunto</label>
-              <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}">
+              <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}" required>
              
             </div>
             <div class="field">
               <label class="label">Descrição</label>
               <div class="control">
-                <textarea class="textarea" id="desc"placeholder="Escreva os detalhes do pedido" name="desc">{{ desc }}</textarea>
+                <textarea class="textarea" id="desc"placeholder="Escreva os detalhes do pedido" name="desc" required>{{ desc }}</textarea>
               </div>
             </div>
           <div class="field">
             <label class="label">Dia</label>
            
-                <input type="date" id="data" name="dia" value="{{ dia|date:'Y-m-d' }}">
+                <input type="date" id="data" name="dia" value="{{ dia|date:'Y-m-d' }}" required>
           </div>
+
+          <a id="frase">Clique aqui para adicionar um Ficheiro</a>
+          <br>
+          <div id="novo-campo-ficheiro"></div>
+          <br>
+          
+
           <div id="popup" class="modal">
             <div class="modal-background"></div>
             <div class="modal-content">
@@ -60,6 +67,8 @@
 </div>
 </form>
 </div>
+
+
 <script>
   const cancelButton = document.querySelector('#cancel-btn');
  cancelButton.addEventListener('click', function(event) {
@@ -69,25 +78,27 @@
  });
 
  function showPopUp(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (validateForm()) {
-      // Get the pop-up element
-      var popup = document.getElementById("popup");
+  if (validateForm()) {
+    // Get the pop-up element
+    var popup = document.getElementById("popup");
 
-      // Show the pop-up
-      popup.classList.add("is-active");
+    // Show the pop-up
+    popup.classList.add("is-active");
 
-      // Get the confirm and cancel buttons
-      var confirmBtn = document.getElementById("confirm-btn");
+    // Get the confirm and cancel buttons
+    var confirmBtn = document.getElementById("confirm-btn");
 
-      // Add click listeners to the buttons
-      confirmBtn.addEventListener("click", submitForm);
-      setTimeout(function() {
-          popup.style.display = "none";
-      }, 5000); // Wait for 5 seconds before hiding the popup
-    }
+    // Add click listeners to the buttons
+    confirmBtn.addEventListener("click", submitForm);
+    setTimeout(function() {
+      popup.style.display = "none";
+    }, 5000); // Wait for 5 seconds before hiding the popup
+  } else {
+    alert('Por favor, preencha todos os campos obrigatórios.');
   }
+}
 
   function hidePopUp() {
     // Get the pop-up element
@@ -96,6 +107,9 @@
     // Hide the pop-up
     popup.classList.remove("is-active");
   }
+
+const forms = document.getElementById('form');
+const errorElement = document.getElementById('error');
 
   function submitForm() {
     // Submit the form
@@ -110,8 +124,10 @@
     const data = document.querySelector('#data').value;
     const desc = document.querySelector('#desc').value;
 
+
     // Check if any of the required fields are empty
-    if (!assunto || !data || !desc) {
+    if (!assunto || !data || !desc)  {
+      console.log('Required fields are empty');
       alert('Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
@@ -119,8 +135,88 @@
     return true;
   }
 
- </script>
+  document.getElementById("frase").addEventListener("click", adicionarCampo);
+// adiciona um campo para adicioanr arquivo 
+  function adicionarCampo() {
+  var novoCampo = document.createElement("div");
+  novoCampo.innerHTML =   '<div class="field is-horizontal">'+
+            '<div class="field-body">'+
+              '<div class="field">'+
+                '<label class="label">Descarregar Documento</label>'+
+                '<div class="file is-normal has-name">'+
+                  '<label class="file-label">'+
+                    '<input class="file-input" type="file" name="resume" id="resume">'+
+                    '<span class="file-cta">'+
+                      '<span class="file-icon">'+
+                        '<i class="fas fa-upload"></i>'+
+                      '</span>'+
+                      '<span class="file-label">'+
+                        'Inserir ficheiro'+
+                      '</span>'+
+                    '</span>'+
+                    '<span class="file-name">'+
+                      'Selecione um Ficheiro'+
+                    '</span>'+
+                  '</label>'+
+                '</div>'+
+                '<div class="control">'+
+                '</div>'+
+              '</div>'+
+              '<div class="field  ">' +
+      '<div class="control">' +
+        '<label class="label"></label>'+
+        '<br>' +
+        '<button type="button" class="button is-danger is-active remover-campo">Remover</button>' +
+      '</div>' +
+    '</div>' +
+            '</div>'+
+          '</div>'
 
+  var camposFicheiro = document.querySelector('#novo-campo-ficheiro');
+  camposFicheiro.appendChild(novoCampo);
+
+  var botoesRemover = document.getElementsByClassName("remover-campo");
+  for (var i = 0; i < botoesRemover.length; i++) {
+    botoesRemover[i].addEventListener("click", function() {
+      this.closest('.field.is-horizontal').remove();
+    });
+  }
+
+  var inputsFile = novoCampo.getElementsByTagName("input");
+  for (var i = 0; i < inputsFile.length; i++) {
+    inputsFile[i].addEventListener("change", function() {
+      var fileName = this.files[0].name;
+      this.parentNode.parentNode.parentNode.querySelector(".file-name").innerHTML = fileName;
+      var formData = new FormData();
+      formData.append("resume", this.files[0]);
+
+      axios.post("/url/para/seu/view/", formData)
+        .then(function(response) {
+          console.log(response);
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    });
+  }
+}
+ </script>
+ <style>
+ button {
+  margin-left: 10px;
+}
+
+#error {
+  display: none;
+  background-color: red;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+</style>
   
 {% endblock content%}
 
