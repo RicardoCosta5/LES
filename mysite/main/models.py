@@ -69,10 +69,8 @@ class PedidoHorario(models.Model):
 
 
 class PedidosOutros(models.Model):
-    tipo = models.CharField(max_length=255, default = "Outros")
-    assunto = models.CharField(max_length=255)
-    descricao = models.CharField(max_length=1200)
-    dia = models.DateField()
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, null=True)
+    arquivo = models.FileField(blank=True, null=True)
 
 class PedidoUC(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, default=Funcionario.objects.first().id)

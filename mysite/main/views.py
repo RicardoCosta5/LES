@@ -6,12 +6,19 @@ from django.contrib.auth.forms import UserCreationForm
 import pandas as pd
 from datetime import datetime
 
-
-
+### Pagina Inicial ###
 def homepage(request):
    return render(request, template_name="main/inicio.html")
 
+### App ###
+def homepage5(request):
+   return render(request, template_name="main/app.html")
 
+### Registo ###
+def register(request):
+   return render(request, template_name="users/criar_utilizador.html")
+
+### Criação de Pedidos ###
 def PedidoHorarios(request):
    name=Docente.objects.all()
    UC = UnidadesCurriculares.objects.all()
@@ -58,7 +65,7 @@ def PedidoHorarios(request):
   
    return render(request, template_name="main/PedidoHorario.html",context={"nome": name,"UC": UC})
 
-### Criar Pedido Outros ###
+
 def PedidosOUT(request):
     name = Docente.objects.all()
     if request.method == "POST":
@@ -80,7 +87,70 @@ def PedidosOUT(request):
     return render(request, template_name="main/PedidosOutros.html", context={"nome": name})
 
 
-### Update Pedidos ###
+def PedidoUnidadeCurricular(request):
+      UC = UnidadesCurriculares.objects.all()
+      if request.method == "POST":
+         date = request.POST['data']
+         assunto = request.POST['assunto']
+         desc = request.POST['desc']
+
+         uc_list = request.POST.getlist('unc')
+         tarefa = request.POST.getlist('tarefa')
+         regente = request.POST.getlist('regente')
+         descri = request.POST.getlist('descri')
+
+         new_Pedido = Pedido(assunto=assunto,desc=desc,dia=date,tipo="Unidade Curricular")
+         new_Pedido.save()
+
+         
+         for i in range(len(uc_list)):
+            new_PedidoUC = PedidoUC(
+               uc=uc_list[i],
+               tarefa=tarefa[i],
+               regente=regente[i],
+               descri=descri[i], 
+               pedido = new_Pedido
+            )
+            new_PedidoUC.save()
+      return render(request, template_name="main/PedidoUC.html",context={"UC": UC})
+
+
+def PedidoSalas(request):
+   Salas = Sala.objects.all()
+   Edificios = Edificio.objects.all()
+   if request.method == "POST":
+      salaa= request.POST['salaa']
+      edifi= request.POST['edifi']
+      dia= request.POST['dia']
+      assunto = request.POST['assunto'] 
+      hora_de_inicio = request.POST['hora_inicio']
+      hora_de_fim= request.POST['hora_fim']
+      desc = request.POST['desc']
+
+      new_PedidoSala = PedidoSala(edi=edifi, sal=salaa, dia = dia,
+                                 hora_de_inicio = hora_de_inicio, hora_de_fim = hora_de_fim, desc=desc,assunto=assunto)
+      new_PedidoSala.save()
+   return render(request, template_name="main/PedidoSala.html",context={"Sala": Salas, "Edificio": Edificios})
+
+
+### Update dos Pedidos ###
+def updateHorario(request, pk):
+    pedido = Pedido.objects.get(id=pk)
+    pedido_horario = PedidoHorario.objects.filter(pedido=pk).first()
+    UC = UnidadesCurriculares.objects.all()
+    if request.method == "POST":
+        pedido.dia = request.POST['data']
+        pedido.assunto = request.POST['assunto']
+        pedido.desc = request.POST['desc']
+        pedido.save()
+        return redirect('main:tableHorario')
+    return render(request, template_name="main/PedidoHorario2.html", context={
+        "assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+    })
+
+
 def UPDATEPeidosOUT(request, pk):
     pedido = Pedido.objects.get(id=pk)
     if request.method == "POST":
@@ -92,26 +162,52 @@ def UPDATEPeidosOUT(request, pk):
 
     return render(request, template_name="main/PedidosOutros2.html", context={"assunto": pedido.assunto,"desc": pedido.desc, "dia":pedido.dia})
 
-### Tabela Pedidos Outros ###
-def meus(request):
-   pedidosoutro = PedidosOutros.objects.all()
-   return render(request, template_name="main/bulma_table.html",context={"Pedido":pedidosoutro})
+
+def updateUC(request, pk):
+    pedido_UC = PedidoUC.objects.get(id=pk)
+    UC = UnidadesCurriculares.objects.all()
+    if request.method == "POST":
+      pedido_UC.uc= request.POST['unc']
+      pedido_UC.dia = request.POST['data']
+      pedido_UC.assunto = request.POST['assunto']
+      pedido_UC.desc = request.POST['desc']
+      pedido_UC.save()
+      
+      return redirect('main:tableUC')
+    return render(request, template_name="main/PedidoUC.html", context={"unc": pedido_UC.uc, "desc": pedido_UC.desc, "dia" : pedido_UC.dia, "assunto" : pedido_UC.assunto, "UC" : UC})
 
 
-def homepage5(request):
-   return render(request, template_name="main/app.html")
+def updateSala(request, pk):
+    pedido_Sala = PedidoSala.objects.get(id=pk)
+    Salas = Sala.objects.all()
+    Edificios = Edificio.objects.all()
+    if request.method == "POST":
+      pedido_Sala.sal= request.POST['salaa']
+      pedido_Sala.edi = request.POST['edifi']
+      pedido_Sala.dia = request.POST['dia']
+      pedido_Sala.assunto = request.POST['assunto']
+      pedido_Sala.hora_de_inicio = request.POST['hora_inicio']
+      pedido_Sala.hora_de_fim = request.POST['hora_fim']
+      pedido_Sala.desc = request.POST['desc']
+      pedido_Sala.save()
+   
+      
+      return redirect('main:tableSala')
+    return render(request, template_name="main/PedidoSala.html", context={"Edificio": Edificios, "Sala" : Salas ,"salaa": pedido_Sala.sal, "edifi": pedido_Sala.edi,
+                                                                           "dia" : pedido_Sala.dia, "desc" : pedido_Sala.desc, "hora_inicio" : pedido_Sala.hora_de_inicio, "hora_fim" : pedido_Sala.hora_de_fim, "assunto" : pedido_Sala.assunto})
 
-def register(request):
-   return render(request, template_name="users/criar_utilizador.html")
 
-def deletOutros(request,pk):
-   PedidosOut = PedidosOutros.objects.get(id=pk)
+### Apagar Pedidos ###
+def deletHorario(request,pk):
+   PedidosHor = Pedido.objects.get(id=pk)
    if request.method == "POST":
-      PedidosOut.delete()
-      return redirect('/meus')
-   return render(request, template_name="main/delete.html",context={'item': PedidosOut})
+      PedidosHor.delete()
+      return redirect('/tablePedidos')
+   return render(request, template_name="main/deleteH.html",context={'item': PedidosHor})
 
 
+
+### Tabela Pedidos###
 def tablePedidos(request):
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
@@ -127,31 +223,57 @@ def tablePedidos(request):
   
    return render(request, template_name="main/tableHorario.html",context={"Pedido":pedidoshorario, "item":pedidoshorarios, "funcio":funciona})
 
-def tableHorario2(request, pk):
-   try:
-        pedido = Pedido.objects.get(id=pk)
-        pedidoshorario = PedidoHorario.objects.filter(pedido=pedido)
-   except Pedido.DoesNotExist:
-        return HttpResponseNotFound('Pedido não encontrado')
-   return render(request, template_name="main/tableHorario2.html",context={"Pedido":pedidoshorario})
 
-def updateHorario(request, pk):
-    pedido = Pedido.objects.get(id=pk)
-    pedido_horario = PedidoHorario.objects.filter(pedido=pk).first()
-    UC = UnidadesCurriculares.objects.all()
+### Criar Ano Letivo ###
+def AnoLetivoAdd(request):
+   UC = UnidadesCurriculares.objects.all()
+   if request.method == "POST":
+      anoletivo = request.POST['anoletivo']
+      datainicio = request.POST['datainicio']
+      datafinal = request.POST['datafinal']
+      new_ano = AnoLetivo(
+         anoletivo = anoletivo,
+         datainicio = datainicio,
+         datafinal = datafinal
+      )
+      new_ano.save()
+   return render(request, template_name="main/PedidoAL.html",context={"UC": UC})
+
+
+### Update Ano Letivo ###
+def updateAL(request, pk):
+    pedido = AnoLetivo.objects.get(id=pk)
     if request.method == "POST":
-        pedido.dia = request.POST['data']
-        pedido.assunto = request.POST['assunto']
-        pedido.desc = request.POST['desc']
+        pedido.anoletivo = request.POST['anoletivo']
+        pedido.datainicio = request.POST['datainicio']
+        pedido.datafinal = request.POST['datafinal']
         pedido.save()
-        return redirect('main:tableHorario')
-    return render(request, template_name="main/PedidoHorario2.html", context={
-        "assunto": pedido.assunto,
-        "desc": pedido.desc,
-        "dia": pedido.dia,
+        return redirect('main:tableAL')
+    return render(request, template_name="main/PedidoAL2.html", context={
+        "anoletivo": pedido.anoletivo,
+        "datainicio": pedido.datainicio,
+        "datafinal": pedido.datafinal,
       
     })
 
+
+### Apagar Ano Letivo ###
+def deletAL(request,pk):
+   PedidosAL = AnoLetivo.objects.get(id=pk)
+   if request.method == "POST":
+      PedidosAL.delete()
+      return redirect('/tableAL')
+   return render(request, template_name="main/deleteAL.html",context={'item': PedidosAL})
+
+
+### Tabela Ano Letivo ###
+def tableAL(request):
+   pedidosAL = AnoLetivo.objects.all()
+   return render(request, template_name="main/tableAL.html",context={"AnoLetivo":pedidosAL})
+
+
+
+### Importações ###
 def uploadRUC(request):
     if request.method == 'POST':
         if not request.FILES:
@@ -269,181 +391,7 @@ def uploadDocente(request):
     return render(request=request, template_name='main/Upload_Docentes.html')
 
 
-def updateHorario2(request, pk):
-    pedido_horario = PedidoHorario.objects.get(id=pk)
-    UC = UnidadesCurriculares.objects.all()
-    if request.method == "POST":
-        pedido_horario.hora_fim = request.POST['hora_inicio']
-        pedido_horario.hora_inicio = request.POST['hora_fim']
-        pedido_horario.descri = request.POST['descri']
-        pedido_horario.uc = request.POST['unc']
-        pedido_horario.save()
-        return redirect(reverse('main:tableHorario2', kwargs={'pk': pedido_horario.pedido.id}))
-    return render(request, template_name="main/PedidoHorario3.html", context={"UC" : UC,
-        "hora_fim": pedido_horario.hora_fim,
-        "hora_inicio": pedido_horario.hora_inicio,
-        "unc": pedido_horario.uc,
-        "descri": pedido_horario.descri,
-      
-    })
-
-def deletHorario(request,pk):
-   PedidosHor = Pedido.objects.get(id=pk)
-   if request.method == "POST":
-      PedidosHor.delete()
-      return redirect('/tableHorario')
-   return render(request, template_name="main/deleteH.html",context={'item': PedidosHor})
-
-def deletHorario2(request,pk):
-   PedidosHor = PedidoHorario.objects.get(id=pk)
-   if request.method == "POST":
-      PedidosHor.delete()
-      return redirect(reverse('main:tableHorario2', kwargs={'pk': PedidosHor.pedido.id}))
-   return render(request, template_name="main/deleteH2.html",context={'item': PedidosHor})
-
-def PedidoUnidadeCurricular(request):
-      UC = UnidadesCurriculares.objects.all()
-      if request.method == "POST":
-         date = request.POST['data']
-         assunto = request.POST['assunto']
-         desc = request.POST['desc']
-
-         uc_list = request.POST.getlist('unc')
-         tarefa = request.POST.getlist('tarefa')
-         regente = request.POST.getlist('regente')
-         descri = request.POST.getlist('descri')
-
-         new_Pedido = Pedido(assunto=assunto,desc=desc,dia=date,tipo="Unidade Curricular")
-         new_Pedido.save()
-
-         
-         for i in range(len(uc_list)):
-            new_PedidoUC = PedidoUC(
-               uc=uc_list[i],
-               tarefa=tarefa[i],
-               regente=regente[i],
-               descri=descri[i], 
-               pedido = new_Pedido
-            )
-            new_PedidoUC.save()
-      return render(request, template_name="main/PedidoUC.html",context={"UC": UC})
-
-def tableUC(request):
-   pedidosUC = PedidoUC.objects.all()
-   return render(request, template_name="main/tableUC.html",context={"Pedido":pedidosUC})
-
-def updateUC(request, pk):
-    pedido_UC = PedidoUC.objects.get(id=pk)
-    UC = UnidadesCurriculares.objects.all()
-    if request.method == "POST":
-      pedido_UC.uc= request.POST['unc']
-      pedido_UC.dia = request.POST['data']
-      pedido_UC.assunto = request.POST['assunto']
-      pedido_UC.desc = request.POST['desc']
-      pedido_UC.save()
-      
-      return redirect('main:tableUC')
-    return render(request, template_name="main/PedidoUC.html", context={"unc": pedido_UC.uc, "desc": pedido_UC.desc, "dia" : pedido_UC.dia, "assunto" : pedido_UC.assunto, "UC" : UC})
-
-def deletUC(request,pk):
-   PedidosUC = PedidoUC.objects.get(id=pk)
-   if request.method == "POST":
-      PedidosUC.delete()
-      return redirect('/tableUC')
-   return render(request, template_name="main/deleteUC.html",context={'item': PedidosUC})
-
-
-def PedidoSalas(request):
-   Salas = Sala.objects.all()
-   Edificios = Edificio.objects.all()
-   if request.method == "POST":
-      salaa= request.POST['salaa']
-      edifi= request.POST['edifi']
-      dia= request.POST['dia']
-      assunto = request.POST['assunto'] 
-      hora_de_inicio = request.POST['hora_inicio']
-      hora_de_fim= request.POST['hora_fim']
-      desc = request.POST['desc']
-
-      new_PedidoSala = PedidoSala(edi=edifi, sal=salaa, dia = dia,
-                                 hora_de_inicio = hora_de_inicio, hora_de_fim = hora_de_fim, desc=desc,assunto=assunto)
-      new_PedidoSala.save()
-   return render(request, template_name="main/PedidoSala.html",context={"Sala": Salas, "Edificio": Edificios})
-
-def tableSala(request):
-   pedidosSala = PedidoSala.objects.all()
-   return render(request, template_name="main/tableSala.html",context={"Pedido":pedidosSala})
-
-def updateSala(request, pk):
-    pedido_Sala = PedidoSala.objects.get(id=pk)
-    Salas = Sala.objects.all()
-    Edificios = Edificio.objects.all()
-    if request.method == "POST":
-      pedido_Sala.sal= request.POST['salaa']
-      pedido_Sala.edi = request.POST['edifi']
-      pedido_Sala.dia = request.POST['dia']
-      pedido_Sala.assunto = request.POST['assunto']
-      pedido_Sala.hora_de_inicio = request.POST['hora_inicio']
-      pedido_Sala.hora_de_fim = request.POST['hora_fim']
-      pedido_Sala.desc = request.POST['desc']
-      pedido_Sala.save()
-   
-      
-      return redirect('main:tableSala')
-    return render(request, template_name="main/PedidoSala.html", context={"Edificio": Edificios, "Sala" : Salas ,"salaa": pedido_Sala.sal, "edifi": pedido_Sala.edi,
-                                                                           "dia" : pedido_Sala.dia, "desc" : pedido_Sala.desc, "hora_inicio" : pedido_Sala.hora_de_inicio, "hora_fim" : pedido_Sala.hora_de_fim, "assunto" : pedido_Sala.assunto})
-
-def deletSala(request,pk):
-   PedidosSala = PedidoSala.objects.get(id=pk)
-   if request.method == "POST":
-      PedidosSala.delete()
-      return redirect('/tableSala')
-   return render(request, template_name="main/deleteS.html",context={'item': PedidosSala})
-
-
-
-def AnoLetivoAdd(request):
-   UC = UnidadesCurriculares.objects.all()
-   if request.method == "POST":
-      anoletivo = request.POST['anoletivo']
-      datainicio = request.POST['datainicio']
-      datafinal = request.POST['datafinal']
-      new_ano = AnoLetivo(
-         anoletivo = anoletivo,
-         datainicio = datainicio,
-         datafinal = datafinal
-      )
-      new_ano.save()
-   return render(request, template_name="main/PedidoAL.html",context={"UC": UC})
-
-def tableAL(request):
-   pedidosAL = AnoLetivo.objects.all()
-   return render(request, template_name="main/tableAL.html",context={"AnoLetivo":pedidosAL})
-
-def updateAL(request, pk):
-    pedido = AnoLetivo.objects.get(id=pk)
-    if request.method == "POST":
-        pedido.anoletivo = request.POST['anoletivo']
-        pedido.datainicio = request.POST['datainicio']
-        pedido.datafinal = request.POST['datafinal']
-        pedido.save()
-        return redirect('main:tableAL')
-    return render(request, template_name="main/PedidoAL2.html", context={
-        "anoletivo": pedido.anoletivo,
-        "datainicio": pedido.datainicio,
-        "datafinal": pedido.datafinal,
-      
-    })
-
-def deletAL(request,pk):
-   PedidosAL = AnoLetivo.objects.get(id=pk)
-   if request.method == "POST":
-      PedidosAL.delete()
-      return redirect('/tableAL')
-   return render(request, template_name="main/deleteAL.html",context={'item': PedidosAL})
-
-
-
+### Estatisticas ###
 def tableEstatisticaPedido(request):
    
    num_pedidos = Pedido.objects.all().count()
@@ -501,8 +449,82 @@ def tableEstatisticaPedido(request):
    estatistica_pedido_em_analise.save()
 
 
-   
-
    pedidosSala = EstatisticaPedido.objects.all()
    return render(request, template_name="main/tableEstatisticaPedidos.html",context={"Pedido":pedidosSala})
 
+
+
+### Coisa na minha opiniao nao são necessarias ###
+def meus(request):
+   pedidosoutro = PedidosOutros.objects.all()
+   return render(request, template_name="main/bulma_table.html",context={"Pedido":pedidosoutro})
+
+
+def deletOutros(request,pk):
+   PedidosOut = PedidosOutros.objects.get(id=pk)
+   if request.method == "POST":
+      PedidosOut.delete()
+      return redirect('/meus')
+   return render(request, template_name="main/delete.html",context={'item': PedidosOut})
+
+
+def tableHorario2(request, pk):
+   try:
+        pedido = Pedido.objects.get(id=pk)
+        pedidoshorario = PedidoHorario.objects.filter(pedido=pedido)
+   except Pedido.DoesNotExist:
+        return HttpResponseNotFound('Pedido não encontrado')
+   return render(request, template_name="main/tableHorario2.html",context={"Pedido":pedidoshorario})
+
+
+def updateHorario2(request, pk):
+    pedido_horario = PedidoHorario.objects.get(id=pk)
+    UC = UnidadesCurriculares.objects.all()
+    if request.method == "POST":
+        pedido_horario.hora_fim = request.POST['hora_inicio']
+        pedido_horario.hora_inicio = request.POST['hora_fim']
+        pedido_horario.descri = request.POST['descri']
+        pedido_horario.uc = request.POST['unc']
+        pedido_horario.save()
+        return redirect(reverse('main:tableHorario2', kwargs={'pk': pedido_horario.pedido.id}))
+    return render(request, template_name="main/PedidoHorario3.html", context={"UC" : UC,
+        "hora_fim": pedido_horario.hora_fim,
+        "hora_inicio": pedido_horario.hora_inicio,
+        "unc": pedido_horario.uc,
+        "descri": pedido_horario.descri,
+      
+    })
+
+
+def deletHorario2(request,pk):
+   PedidosHor = PedidoHorario.objects.get(id=pk)
+   if request.method == "POST":
+      PedidosHor.delete()
+      return redirect(reverse('main:tableHorario2', kwargs={'pk': PedidosHor.pedido.id}))
+   return render(request, template_name="main/deleteH2.html",context={'item': PedidosHor})
+
+
+def tableUC(request):
+   pedidosUC = PedidoUC.objects.all()
+   return render(request, template_name="main/tableUC.html",context={"Pedido":pedidosUC})
+
+
+def deletUC(request,pk):
+   PedidosUC = PedidoUC.objects.get(id=pk)
+   if request.method == "POST":
+      PedidosUC.delete()
+      return redirect('/tableUC')
+   return render(request, template_name="main/deleteUC.html",context={'item': PedidosUC})
+
+
+def tableSala(request):
+   pedidosSala = PedidoSala.objects.all()
+   return render(request, template_name="main/tableSala.html",context={"Pedido":pedidosSala})
+
+
+def deletSala(request,pk):
+   PedidosSala = PedidoSala.objects.get(id=pk)
+   if request.method == "POST":
+      PedidosSala.delete()
+      return redirect('/tableSala')
+   return render(request, template_name="main/deleteS.html",context={'item': PedidosSala})
