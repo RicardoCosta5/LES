@@ -68,12 +68,16 @@ table th:nth-child(5) {
           {% if n.atribuido == 'Não Atribuido' %}
           <td><button id="expand-btn-2" class="button is-info2">Associar</button></td>
           {% else %}
-          <td></td>
+          <form onsubmit="myFunction()" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="pedido_id" value="{{ n.id }}">
+          <td><button class="button is-info2_desa" type="submit" name="desassociar" value="{{ n.id }}" id="desassociar-{{ n.id }}" >Desassociar</button></td>
+        </form>
           {%endif%}
           {% if n.status != 'Criado' %}
             <td><a class="button is-warning is-active" href="{% url 'main:update_horario' n.id %}">Update</a></td>
           {% endif %}
-          {% if n.status != 'Concluído' and n.status != 'Em processamento' and n.status != 'Rejeitado' %}
+          {% if n.status != 'Concluído' and n.status != 'Em processamento' and n.status != 'Rejeitado' and n.atribuido != 'Atribuido'  %}
             <td><a class="button is-danger is-active" href="{% url 'main:delete_horario' n.id %}">Delete</a></td>
           {% endif %}
         </tr>

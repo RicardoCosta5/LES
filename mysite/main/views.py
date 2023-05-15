@@ -4,7 +4,8 @@ from django.urls import reverse
 from .models import *
 from django.contrib.auth.forms import UserCreationForm
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
+
 
 ### Pagina Inicial ###
 def homepage(request):
@@ -32,17 +33,23 @@ def PedidoHorarios(request):
       hora_fim_list = request.POST.getlist('hora_fim')
       tarefa = request.POST.getlist('tarefa')
       dia2 =request.POST.getlist('data2')
+
+      # Verifica se a data escolhida é anterior ao dia de hoje
+      if datetime.strptime(dia, '%Y-%m-%d').date() < date.today():
+         error = 'A data escolhida é anterior ao dia de hoje!'
+         return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
+      
       if Pedido.objects.filter(assunto=assunto, dia=dia).exists():
             # Se já existir, retorne uma mensagem de erro
-            error = 'Já existe um pedido com o mesmo assunto'
-            return render(request, 'main/PedidoHorario.html', {'error': error, "nome": name,"UC": UC})
+            error = 'Já existe um pedido com o mesmo assunto!'
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
       for hora_inicio, hora_fim in zip(hora_inicio_list, hora_fim_list):
          try:
             datetime.strptime(hora_inicio, '%H:%M:%S')
             datetime.strptime(hora_fim, '%H:%M:%S')
          except ValueError:
-            error = 'Formato de hora inválido'
-            return render(request, 'main/PedidoHorario.html', {'error': error, "nome": name,"UC": UC})
+            error = 'Formato de hora inválido!'
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
         
       
       new_pedido = Pedido(assunto=assunto,desc=desc,dia=dia, tipo="Horário")
@@ -58,6 +65,23 @@ def PedidoHorarios(request):
             tarefa=tarefa[i],
             dia=dia2[i]
          )
+         if PedidoHorario.objects.filter(uc=uc_list[i], dia=dia2[i],hora_inicio=hora_inicio_list[i],hora_fim=hora_fim_list[i],tarefa=tarefa[i]).exists():
+            error = 'Pedido de Horário igual!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
+         if datetime.strptime(dia2[i], '%Y-%m-%d').date() < date.today():
+            error = 'A data escolhida é anterior ao dia de hoje!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
+         hora_inicio_list[i] = datetime.strptime(hora_inicio, '%H:%M:%S')
+         hora_fim_list[i] = datetime.strptime(hora_fim, '%H:%M:%S')
+         if hora_inicio_list[i] >= hora_fim_list[i]:
+            error = 'A hora de fim deve ser maior que a hora de início!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
          new_pedido_hor.save()
       
       succes = 'Enviado para a base de dados'
@@ -148,18 +172,40 @@ def PedidoSalas(request):
 ### Update dos Pedidos ###
 def updateHorario(request, pk):
     pedido = Pedido.objects.get(id=pk)
-    pedido_horario = PedidoHorario.objects.filter(pedido=pk).first()
+    pedido_horario = PedidoHorario.objects.filter(pedido=pk).all()
     UC = UnidadesCurriculares.objects.all()
     if request.method == "POST":
         pedido.dia = request.POST['data']
         pedido.assunto = request.POST['assunto']
         pedido.desc = request.POST['desc']
         pedido.save()
-        return redirect('main:tableHorario')
+
+        uc_list = request.POST.getlist('unc')
+        descri_list = request.POST.getlist('descri')
+        hora_inicio_list = request.POST.getlist('hora_inicio')
+        hora_fim_list = request.POST.getlist('hora_fim')
+        tarefa = request.POST.getlist('tarefa')
+        dia2 =request.POST.getlist('data2')
+        # Combine as listas em uma lista de tuplas
+        updates = zip(pedido_horario, uc_list, descri_list, hora_inicio_list, hora_fim_list, tarefa, dia2)
+
+        # Atualize os objetos PedidoHorario
+        for pedido_horario, uc, descri, hora_inicio, hora_fim, tarefa, dia2 in updates:
+            pedido_horario.uc = uc
+            pedido_horario.descri = descri
+            pedido_horario.hora_inicio = hora_inicio
+            pedido_horario.hora_fim = hora_fim
+            pedido_horario.tarefa = tarefa
+            pedido_horario.dia = dia2
+            pedido_horario.save()
+
+        return redirect('main:tablePedidos')
     return render(request, template_name="main/PedidoHorario2.html", context={
         "assunto": pedido.assunto,
         "desc": pedido.desc,
         "dia": pedido.dia,
+        "pedido_horario":pedido_horario,
+        "UC": UC,
     })
 
 
@@ -221,13 +267,20 @@ def tablePedidos(request):
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
    funciona = Funcionario.objects.all()
+   
    if request.method == 'POST':
-      nome = request.POST.get('funcionari')
-      funcionario = Funcionario.objects.get(nome=nome)
       pedido_id = request.POST.get('pedido_id') 
       pedido = Pedido.objects.get(id=pedido_id)
-      pedido.Funcionario = funcionario
-      pedido.atribuido ="Atribuido"
+      
+      if request.POST.get('desassociar'):
+         pedido.Funcionario = None
+         pedido.atribuido = "Não Atribuido"
+      else:
+         nome = request.POST.get('funcionari')
+         funcionario = Funcionario.objects.get(nome=nome)
+         pedido.Funcionario = funcionario
+         pedido.atribuido = "Atribuido"
+      
       pedido.save()
   
    return render(request, template_name="main/tableHorario.html",context={"Pedido":pedidoshorario, "item":pedidoshorarios, "funcio":funciona})
