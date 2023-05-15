@@ -65,6 +65,7 @@ urlpatterns = [
     path ("UploadRUC",views.uploadRUC,name="upload_RUC"),
     path("upload_DSD", views.uploadDSD, name="upload_DSD"),
     path('Upload_Docentes', views.uploadDocente, name='Upload_Docentes'),
+    path("Upload_Salas", views.uploadSALAS, name="Upload_Salas"),
 
 #Ano letivo
     path("AnoLetivo", views.AnoLetivoAdd, name="AnoLetivo"),

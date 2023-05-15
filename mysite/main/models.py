@@ -83,24 +83,16 @@ class PedidoUC(models.Model):
 class PedidoSala(models.Model):
     edi = models.CharField(max_length=255, default = "Default name")
     sal = models.CharField(max_length=255, default = "Default name")
-    tipo = models.CharField(max_length=255, default = "Sala")
-    assunto = models.CharField(max_length=255, default="assunto")  
-    dia = models.DateField()
+    uc = models.CharField(max_length=255,default="LES")
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, default=Pedido.objects.first().id)    
     hora_de_inicio = models.TimeField()
+    status = models.CharField(max_length=255,default="Em Análise")
     hora_de_fim = models.TimeField()
-    desc = models.CharField(max_length=1200, default="Default description")
+    descri = models.CharField(max_length=1200, default="Default description")
 
 ### vai ser utilizado para obtermos as salas do edificio ###
 class Edificio(models.Model):
     nome = models.CharField(max_length=255, default = "Default name")
-
-### sinto que a utilidade deste models seja inutil ###
-class Sala(models.Model):
-    id = models.IntegerField(primary_key=True, default=1)
-    Edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE)
-    TipoSala = models.CharField(max_length=255)
-    Capacidade = models.IntegerField()
-    NumeroSala = models.FloatField()  
 
     ### Literalmente nao é utilizado em nada ###
 class Outros(models.Model):
@@ -153,6 +145,15 @@ class UnidadesCurriculares(models.Model):
     Curso = models.CharField(max_length=255)
     Código = models.IntegerField(default=1)
     Descriçao = models.CharField(max_length=255)
+
+    ### Importaçao de salas ver o que pegar daqui, alterar cenas btw ###
+class Sala(models.Model):
+    NomeInstituição = models.CharField(max_length=255, default = "Default name")
+    DescEdifício = models.CharField(max_length=255, default = "Default name")
+    DescSala = models.CharField(max_length=255, default = "Default name")
+    DesCategoria = models.CharField(max_length=255, default = "Default name")
+    IdTipoSala = models.CharField(max_length=255, default = "Default name")
+    LotaçãoPresencialSala = models.CharField(max_length=255, default = "Default name")
 
 ### Ano letivo ###
 class AnoLetivo(models.Model):

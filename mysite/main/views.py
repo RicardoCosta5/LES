@@ -118,20 +118,32 @@ def PedidoUnidadeCurricular(request):
 def PedidoSalas(request):
    Salas = Sala.objects.all()
    Edificios = Edificio.objects.all()
+   UC = UnidadesCurriculares.objects.all()
    if request.method == "POST":
-      salaa= request.POST['salaa']
-      edifi= request.POST['edifi']
-      dia= request.POST['dia']
+      salaa= request.POST.getlist('salaa')
+      uc = request.POST['unc']
+      dia= request.POST['data']
       assunto = request.POST['assunto'] 
-      hora_de_inicio = request.POST['hora_inicio']
-      hora_de_fim= request.POST['hora_fim']
+      hora_de_inicio = request.POST.getlist('hora_inicio')
+      hora_de_fim= request.POST.getlist('hora_fim')
       desc = request.POST['desc']
+      descri = request.POST.getlist('descri')
 
-      new_PedidoSala = PedidoSala(edi=edifi, sal=salaa, dia = dia,
-                                 hora_de_inicio = hora_de_inicio, hora_de_fim = hora_de_fim, desc=desc,assunto=assunto)
-      new_PedidoSala.save()
-   return render(request, template_name="main/PedidoSala.html",context={"Sala": Salas, "Edificio": Edificios})
+      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala")
+      new_Pedido.save()
 
+      for i in range(len(uc)):
+         new_PedidoSala = PedidoSala(
+            sal=salaa[i],
+            hora_de_inicio=hora_de_inicio[i],
+            hora_de_fim=hora_de_fim[i],
+            descri=descri[i],
+            uc = uc[i],
+            pedido=new_Pedido
+         )
+         new_PedidoSala.save()
+         
+   return render(request, template_name="main/PedidoSala.html",context={"Sala": Salas, "Edificio": Edificios, "UC": UC})
 
 ### Update dos Pedidos ###
 def updateHorario(request, pk):
@@ -178,26 +190,23 @@ def updateUC(request, pk):
 
 
 def updateSala(request, pk):
-    pedido_Sala = PedidoSala.objects.get(id=pk)
+    pedido_Sala = Pedido.objects.get(id=pk)
     Salas = Sala.objects.all()
-    Edificios = Edificio.objects.all()
     if request.method == "POST":
-      pedido_Sala.sal= request.POST['salaa']
-      pedido_Sala.edi = request.POST['edifi']
-      pedido_Sala.dia = request.POST['dia']
+      pedido_Sala.dia = request.POST['data']
       pedido_Sala.assunto = request.POST['assunto']
-      pedido_Sala.hora_de_inicio = request.POST['hora_inicio']
-      pedido_Sala.hora_de_fim = request.POST['hora_fim']
       pedido_Sala.desc = request.POST['desc']
       pedido_Sala.save()
-   
-      
+  
       return redirect('main:tableSala')
-    return render(request, template_name="main/PedidoSala.html", context={"Edificio": Edificios, "Sala" : Salas ,"salaa": pedido_Sala.sal, "edifi": pedido_Sala.edi,
-                                                                           "dia" : pedido_Sala.dia, "desc" : pedido_Sala.desc, "hora_inicio" : pedido_Sala.hora_de_inicio, "hora_fim" : pedido_Sala.hora_de_fim, "assunto" : pedido_Sala.assunto})
+    return render(request, template_name="main/PedidoSala.html", context={
+        "assunto": pedido_Sala.assunto,
+        "desc": pedido_Sala.desc,
+        "dia": pedido_Sala.dia,     
+    })  
 
 
-### Apagar Pedidos ###
+### Apagar Pedidos ISTO SO JA APAGA TODOS OS TIPOS DO PEDIDO ###
 def deletHorario(request,pk):
    PedidosHor = Pedido.objects.get(id=pk)
    if request.method == "POST":
@@ -389,6 +398,32 @@ def uploadDocente(request):
             succes = 'Importado para a base de dados'
         return render(request=request, template_name='main/Upload_Docentes.html', context={"succes": succes})
     return render(request=request, template_name='main/Upload_Docentes.html')
+
+def uploadSALAS(request):
+    if request.method == 'POST':
+        if not request.FILES:
+            error = 'Selecione um arquivo para fazer o upload'
+            return render(request=request, template_name='main/upload_SALAS.html', context={'error': error})
+        if not request.FILES['file'].name.endswith('.xlsx'):
+            error = 'O arquivo deve estar no formato .xlsx'
+            return render(request=request, template_name='main/upload_SALAS.html', context={'error': error})
+        excel_file = request.FILES['file']
+        excel_data = pd.ExcelFile(excel_file)
+        sheetx = pd.read_excel(excel_data, sheet_name=0)
+        testes = sheetx[['Nome Instituição', 'Desc. Edifício', 'Desc. Sala', 'Des. Categoria', 'Id. tipo sala', 'Lotação presencial sala']] 
+
+        for index, row in testes.iterrows():
+            NomeInstituição = row['Nome Instituição']
+            DescEdifício = row['Desc. Edifício']
+            DescSala = row['Desc. Sala']
+            DesCategoria = row['Des. Categoria']
+            IdTipoSala = row['Id. tipo sala']
+            LotaçãoPresencialSala = row['Lotação presencial sala']
+
+            novAUC = Sala(NomeInstituição=NomeInstituição, DescEdifício=DescEdifício, DescSala=DescSala, DesCategoria=DesCategoria, IdTipoSala=IdTipoSala, LotaçãoPresencialSala=LotaçãoPresencialSala)
+            novAUC.save()
+        return redirect('main:Upload_Salas')
+    return render(request=request, template_name='main/Upload_Salas.html')
 
 
 ### Estatisticas ###
