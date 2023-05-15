@@ -7,6 +7,7 @@ import pandas as pd
 from datetime import datetime, date
 from urllib.parse import urlencode
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 
 ### Pagina Inicial ###
@@ -305,6 +306,9 @@ def tablePedidos(request):
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
    funciona = Funcionario.objects.all()
+   paginator = Paginator(pedidoshorario, 10)  # Define a quantidade de itens por página
+   page_number = request.GET.get('page')  # Obtém o número da página da solicitação
+   page_obj = paginator.get_page(page_number)
    success = request.GET.get('success')
    if request.method == 'POST':
       pedido_id = request.POST.get('pedido_id') 
@@ -313,15 +317,19 @@ def tablePedidos(request):
       if request.POST.get('desassociar'):
          pedido.Funcionario = None
          pedido.atribuido = "Não Atribuido"
+         pedido.save()
+         return redirect(f'{reverse("main:tablePedidos")}?page={page_obj.number}&success=Funcionario desassociado!')
       else:
          nome = request.POST.get('funcionari')
          funcionario = Funcionario.objects.get(nome=nome)
          pedido.Funcionario = funcionario
          pedido.atribuido = "Atribuido"
+         pedido.save()
+         return redirect(f'{reverse("main:tablePedidos")}?page={page_obj.number}&success=Funcionario Atribuido!')
       
-      pedido.save()
+      
   
-   return render(request, template_name="main/tableHorario.html",context={"Pedido":pedidoshorario, "item":pedidoshorarios, "funcio":funciona,'success': success})
+   return render(request, template_name="main/tableHorario.html",context={"Pedido":page_obj, "item":pedidoshorarios, "funcio":funciona,'success': success})
 
 
 ### Criar Ano Letivo ###

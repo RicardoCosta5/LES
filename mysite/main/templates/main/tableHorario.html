@@ -49,6 +49,25 @@ table th:nth-child(5) {
       border-radius: 10px;
       color: white;
     }
+    .pagination a:hover {
+    background-color: #ddd;
+  }
+    .pagination a {
+    display: inline-block;
+    padding: 5px 10px;
+    margin-right: 5px;
+    background-color: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+  .centered-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+    
   </style>
 <div class="columns is-centered">
   {% if success %}
@@ -133,7 +152,9 @@ table th:nth-child(5) {
                     {% endif %}
                   {% endfor %}
                 </tbody>
+                
               </table>
+         
             </div>
           </td>
         </tr>
@@ -162,17 +183,41 @@ table th:nth-child(5) {
                   </td>
                 </form>
                     
-                      
+                
                 </tbody>
+      
+           
               </table>
+          
             </div>
           </td>
         </tr>
+  
       </tbody>
     {% endfor %}
+
   </table>
+
   <div id="msg-container"></div>
   
+</div>
+
+<div class="pagination is-centered centered-pagination">
+  {% if Pedido.has_previous %}
+    <a href="?page={{ Pedido.previous_page_number }}">Anterior</a>
+  {% endif %}
+
+  {% for num in Pedido.paginator.page_range %}
+    {% if num == Pedido.number %}
+      <span class="pagination-link is-current">{{ num }}</span>
+    {% else %}
+      <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+
+  {% if Pedido.has_next %}
+    <a href="?page={{ Pedido.next_page_number }}">Próxima</a>
+  {% endif %}
 </div>
 <script>
    window.addEventListener('DOMContentLoaded', function() {
@@ -208,6 +253,8 @@ table th:nth-child(5) {
           }
       });
   });
+
+  
 
   // Ocultar as linhas "hidden-row" quando a página é carregada
 document.querySelectorAll('.hidden-row2').forEach(function(row) {
