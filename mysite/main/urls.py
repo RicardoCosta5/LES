@@ -52,12 +52,11 @@ urlpatterns = [
 
 #Tabelas
     path ("tablePedidos", views.tablePedidos, name="tablePedidos"),
+    path ("tablePedidos2/<str:pk>/", views.tablePedidos2, name="tablePedidos2"),
     path ("tableEstatisticaPedido", views.tableEstatisticaPedido, name="tableEstatisticaPedido"),
 
-### Sinto que esta parte nao seja necessaria, pois estamos a trabalhar com uma tabela geral de pedidos, inclusive pode ser eliminado os respectivos html ###
-    path ("tableHorario2/<str:pk>/", views.tableHorario2, name="tableHorario2"),
-    path ("update_horario2/<str:pk>/",views.updateHorario2,name="update_horario2"),
-    path ("delete_horario2/<str:pk>/",views.deletHorario2,name="delete_horario2"),
+
+   
 
 
 

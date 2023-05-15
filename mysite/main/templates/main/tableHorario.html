@@ -104,7 +104,7 @@ table th:nth-child(5) {
       
           <td>{{n.atribuido}}</td>
         
-          <td><button class="button is-info view-button" data-pedido-id="{{n.id}}">View</button></td>
+          <td><a class="button is-info view-button" href="{% url 'main:tablePedidos2' n.id %}">View</a></td>
           {% if n.atribuido == 'Não Atribuido' %}
           <td><button id="expand-btn-2" class="button is-info2">Associar</button></td>
           {% else %}
@@ -120,43 +120,6 @@ table th:nth-child(5) {
           {% if n.status != 'Concluído' and n.status != 'Em processamento' and n.status != 'Rejeitado' and n.atribuido != 'Atribuido'  %}
             <td><a class="button is-danger is-active" href="{% url 'main:delete_horario' n.id %}">Delete</a></td>
           {% endif %}
-        </tr>
-        <tr class="hidden-row">
-          <td colspan="10">
-            <div class="pedido-details">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Unidades Curriculares</th>
-                    <th>Hora de Inicio</th>
-                    <th>Hora de Fim</th>
-                    <th>Dia</th>
-                    <th>Descrição</th>
-                    <th>Tarefa</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for items in item %}
-                    {% if items.pedido.id == n.id %}
-  
-                      <tr>
-                        <td>{{items.uc}}</td>
-                        <td>{{items.hora_inicio|time:"H:i:s"}}</td>
-                        <td>{{items.hora_fim|time:"H:i:s"}}</td>
-                        <td>{{items.dia}}</td>
-                        <td>{{items.descri}}</td>
-            
-                
-                        <td>{{items.tarefa}}</td>
-                      </tr>
-                    {% endif %}
-                  {% endfor %}
-                </tbody>
-                
-              </table>
-         
-            </div>
-          </td>
         </tr>
         <tr class="hidden-row2" style="text-align: center">
           <td colspan="10">
@@ -229,30 +192,36 @@ table th:nth-child(5) {
       popup.style.display = 'none';
     }, 3000);
   });
-  // Ocultar as linhas "hidden-row" quando a página é carregada
-  document.querySelectorAll('.hidden-row').forEach(function(row) {
-      row.style.display = 'none';
+  
+  function sortTable(columnIndex) {
+  var table = document.querySelector('.table');
+  var rows = Array.from(table.querySelectorAll('tbody tr'));
+
+  // Ordena as linhas com base nos dados da coluna
+  rows.sort(function(a, b) {
+    var textA = a.children[columnIndex].textContent.trim();
+    var textB = b.children[columnIndex].textContent.trim();
+    return textA.localeCompare(textB);
   });
 
-  // Quando o botão "View" é clicado, exibir os detalhes do pedido
-  document.querySelectorAll('.button.is-info').forEach(function(button) {
-      button.addEventListener('click', function(event) {
-          // Encontre o elemento pai "tr"
-          var row = event.target.closest('tr');
-          // Encontre a próxima linha oculta com a classe "hidden-row"
-          var hiddenRow = row.nextElementSibling;
-          while (hiddenRow && !hiddenRow.classList.contains('hidden-row')) {
-              hiddenRow = hiddenRow.nextElementSibling;
-          }
-          // Exiba a linha oculta
-          // Exiba ou oculte a linha oculta
-          if (hiddenRow.style.display === 'none') {
-              hiddenRow.style.display = 'table-row';
-          } else {
-              hiddenRow.style.display = 'none';
-          }
-      });
+  // Remove as linhas existentes da tabela
+  rows.forEach(function(row) {
+    row.remove();
   });
+
+  // Adiciona as linhas classificadas à tabela na ordem correta
+  rows.forEach(function(row) {
+    table.querySelector('tbody').appendChild(row);
+  });
+}
+
+// Adiciona o evento de clique a cada coluna de cabeçalho
+var thElements = document.querySelectorAll('thead th');
+thElements.forEach(function(th, index) {
+  th.addEventListener('click', function() {
+    sortTable(index);
+  });
+});
 
   
 

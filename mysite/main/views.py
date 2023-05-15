@@ -332,6 +332,30 @@ def tablePedidos(request):
    return render(request, template_name="main/tableHorario.html",context={"Pedido":page_obj, "item":pedidoshorarios, "funcio":funciona,'success': success})
 
 
+### Tabela Pedidos veie###
+def tablePedidos2(request,pk):
+   try:
+    pedido = Pedido.objects.get(id=pk)
+    if PedidoHorario.objects.filter(pedido=pedido).exists():
+        pedidoshorario = PedidoHorario.objects.filter(pedido=pedido)
+        return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidoshorario,"pedido":pedido})
+    elif PedidosOutros.objects.filter(pedido=pedido).exists():
+        pedidosoutros = PedidosOutros.objects.filter(pedido=pedido)
+        return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidosoutros,"pedido":pedido})
+    elif PedidoSala.objects.filter(pedido=pedido).exists():
+        pedidossala = PedidoSala.objects.filter(pedido=pedido)
+        return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidossala,"pedido":pedido})
+    elif PedidoUC.objects.filter(pedido=pedido).exists():
+        pedidosuc = PedidoUC.objects.filter(pedido=pedido)
+        return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidosuc, "pedido":pedido})
+    
+   except Pedido.DoesNotExist:
+      return HttpResponseNotFound('Pedido não encontrado')
+      
+   pedidoshorario = PedidoHorario.objects.filter(pedido=pedido)
+   return render(request, template_name="main/tableHorario2.html",context={"Pedido":pedidoshorario,"pedido":pedido})
+
+
 ### Criar Ano Letivo ###
 def AnoLetivoAdd(request):
    UC = UnidadesCurriculares.objects.all()
@@ -611,31 +635,7 @@ def tableHorario2(request, pk):
    return render(request, template_name="main/tableHorario2.html",context={"Pedido":pedidoshorario})
 
 
-def updateHorario2(request, pk):
-    pedido_horario = PedidoHorario.objects.get(id=pk)
-    UC = UnidadesCurriculares.objects.all()
-    if request.method == "POST":
-        pedido_horario.hora_fim = request.POST['hora_inicio']
-        pedido_horario.hora_inicio = request.POST['hora_fim']
-        pedido_horario.descri = request.POST['descri']
-        pedido_horario.uc = request.POST['unc']
-        pedido_horario.save()
-        return redirect(reverse('main:tableHorario2', kwargs={'pk': pedido_horario.pedido.id}))
-    return render(request, template_name="main/PedidoHorario3.html", context={"UC" : UC,
-        "hora_fim": pedido_horario.hora_fim,
-        "hora_inicio": pedido_horario.hora_inicio,
-        "unc": pedido_horario.uc,
-        "descri": pedido_horario.descri,
-      
-    })
 
-
-def deletHorario2(request,pk):
-   PedidosHor = PedidoHorario.objects.get(id=pk)
-   if request.method == "POST":
-      PedidosHor.delete()
-      return redirect(reverse('main:tableHorario2', kwargs={'pk': PedidosHor.pedido.id}))
-   return render(request, template_name="main/deleteH2.html",context={'item': PedidosHor})
 
 
 def tableUC(request):

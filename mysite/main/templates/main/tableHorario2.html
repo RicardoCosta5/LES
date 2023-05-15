@@ -1,64 +1,356 @@
+
 {% extends 'main/app.html' %}
-{% load static %}
+
+{% block title %}- Pedido Horário{% endblock title %}
+
 {% block content %}
-<style>
-    table {
-      width: 100%;
-      table-layout: fixed
-      ;  
-    }
-    table th:first-child {
-    max-width: 100px;
-    min-width: 100px;
-}
 
-table th:nth-child(2) {
-    max-width: 600px;
-    min-width: 1000px;
-    overflow: visible;
-    white-space: normal;
-    word-wrap: break-word;
-}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<div>
+    <form id="form" >
+  <div class="section">
+    <div class="column">
+        <div class="columns is-centered">
+            
+        <div class="column is-7">
+            <h1 class="title has-text-centered">Pedido {{pedido.tipo}}</h1>
+              <div class="field ">
+                <label class="label">Assunto</label>
+                <p>{{pedido.assunto}}</p>
+               
+              </div>
+          
+         
+          
+          <div class="field">
+            <label class="label">Descrição</label>
+            <div class="control">
+              <p>{{ pedido.desc }}</p>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Dia</label>
+           
+                <p>{{ pedido.dia|date:'d-m-Y' }}</p>
+          </div>
+          
+          
+          <br>
+          <ul>
+            {% if pedido.tipo == 'Horário' %}
+          {% for ph in Pedido %}
+          <li>
+          <div id="novo-campo-uc"><div class="field is-horizontal">
+            <div class="field-body">
+              <div class="field">
+            <label class="label" style="white-space: nowrap; ">Unidade Curricular</label>
+                <p>{{ph.uc}}</p>
+          </div>
+              <div class="field">
+                      <label class="label" style="white-space: nowrap;">Hora de Inicio</label>
+                      <p>{{ ph.hora_inicio|time:'H:i:s' }}</p>
+                    </div>
+                    <div class="field">
+                     <label class="label" style="white-space: nowrap;">Hora de Fim</label>
+                     <p>{{ph.hora_fim|time:'H:i:s'}}</p>
+                    </div>
+                    <div class="field">
+                      <label class="label" style="white-space: nowrap;">Tarefa</label>
+                      <p>{{ph.tarefa}}</p>
+                      </div>
+                    </div>
+                    <div class="field">
+                            <label class="label">Dia</label>
+                           
+                                <p>{{ph.dia|date:'d-m-Y'}}&nbsp; </p>
+                          </div>
+                    <div class="field">
+                     <label class="label">Descrição</label>
+                      <div class="control">
+                        <p>{{ ph.descri }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                  {% empty %}
+                  <li>Não há pedidos horários para este pedido.</li>
+              {% endfor %}
+                </ul>
+                {% elif pedido.tipo == 'Unidade Curricular' %}
+          {% for ph in Pedido %}
+          <li>
+          
+            <div class="field-body">
+              <div class="field">
+            <label class="label fixed-label " style="white-space: nowrap;">Unidade Curricular</label>
+                <p>{{ph.uc|linebreaksbr|truncatechars:50}}</p>
+          </div>
+                    <div class="field">
+                      <label class="label fixed-label" style="white-space: nowrap;">Tarefa</label>
+                      <p>{{ph.tarefa}}</p>
+                      </div>
+                   
+                    <div class="field">
+                      <label class="label fixed-label" style="white-space: nowrap;">Regente</label>
+                      <p>{{ph.regente}}</p>
+                      </div>
+    
+                    
+                    <div class="field">
+                     <label class="label fixed-label">Descrição</label>
+                      <div class="control">
+                        <p>{{ ph.descri }}</p>
+                      </div>
+                    
+                  </div>
+                  </div>
+                  {% empty %}
+                  <li>Não há pedidos Unidade Curricular  para este pedido.</li>
+              {% endfor %}
+                </ul>
+                {% elif pedido.tipo == 'Sala' %}
+          {% for ph in Pedido %}
+          <li>
+          
+            <div class="field-body">
+              <div class="field">
+            <label class="label fixed-label " style="white-space: nowrap;">Unidade Curricular</label>
+                <p>{{ph.uc|linebreaksbr|truncatechars:50}}</p>
+          </div>
+                    <div class="field">
+                      <label class="label fixed-label" style="white-space: nowrap;">Tarefa</label>
+                      <p>{{ph.tarefa}}</p>
+                      </div>
+                   
+                    <div class="field">
+                      <label class="label fixed-label" style="white-space: nowrap;">Regente</label>
+                      <p>{{ph.regente}}</p>
+                      </div>
+    
+                    
+                    <div class="field">
+                     <label class="label fixed-label">Descrição</label>
+                      <div class="control">
+                        <p>{{ ph.descri }}</p>
+                      </div>
+                    
+                  </div>
+                  </div>
+                  {% empty %}
+                  <li>Não há pedidos Sala para este pedido.</li>
+              {% endfor %}
+                </ul>
+                {% endif %}
+          <br>
+           
 
-table th:nth-child(3) {
-    max-width: 100px;
-}
-
-table th:nth-child(4),
-table th:nth-child(5) {
-    max-width: 150px;
-}
-th, td {
-    text-align: center;
-}
-  </style>
-<div class="columns is-centered">
-
-<table class="table is-striped">
-    <thead>
-      <tr>
-        <th>Unidades Curriculares</th>
-        <th>Hora de Inicio</th>
-        <th>Hora de Fim</th>
-        <th>Descrição</th>
-        <th>Tarefa</th>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-        {% for n in Pedido %}
-      <tr>
-
-
-        <td>{{n.uc}}</tb>
-        <td>{{ n.hora_inicio|time:"H:i:s" }}</td>
-        <td>{{n.hora_fim|time:"H:i:s"}}</td>
-        <td class="wide-column">{{n.descri|linebreaksbr|truncatechars:12 }}</td>
-        <td>{{n.tarefa}}</td>  
-      </tr>
- 
-    </tbody>
-    {%endfor%}
-  </table>
+          
+      
+    </div>
+  </div>
 </div>
-  {% endblock content %}
+</div>
+</form>
+</div>
+<script>
+  const cancelButton = document.querySelector('#cancel-btn');
+ cancelButton.addEventListener('click', function(event) {
+   event.preventDefault();
+   const form = document.querySelector('form');
+   form.reset();
+ });
+
+
+
+  function hidePopUp() {
+    // Get the pop-up element
+    var popup = document.getElementById("popup");
+
+    // Hide the pop-up
+    popup.classList.remove("is-active");
+  }
+
+
+
+const forms = document.getElementById('form');
+const errorElement = document.getElementById('error');
+
+
+
+
+function showPopUp(event) {
+    event.preventDefault();
+
+    if (validateForm()) {
+      // Get the pop-up element
+      var popup = document.getElementById("popup");
+
+      // Show the pop-up
+      popup.classList.add("is-active");
+
+      // Get the confirm and cancel buttons
+      var confirmBtn = document.getElementById("confirm-btn");
+
+      // Add click listeners to the buttons
+      confirmBtn.addEventListener("click", submitForm);
+      setTimeout(function() {
+          popup.style.display = "none";
+      }, 5000); // Wait for 5 seconds before hiding the popup
+    }
+  }
+
+  function hidePopUp() {
+    // Get the pop-up element
+    var popup = document.getElementById("popup");
+
+    // Hide the pop-up
+    popup.classList.remove("is-active");
+  }
+
+  function submitForm() {
+    // Submit the form
+    document.getElementById("submit-btn").click();
+  }
+
+
+  function validateForm() {
+    // Get the values of the form inputs
+
+    const assunto = document.querySelector('#assunto').value;
+    const data = document.querySelector('#data').value;
+    const desc = document.querySelector('#desc').value;
+    const descri = document.querySelector('#descri').value;
+    const data2 = document.querySelector('#data2').value;
+    
+    const hora_fim = document.querySelector('#hora_fim').value;
+    const hora_inicio = document.querySelector('#hora_inicio').value;
+    const erorr = document.querySelector('#error').value;
+
+
+    // Check if any of the required fields are empty
+    if (!assunto || !desc || !data || !hora_inicio || !hora_fim || !descri ||!data2)  {
+      const errorElement = document.getElementById('error');
+      errorElement.innerText = 'Preencha todos os campos corretamente!';
+      errorElement.style.display = 'block';
+      return false;
+    }
+    const errorElement = document.getElementById('error');
+    errorElement.style.display = 'none';
+
+    // Check if the format of the start and end times are valid
+  const horaRegex = /^\d{2}:\d{2}:\d{2}$/;
+  if (!horaRegex.test(hora_inicio) || !horaRegex.test(hora_fim)) {
+    const errorElement = document.getElementById('error');
+    errorElement.innerText = 'Formato inválido de hora!';
+    errorElement.style.display = 'block';
+    return false;
+  }
+  if(erorr != null){
+      const errorElement = document.getElementById('error');
+      errorElement.innerText = 'maneel!';
+      errorElement.style.display = 'block';
+      return false;
+  }
+    return true;
+  }
+
+
+  document.getElementById("frase").addEventListener("click", adicionarCampo);
+  function adicionarCampo() {
+  var novoCampo = document.createElement("div");
+  novoCampo.innerHTML = '<div class="field is-horizontal">' +
+  '<div class="field-body">' +
+    '<div class="field">' +
+  '<label class="label" style="white-space: nowrap;">Unidade Curricular</label>' +
+  '<div class="control">' +
+    '<div class="select">' +
+      '<select name="unc" id="unc">' +
+        '{% for u in UC %}' +
+          '{% if u.Regência == unc %}' +
+            '<option selected>{{ u.Regência }}</option>' +
+          '{% else %}' +
+            '<option>{{ u.Regência }}</option>' +
+          '{% endif %}' +
+        '{% endfor %}' +
+      '</select>' +
+    '</div>' +
+  '</div>' +
+'</div>' +
+    '<div class="field">' +
+            '<label class="label" style="white-space: nowrap;">Hora de Inicio</label>' +
+            '<input class="input" type="text" id="hora_inicio" name="hora_inicio" placeholder="HH:MM:SS" value="{{ hora_inicio|time:"H:i:s" }}" required>' +
+          '</div>'+
+          '<div class="field">' +
+           '<label class="label" style="white-space: nowrap;">Hora de Fim</label>'+
+           '<input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{hora_fim|time:"H:i:s"}}"required>'+
+          '</div>' +
+          '<div class="field">' +
+      '<label class="label">Tarefa</label>' +
+      '<div class="control">' +
+        '<div class="select">' +
+          '<select name="tarefa" id="tarefa">' +
+            '<option value="Criar">Criar</option>' +
+            '<option value="Editar">Editar</option>' +
+            '<option value="Apagar">Apagar</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field">'+
+            '<label class="label">Dia</label>'+
+           
+                '<input type="date" id="data2" name="data2" value="{{ dia|date:"Y-m-d" }}" required>'+
+          '</div>'+
+          '<div class="field">'+
+           '<label class="label">Descrição</label>'+
+            '<div class="control">'+
+              '<input class="input" id="descri" placeholder="Escreva os detalhes do pedido" name="descri" required>{{ descri }}</textarea>'+
+            '</div>' +
+          '</div>' +
+    '<div class="field  ">' +
+      '<div class="control">' +
+        '<label class="label"></label>'+
+        '<br>' +
+        '<button type="button" class="button is-danger is-active remover-campo">Remover</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+'</div>';
+  document.getElementById("novo-campo-uc").appendChild(novoCampo);
+  var botoesRemover = document.getElementsByClassName("remover-campo");
+  for (var i = 0; i < botoesRemover.length; i++) {
+    botoesRemover[i].addEventListener("click", function() {
+      this.closest('.field.is-horizontal').remove();
+    });
+  }
+}
+ </script>
+ <style>
+  select {
+  width: 250px;
+}
+  #error {
+  display: none;
+  background-color: red;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+#succes {
+  display: none;
+  background-color: green;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+ </style>
+
+{% endblock content%}
+
