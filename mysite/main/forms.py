@@ -54,45 +54,29 @@ class UtilizadorFiltro(Form):
 
 
 
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import Funcionario
+
 class FuncionarioRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
 
     class Meta:
         model = Funcionario
-        fields = ('first_name','last_name', 'email', 'telefone')
+        fields = ('first_name', 'last_name', 'email', 'telefone', 'password1', 'password2')
 
-    def clean(self):
-        username = self.cleaned_data.get('username')
-        first_name = self.cleaned_data.get('first_name')
-        last_name = self.cleaned_data.get('last_name')
-        email = self.cleaned_data.get('email')
-        telefone = self.cleaned_data.get('telefone')
-        password1 = self.cleaned_data.get('password1')
-        password2 = self.cleaned_data.get('password2')
-        erros = []
-        if email == "" or first_name=="" or last_name=="" or telefone=="":
-            raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if Funcionario.objects.filter(email=email).exists():
+            raise forms.ValidationError("Email already exists")
+        return email
 
-        if username and User.objects.filter(first_name=first_name).exists():
-            erros.append(forms.ValidationError(f'O username já existe'))
-
-        
-        if password1==None or password2==None:
-            if password1==None:
-                raise forms.ValidationError(f'Todos os campos são obrigatórios!')
-            if password1==None:
-                raise forms.ValidationError(f'Todos os campos são obrigatórios!')
-            else:
-                erros.append(forms.ValidationError(f'As palavras-passe não correspondem'))
-
-
-        if email==None:
-            erros.append(forms.ValidationError(f'O email é inválido'))
-
-        
-        if telefone==None:
-            erros.append(forms.ValidationError(f'Preencha corretamente o contacto'))    
-        if len(erros)>0:
-            raise ValidationError([erros])
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password1'])
+        if commit:
+            user.save()
+        return user
 
 
 class AdministradorRegisterForm(UserCreationForm):

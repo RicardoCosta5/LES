@@ -10,6 +10,9 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from .filters import PedidoFilter
 from .forms import *
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user
+
 
 ### Pagina Inicial ###
 def homepage(request):
@@ -728,33 +731,33 @@ def escolher(request):
 
 def register(request, id):
     ''' Criar um novo utilizador que poderá ter de ser validado dependendo do seu tipo '''
-    if request.user.is_authenticated:    
+    if request.user.is_authenticated:
         user = get_user(request)
-        if user.groups.filter(name = "Administrador").exists():
+        if user.groups.filter(name="Administrador").exists():
             u = "Administrador"
-        elif user.groups.filter(name = "Docente").exists():
+        elif user.groups.filter(name="Docente").exists():
             u = "Docente"
-        elif user.groups.filter(name = "Funcionário").exists():
-            u = "Funcionario" 
+        elif user.groups.filter(name="Funcionário").exists():
+            u = "Funcionario"
         else:
-            u=""     
+            u = ""
     else:
-        u=""
-    msg=False
+        u = ""
+    msg = False
     if request.method == "POST":
         tipo = id
         if tipo == 1:
             form = FuncionarioRegisterForm(request.POST)
             perfil = "Funcionario"
-            #my_group = Group.objects.get(name='Funcionário') 
+            my_group, _ = Group.objects.get_or_create(name='Funcionário')
         elif tipo == 2:
             form = DocenteRegisterForm(request.POST)
             perfil = "Docente"
-            my_group = Group.objects.get(name='Docente')
+            my_group, _ = Group.objects.get_or_create(name='Docente')
         elif tipo == 3:
             form = AdministradorRegisterForm(request.POST)
             perfil = "Administrador"
-            my_group = Group.objects.get(name='Administrador')    
+            my_group, _ = Group.objects.get_or_create(name='Administrador')
         else:
             return redirect("utilizadores:escolher-perfil")
 
@@ -762,30 +765,30 @@ def register(request, id):
             user = form.save()
             username = form.cleaned_data.get('username')
             first_name = form.cleaned_data.get('first_name')
-            my_group.user_set.add(user)
+            user.groups.add(my_group)
 
             if tipo == 1:
-                user.valido = 'True'
+                user.valido = True
                 user.save()
-                p=1
+                p = 1
             else:
-                user.valido = 'False'
-                recipient_id = user.id #Enviar Notificacao Automatica !!!!!!!!!
+                user.valido = False
+                recipient_id = user.id
                 user.save()
-                p=0
-                views.enviar_notificacao_automatica(request,"validarRegistosPendentes",recipient_id) #Enviar Notificacao Automatica !!!!!!!!!
-            if request.user.is_authenticated:    
+                p = 0
+                views.enviar_notificacao_automatica(request, "validarRegistosPendentes", recipient_id)
+            if request.user.is_authenticated:
                 user = get_user(request)
-                if user.groups.filter(name = "Administrador").exists():
-                    return redirect("utilizadores:concluir-registo",2)  
-            else:   
-                return redirect("utilizadores:concluir-registo",p)
+                if user.groups.filter(name="Administrador").exists():
+                    return redirect("main:concluir-registo", 2)
+            else:
+                return redirect("main:concluir-registo", p)
         else:
-            msg=True
+            msg = True
             tipo = id
             return render(request=request,
                           template_name="main/criar_utilizador.html",
-                          context={"form": form, 'perfil': perfil, 'u': u,'registo' : tipo,'msg': msg})
+                          context={"form": form, 'perfil': perfil, 'u': u, 'registo': tipo, 'msg': msg})
     else:
         tipo = id
         if tipo == 1:
@@ -796,9 +799,34 @@ def register(request, id):
             perfil = "Docente"
         elif tipo == 3:
             form = AdministradorRegisterForm()
-            perfil = "Administrador" 
+            perfil = "Administrador"
         else:
-            return redirect("utilizadores:escolher-perfil")
+            return redirect("main:escolher-perfil")
     return render(request=request,
                   template_name="main/criar_utilizador.html",
-                  context={"form": form, 'perfil': perfil,'u': u,'registo' : tipo,'msg': msg})
+                  context={"form": form, 'perfil': perfil, 'u': u, 'registo': tipo, 'msg': msg})
+
+
+def concluir_registo(request,id):
+    ''' Página que é mostrada ao utilizador quando faz um registo na plataforma '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Docente").exists():
+            u = "Docente"
+        elif user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"
+        elif user.groups.filter(name = "Funcionário").exists():
+            u = "Funcionário"
+        else:
+            u=""   
+    else:
+        u=""
+    if id == 1:
+        participante="True"
+    elif id == 0:
+        participante="False"
+    elif id == 2:
+        participante="Admin"   
+    return render(request=request,
+                  template_name="main/concluir_registo.html",
+                  context={'participante': participante, 'u': u})

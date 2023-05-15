@@ -55,7 +55,7 @@ urlpatterns = [
     path ("tablePedidos", views.tablePedidos, name="tablePedidos"),
     path ("tablePedidos2/<str:pk>/", views.tablePedidos2, name="tablePedidos2"),
     path ("tableEstatisticaPedido", views.tableEstatisticaPedido, name="tableEstatisticaPedido"),
-
+    path('concluirregisto/<int:id>', views.concluir_registo,name='concluir-registo'),
 
    
 

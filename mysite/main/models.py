@@ -1,14 +1,60 @@
 import datetime
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-### Pessoa que é atribuida o pedido ###
-class Funcionario(models.Model):
-    first_name = models.CharField(max_length=255,default="gnomo")
-    last_name = models.CharField(max_length=255,default="gnomo")
-    email = models.CharField(max_length=255,default="gnomo")
+class FuncionarioManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        user = self.create_user(email, password, **extra_fields)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+        return user
+
+class Funcionario(AbstractBaseUser, PermissionsMixin):
+    first_name = models.CharField(max_length=255, default="gnomo")
+    last_name = models.CharField(max_length=255, default="gnomo")
+    email = models.CharField(max_length=255, default="gnomo", unique=True)
     telefone = models.IntegerField()
-    ativo = models.BooleanField()
+    ativo = models.BooleanField(default=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo']
+
+    objects = FuncionarioManager()
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='funcionario_group_set',
+        blank=True,
+        verbose_name='groups',
+        help_text='The groups this user belongs to.',
+        related_query_name='funcionario_group'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='funcionario_permission_set',
+        blank=True,
+        verbose_name='user permissions',
+        help_text='Specific permissions for this user.',
+        related_query_name='funcionario_permission'
+    )
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
+    @property
+    def is_staff(self):
+        return self.is_superuser
 
 ### ver o que é importante pegar ###
 class Docente(models.Model):
