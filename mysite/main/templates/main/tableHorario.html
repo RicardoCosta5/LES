@@ -216,8 +216,8 @@ table th:nth-child(5) {
     {% for n in Pedido %}
       <tbody>
         <tr>
-          <td>{{n.assunto|linebreaksbr|truncatechars:20}}</td>
-          <td class="wide-column2">{{n.desc|linebreaksbr|truncatechars:20 }}</td>
+          <td>{{n.assunto|linebreaksbr|truncatechars:10}}</td>
+          <td class="wide-column2">{{n.desc|linebreaksbr|truncatechars:10 }}</td>
           <td>{{n.dia}}</td>
           <td>{{n.tipo}}</td>
           <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido' %}concluido{% endif %}">{{n.status}}</td>
@@ -259,7 +259,7 @@ table th:nth-child(5) {
                   <div class="select" style="text-align: center" >
                     <select name="funcionari" id="funcionari">
                       {% for fu in funcio %}
-                          <option>{{ fu.nome }}</option>
+                          <option>{{ fu.first_name }}</option>
                       {% endfor %}
                     </select>
                   </div>
