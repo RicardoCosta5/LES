@@ -115,7 +115,10 @@
           
             <div class="field-body">
               <div class="field">
-            <label class="label fixed-label " style="white-space: nowrap;">Unidade Curricular</label>
+            <label class="label fixed-label " style="white-space: nowrap;">Sala</label>
+                <p>{{ph.|linebreaksbr|truncatechars:50}}</p>
+          </div>
+          <label class="label fixed-label " style="white-space: nowrap;">Unidade Curricular</label>
                 <p>{{ph.uc|linebreaksbr|truncatechars:50}}</p>
           </div>
                     <div class="field">
@@ -123,9 +126,13 @@
                       <p>{{ph.tarefa}}</p>
                       </div>
                    
-                    <div class="field">
-                      <label class="label fixed-label" style="white-space: nowrap;">Regente</label>
-                      <p>{{ph.regente}}</p>
+                      <div class="field">
+                        <label class="label" style="white-space: nowrap;">Hora de Inicio</label>
+                        <p>{{ ph.hora_inicio|time:'H:i:s' }}</p>
+                      </div>
+                      <div class="field">
+                       <label class="label" style="white-space: nowrap;">Hora de Fim</label>
+                       <p>{{ph.hora_fim|time:'H:i:s'}}</p>
                       </div>
     
                     
@@ -136,6 +143,23 @@
                       </div>
                     
                   </div>
+                  </div>
+                  {% empty %}
+                  <li>Não há pedidos Sala para este pedido.</li>
+              {% endfor %}
+                </ul>
+              
+          {% elif pedido.tipo == 'Outros' %}
+          {% for ph in Pedido %}
+          <li>
+          
+            <div class="field-body">
+              <div class="field">
+            <label class="label fixed-label " style="white-space: nowrap;">Arquivo</label>
+                <p>{{ph.arquivo}}</p>
+          </div>
+          
+                    
                   </div>
                   {% empty %}
                   <li>Não há pedidos Sala para este pedido.</li>

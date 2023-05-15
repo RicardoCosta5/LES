@@ -101,7 +101,7 @@ def PedidosOUT(request):
         data = request.POST['dia']
         arquivo = request.FILES.getlist('resume')
 
-        new_Pedido = Pedido(assunto=assunto, desc=descricao, dia=data, tipo = "outros")
+        new_Pedido = Pedido(assunto=assunto, desc=descricao, dia=data, tipo = "Outros")
         new_Pedido.save()
 
         for i in range(len(arquivo)):
@@ -338,7 +338,7 @@ def tablePedidos2(request,pk):
     pedido = Pedido.objects.get(id=pk)
     if PedidoHorario.objects.filter(pedido=pedido).exists():
         pedidoshorario = PedidoHorario.objects.filter(pedido=pedido)
-        return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidoshorario,"pedido":pedido})
+        return render(request, template_name="main/tableHorario2.html", context={"outros": pedidoshorario,"pedido":pedido})
     elif PedidosOutros.objects.filter(pedido=pedido).exists():
         pedidosoutros = PedidosOutros.objects.filter(pedido=pedido)
         return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidosoutros,"pedido":pedido})
