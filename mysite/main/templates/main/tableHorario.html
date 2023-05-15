@@ -67,7 +67,19 @@ table th:nth-child(5) {
   justify-content: center;
   margin-top: 20px;
 }
-    
+
+
+.registado {
+  color: #9e0000; /* cor do texto para o estado "registado" */
+}
+
+.em-analise {
+  color: #959700; /* cor do texto para o estado "em_analise" */
+}
+
+.concluido {
+  color: #008000; /* cor do texto para o estado "concluido" */
+}
   </style>
 <div class="columns is-centered">
   {% if success %}
@@ -100,7 +112,8 @@ table th:nth-child(5) {
           <td class="wide-column">{{n.desc|linebreaksbr|truncatechars:20 }}</td>
           <td>{{n.dia}}</td>
           <td>{{n.tipo}}</td>
-          <td>{{n.status}}</td>
+          <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido' %}concluido{% endif %}">{{n.status}}</td>
+
       
           <td>{{n.atribuido}}</td>
         
