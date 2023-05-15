@@ -16,7 +16,8 @@
             
         <div class="column is-7">
             <h1 class="title has-text-centered">Pedidos Horários</h1>
-            <div id="error">{{ error }}</div>
+            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}</div>
+            <div id="error" {% if error %}style="display: block;"{% endif %}>{{ error }}</div>
               <div class="field">
                 <label class="label">Assunto</label>
                 <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}" required>
@@ -62,15 +63,15 @@
             </div>
           </div>
               <div class="field">
-                      <label class="label">Hora de Inicio</label>
+                      <label class="label" style="white-space: nowrap;">Hora de Inicio</label>
                       <input class="input" type="text" id="hora_inicio" name="hora_inicio" placeholder="HH:MM:SS" value="{{ ph.hora_inicio|time:'H:i:s' }}" required>
                     </div>
                     <div class="field">
-                     <label class="label">Hora de Fim</label>
+                     <label class="label" style="white-space: nowrap;">Hora de Fim</label>
                      <input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{ph.hora_fim|time:'H:i:s'}}"required>
                     </div>
                     <div class="field">
-                      <label class="label">Tarefa</label>
+                      <label class="label" style="white-space: nowrap;">Tarefa</label>
                       <div class="control">
                         <div class="select">
                           <select name="tarefa" id="tarefa">
@@ -117,7 +118,7 @@
           
           <div class="field is-grouped">
             <div class="control">
-              <button id="submit-btn" class="button is-link" onclick="showPopUp(event)">Submit</button>
+              <button id="submit-btn" class="button is-link">Submit</button>
             </div>
             <div class="control">
               <button id="cancel-btn" class="button is-link is-light" onclick="window.location.reload()">Cancel</button>
@@ -301,6 +302,16 @@ function showPopUp(event) {
   #error {
   display: none;
   background-color: red;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+#succes {
+  display: none;
+  background-color: green;
   text-align: center;
   color: white;
   padding: 10px;

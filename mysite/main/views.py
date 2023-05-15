@@ -1,10 +1,12 @@
 from django.shortcuts import render,redirect
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.urls import reverse
 from .models import *
 from django.contrib.auth.forms import UserCreationForm
 import pandas as pd
 from datetime import datetime, date
+from urllib.parse import urlencode
+from django.db.models import Q
 
 
 ### Pagina Inicial ###
@@ -176,8 +178,27 @@ def updateHorario(request, pk):
     UC = UnidadesCurriculares.objects.all()
     if request.method == "POST":
         pedido.dia = request.POST['data']
+        dias = pedido.dia
         pedido.assunto = request.POST['assunto']
         pedido.desc = request.POST['desc']
+
+        if datetime.strptime(dias, '%Y-%m-%d').date() < date.today():
+         error = 'A data escolhida é anterior ao dia de hoje!'
+         return render(request, 'main/PedidoHorario2.html', {"error": error,"assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_horario":pedido_horario,
+        "UC": UC,})
+      
+        if Pedido.objects.filter(Q(assunto=pedido.assunto, dia=pedido.dia) & ~Q(id=pk)).exists():
+            # Se já existir, retorne uma mensagem de erro
+            error = 'Já existe um pedido com o mesmo assunto!'
+            return render(request, 'main/PedidoHorario2.html', {"error": error,"assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_horario":pedido_horario,
+        "UC": UC,})
+      
         pedido.save()
 
         uc_list = request.POST.getlist('unc')
@@ -186,6 +207,8 @@ def updateHorario(request, pk):
         hora_fim_list = request.POST.getlist('hora_fim')
         tarefa = request.POST.getlist('tarefa')
         dia2 =request.POST.getlist('data2')
+
+        
         # Combine as listas em uma lista de tuplas
         updates = zip(pedido_horario, uc_list, descri_list, hora_inicio_list, hora_fim_list, tarefa, dia2)
 
@@ -197,9 +220,23 @@ def updateHorario(request, pk):
             pedido_horario.hora_fim = hora_fim
             pedido_horario.tarefa = tarefa
             pedido_horario.dia = dia2
+            
+            try:
+                  datetime.strptime(pedido_horario.hora_inicio, '%H:%M:%S')
+                  datetime.strptime(pedido_horario.hora_fim, '%H:%M:%S')
+            except ValueError:
+                  error = 'Formato de hora inválido!'
+                  return render(request, 'main/PedidoHorario2.html', {"error": error,"assunto": pedido.assunto,
+            "desc": pedido.desc,
+            "dia": pedido.dia,
+            "pedido_horario":pedido_horario,
+            "UC": UC,})
             pedido_horario.save()
-
-        return redirect('main:tablePedidos')
+        
+        redirect_url = reverse('main:tablePedidos')
+        params = urlencode({'success': 'Enviado para a base de dados'})
+        redirect_url = f"{redirect_url}?{params}"
+        return HttpResponseRedirect(redirect_url)
     return render(request, template_name="main/PedidoHorario2.html", context={
         "assunto": pedido.assunto,
         "desc": pedido.desc,
@@ -211,6 +248,7 @@ def updateHorario(request, pk):
 
 def UPDATEPeidosOUT(request, pk):
     pedido = Pedido.objects.get(id=pk)
+    pedido_outros = PedidosOutros.objects.filter(pedido=pk).all()
     if request.method == "POST":
         pedido.assunto = request.POST['assunto']
         pedido.desc = request.POST['desc']
@@ -267,7 +305,7 @@ def tablePedidos(request):
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
    funciona = Funcionario.objects.all()
-   
+   success = request.GET.get('success')
    if request.method == 'POST':
       pedido_id = request.POST.get('pedido_id') 
       pedido = Pedido.objects.get(id=pedido_id)
@@ -283,7 +321,7 @@ def tablePedidos(request):
       
       pedido.save()
   
-   return render(request, template_name="main/tableHorario.html",context={"Pedido":pedidoshorario, "item":pedidoshorarios, "funcio":funciona})
+   return render(request, template_name="main/tableHorario.html",context={"Pedido":pedidoshorario, "item":pedidoshorarios, "funcio":funciona,'success': success})
 
 
 ### Criar Ano Letivo ###
