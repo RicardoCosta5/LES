@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .filters import PedidoFilter
+from .forms import *
 
 ### Pagina Inicial ###
 def homepage(request):
@@ -666,3 +667,138 @@ def deletSala(request,pk):
       PedidosSala.delete()
       return redirect('/tableSala')
    return render(request, template_name="main/deleteS.html",context={'item': PedidosSala})
+
+
+
+#Login e Register
+def login(request):
+    ''' Fazer login na plataforma do dia aberto e gestão de acessos à plataforma '''
+    if request.user.is_authenticated: 
+        return redirect("main:home")   
+    else:
+        u=""
+    msg=False
+    error=""
+    if request.method == 'POST':
+        form = LoginForm(request=request, data=request.POST)
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        if username=="" or password=="":
+                msg=True
+                error="Todos os campos são obrigatórios!"
+        else:
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                utilizador = Utilizador.objects.get(id=user.id)
+                if utilizador.valido=="False": 
+                    msg=True
+                    error="O seu registo ainda não foi validado"
+                elif utilizador.valido=="Rejeitado":
+                    msg=True
+                    error="O seu registo não é válido"
+                else:
+                    login(request, user)
+                    return redirect('main:home')
+            else:
+                msg=True
+                error="O nome de utilizador ou a palavra-passe inválidos!"
+    form = LoginForm()
+    return render(request=request,
+                  template_name="main/login.html",
+                  context={"form": form,"msg": msg, "error": error, 'u': u})
+
+
+def escolher(request):
+    ''' Escolher tipo de perfil para criar um utilizador '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"
+        elif user.groups.filter(name = "Funcionário").exists():
+            u = "Funcionário"
+        elif user.groups.filter(name = "Docente").exists():
+            u = "Docente" 
+        else:
+            u=""     
+    else:
+        u=""
+    utilizadores = ["Funcionário","Docente", "Administrador"]
+    return render(request=request, template_name='main/escolher_perfil.html', context={"utilizadores": utilizadores,'u': u})
+
+
+def register(request, id):
+    ''' Criar um novo utilizador que poderá ter de ser validado dependendo do seu tipo '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"
+        elif user.groups.filter(name = "Docente").exists():
+            u = "Docente"
+        elif user.groups.filter(name = "Funcionário").exists():
+            u = "Funcionario" 
+        else:
+            u=""     
+    else:
+        u=""
+    msg=False
+    if request.method == "POST":
+        tipo = id
+        if tipo == 1:
+            form = FuncionarioRegisterForm(request.POST)
+            perfil = "Funcionario"
+            #my_group = Group.objects.get(name='Funcionário') 
+        elif tipo == 2:
+            form = DocenteRegisterForm(request.POST)
+            perfil = "Docente"
+            my_group = Group.objects.get(name='Docente')
+        elif tipo == 3:
+            form = AdministradorRegisterForm(request.POST)
+            perfil = "Administrador"
+            my_group = Group.objects.get(name='Administrador')    
+        else:
+            return redirect("utilizadores:escolher-perfil")
+
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            first_name = form.cleaned_data.get('first_name')
+            my_group.user_set.add(user)
+
+            if tipo == 1:
+                user.valido = 'True'
+                user.save()
+                p=1
+            else:
+                user.valido = 'False'
+                recipient_id = user.id #Enviar Notificacao Automatica !!!!!!!!!
+                user.save()
+                p=0
+                views.enviar_notificacao_automatica(request,"validarRegistosPendentes",recipient_id) #Enviar Notificacao Automatica !!!!!!!!!
+            if request.user.is_authenticated:    
+                user = get_user(request)
+                if user.groups.filter(name = "Administrador").exists():
+                    return redirect("utilizadores:concluir-registo",2)  
+            else:   
+                return redirect("utilizadores:concluir-registo",p)
+        else:
+            msg=True
+            tipo = id
+            return render(request=request,
+                          template_name="main/criar_utilizador.html",
+                          context={"form": form, 'perfil': perfil, 'u': u,'registo' : tipo,'msg': msg})
+    else:
+        tipo = id
+        if tipo == 1:
+            form = FuncionarioRegisterForm()
+            perfil = "Funcionário"
+        elif tipo == 2:
+            form = DocenteRegisterForm()
+            perfil = "Docente"
+        elif tipo == 3:
+            form = AdministradorRegisterForm()
+            perfil = "Administrador" 
+        else:
+            return redirect("utilizadores:escolher-perfil")
+    return render(request=request,
+                  template_name="main/criar_utilizador.html",
+                  context={"form": form, 'perfil': perfil,'u': u,'registo' : tipo,'msg': msg})

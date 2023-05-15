@@ -4,31 +4,23 @@ from django.utils import timezone
 
 ### Pessoa que é atribuida o pedido ###
 class Funcionario(models.Model):
-    nome = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255,default="gnomo")
+    last_name = models.CharField(max_length=255,default="gnomo")
+    email = models.CharField(max_length=255,default="gnomo")
     telefone = models.IntegerField()
     ativo = models.BooleanField()
 
 ### ver o que é importante pegar ###
 class Docente(models.Model):
-    codigo = models.IntegerField()
-    docente = models.CharField(max_length=255)
-    ativo = models.CharField(max_length=2)
-    nome = models.CharField(max_length=255)
-    individuo = models.IntegerField()
-    data_nascimento = models.CharField(max_length=255)
-    sexo = models.CharField(max_length=2)
-    tipo_identificacao = models.IntegerField()
-    identificacao = models.CharField(max_length=255)
-    data_emissao_identificacao = models.CharField(max_length=255)
-    nacionalidade = models.IntegerField()
-    arquivo = models.CharField(max_length=255)
-    data_validade_identificacao = models.CharField(max_length=255)
-    nif = models.CharField(max_length=9)
-    pais_fiscal = models.CharField(max_length=255)
-    digito_verificacao = models.CharField(max_length=255)
-    nbsp = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255, default="gnomo")
+    last_name = models.CharField(max_length=255, default="gnomo")
+    email = models.CharField(max_length=255, default="gnomo")
+    telefone = models.IntegerField()
+    ativo = models.BooleanField()
 
+    gabinete = models.CharField(max_length=255, default="defaults")
+    faculdade = models.CharField(max_length=255, default="defaults")
+    departamento = models.CharField(max_length=255, default="defaults")
  ### Literalmente nao é utilizado em nada ###   
 class Horario(models.Model):
     data = models.DateField()
@@ -73,7 +65,7 @@ class PedidosOutros(models.Model):
     arquivo = models.FileField(blank=True, null=True)
 
 class PedidoUC(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, default=Funcionario.objects.first().id)
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
     uc = models.CharField(max_length=255,default="LES")
     descri = models.CharField(max_length=1200,default= "Default description")
     tipo = models.CharField(max_length=255, default = "Unidades Curriculares")
