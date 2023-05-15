@@ -4,6 +4,23 @@
 
 
 <style>
+   .columns-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .filters-column {
+    width: 30%;
+    margin-right: 20px;
+  }
+  .table-column {
+    width: 70%;
+  }
+  .columns-container::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
     table {
       width: 100%;
       table-layout: fixed
@@ -81,13 +98,104 @@ table th:nth-child(5) {
   color: #008000; /* cor do texto para o estado "concluido" */
 }
   </style>
-<div class="columns is-centered">
+<div class="columns is-small">
   {% if success %}
     <div class="popup-container">
       <div class="alert alert-success">{{ success }}</div>
     </div>
   {% endif %}
+  <div class="column is-one-fifth">
+    <ul class="menu-list is-small">
+      <li class="is-not-menu">
+        <a>Filtros Pedido</a>
+        <ul class="is-menu ">
+        
+    <li style="margin-bottom: 5px;">
+      <div class="field is-small">
+        <div class="control has-icons-left">
+          
+          <form method="get">
+            <input class="input is-small" type="text" placeholder="Assunto" name="assunto" value="{{ myFilter.data.assunto }}">
+            
+          
+          <span class="icon is-small is-left">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+    </li>
+    <li style="margin-bottom: 10px;">
+      <div class="field is-small">
+        <div class="control has-icons-left">
+          <input class="input is-small" type="text" placeholder="Descrição" name="desc" value="{{ myFilter.data.desc }}">
+          <span class="icon is-small is-left">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+    </li>
+    <li style="margin-bottom: 10px;">
+      <div class="field is-small">
+        <div class="control has-icons-left">
+          <input class="input is-small" type="text" placeholder="Tipo" name="tipo" value="{{ myFilter.data.tipo }}">
+          <span class="icon is-small is-left">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+    </li>
+    <li style="margin-bottom: 10px;">
+      <div class="columns" >
+        <div class="column">
+          <div class="field is-small">
+            <div class="control has-icons-left">
+              <input class="input is-small" type="text" placeholder="De mm/dd/aaaa" name="start_date" value="{{ myFilter.data.start_date }}">
+              <span class="icon is-small is-left">
+                <i class="fas fa-clock"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control has-icons-left">
+              <input class="input is-small" type="text" placeholder="Até mm/dd/aaaa">
+              <span class="icon is-small is-left">
+                <i class="fas fa-clock"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li style="margin-bottom: 10px;">
+      <div class="field is-small">
+        <div class="control has-icons-left">
+          <input class="input is-small" type="text" placeholder="Status" name="Status" value="{{ myFilter.data.status }}">
+          <span class="icon is-small is-left">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+    </li>
+    <li style="margin-bottom: 10px;">
+      <div class="field is-small">
+        <div class="control has-icons-left">
+          <input class="input is-small" type="text" placeholder="Estado Atribuição" name="Estado Atribuição" value="{{ myFilter.atribuido }}">
+          <span class="icon is-small is-left">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+    </li>
+    <button class="button is-info" type="submit">Search</button>
+  </ul>
+</li>
+</ul>
+</div>
 
+          </form>
+<div class="column2 is-centered ">
 
  
   <table class="table is-striped">
@@ -109,7 +217,7 @@ table th:nth-child(5) {
       <tbody>
         <tr>
           <td>{{n.assunto|linebreaksbr|truncatechars:20}}</td>
-          <td class="wide-column">{{n.desc|linebreaksbr|truncatechars:20 }}</td>
+          <td class="wide-column2">{{n.desc|linebreaksbr|truncatechars:20 }}</td>
           <td>{{n.dia}}</td>
           <td>{{n.tipo}}</td>
           <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido' %}concluido{% endif %}">{{n.status}}</td>
@@ -177,7 +285,7 @@ table th:nth-child(5) {
   <div id="msg-container"></div>
   
 </div>
-
+</div>
 <div class="pagination is-centered centered-pagination">
   {% if Pedido.has_previous %}
     <a href="?page={{ Pedido.previous_page_number }}">Anterior</a>

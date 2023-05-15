@@ -84,7 +84,7 @@ class PedidoSala(models.Model):
     edi = models.CharField(max_length=255, default = "Default name")
     sal = models.CharField(max_length=255, default = "Default name")
     uc = models.CharField(max_length=255,default="LES")
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, default=Pedido.objects.first().id)    
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)    
     hora_de_inicio = models.TimeField()
     status = models.CharField(max_length=255,default="Em Análise")
     hora_de_fim = models.TimeField()

@@ -8,7 +8,7 @@ from datetime import datetime, date
 from urllib.parse import urlencode
 from django.db.models import Q
 from django.core.paginator import Paginator
-
+from .filters import PedidoFilter
 
 ### Pagina Inicial ###
 def homepage(request):
@@ -306,10 +306,14 @@ def tablePedidos(request):
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
    funciona = Funcionario.objects.all()
+   myFilter = PedidoFilter(request.GET,queryset=pedidoshorario)
+   pedidoshorario = myFilter.qs
    paginator = Paginator(pedidoshorario, 10)  # Define a quantidade de itens por página
    page_number = request.GET.get('page')  # Obtém o número da página da solicitação
    page_obj = paginator.get_page(page_number)
    success = request.GET.get('success')
+   
+
    if request.method == 'POST':
       pedido_id = request.POST.get('pedido_id') 
       pedido = Pedido.objects.get(id=pedido_id)
@@ -329,7 +333,7 @@ def tablePedidos(request):
       
       
   
-   return render(request, template_name="main/tableHorario.html",context={"Pedido":page_obj, "item":pedidoshorarios, "funcio":funciona,'success': success})
+   return render(request, template_name="main/tableHorario.html",context={"Pedido":page_obj, "item":pedidoshorarios, "funcio":funciona,'success': success, 'myFilter':myFilter})
 
 
 ### Tabela Pedidos veie###
