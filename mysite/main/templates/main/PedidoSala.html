@@ -177,11 +177,11 @@ function showPopUp(event) {
   '<div class="control">' +
     '<div class="select">' +
       '<select name="salaa" id="salaa">' +
-        '{% for u in Sala %}' +
-          '{% if u.NumeroSala == unc %}' +
-            '<option selected>{{ u.NumeroSala }}</option>' +
+        '{% for u in salaa %}' +
+          '{% if u.DescSala == unc %}' +
+            '<option selected>{{ u.DescSala }}</option>' +
           '{% else %}' +
-            '<option>{{ u.NumeroSala }}</option>' +
+            '<option>{{ u.DescSala }}</option>' +
           '{% endif %}' +
         '{% endfor %}' +
       '</select>' +
