@@ -713,6 +713,7 @@ def tableEstatisticaPedido(request):
    # Obter o número de pedidos com o status "Em Análise"
    num_pedidos_em_analise = Pedido.objects.filter(status='Em Análise').count()
    estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Em Análise')
+   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
    porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
    texto_formatado = '{:.1f}%'.format(porcentagem_analise)
    estatistica_pedido_em_analise.percetagem =texto_formatado
@@ -728,45 +729,18 @@ def tableEstatisticaPedido(request):
    estatistica_pedido_em_analise.save()
 
    # Obter o número de pedidos com o status "Rejeitado"
-   num_pedidos_em_analise = Pedido.objects.filter(status='Rejeitado').count()
-   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Rejeitado')
+   num_pedidos_em_analise = Pedido.objects.filter(status='Registado').count()
+   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Registado')
    estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
    porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
    texto_formatado = '{:.1f}%'.format(porcentagem_analise)
    estatistica_pedido_em_analise.percetagem =texto_formatado
    estatistica_pedido_em_analise.save()
 
-   # Obter o número de pedidos com o status "Novo"
-   num_pedidos_em_analise = Pedido.objects.filter(status='Novo').count()
-   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Novo')
-   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
-   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
-   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
-   estatistica_pedido_em_analise.percetagem =texto_formatado
-   estatistica_pedido_em_analise.save()
-
-   # Obter o número de pedidos com o status "Em processamento"
-   num_pedidos_em_analise = Pedido.objects.filter(status='Em processamento').count()
-   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Em processamento')
-   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
-   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
-   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
-   estatistica_pedido_em_analise.percetagem =texto_formatado
-   estatistica_pedido_em_analise.save()
-
-   # Obter o número de pedidos com o status "Em espera"
-   num_pedidos_em_analise = Pedido.objects.filter(status='Em espera').count()
-   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Em espera')
-   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
-   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
-   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
-   estatistica_pedido_em_analise.percetagem =texto_formatado
-   estatistica_pedido_em_analise.save()
 
 
    pedidosSala = EstatisticaPedido.objects.all()
    return render(request, template_name="main/tableEstatisticaPedidos.html",context={"Pedido":pedidosSala})
-
 
 
 ### Coisa na minha opiniao nao são necessarias ###
