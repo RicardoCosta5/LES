@@ -185,18 +185,18 @@ def PedidoSalas(request):
       new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala")
       new_Pedido.save()
 
-      for i in range(len(uc_list, salaa)):
+      for i in range(len(uc_list)):
          new_PedidoSala = PedidoSala(
             
-            hora_de_inicio=hora_de_inicio[i],
-            hora_de_fim=hora_de_fim[i],
+            hora_de_inicio=hora_de_inicio_list[i],
+            hora_de_fim=hora_de_fim_list[i],
             descri=descri_list[i],
             uc = uc_list[i],
-            dia2 = dia2[i],
+            dia = dia2[i],
             pedido=new_Pedido
          )
 
-         if PedidoSala.objects.filter(uc=uc_list[i], dia=dia2[i],hora_inicio=hora_de_inicio_list[i],hora_fim=hora_de_fim_list[i],tarefa=tarefa[i]).exists():
+         if PedidoSala.objects.filter(uc=uc_list[i], dia=dia2[i],hora_de_inicio=hora_de_inicio_list[i],hora_de_fim=hora_de_fim_list[i],tarefa=tarefa[i]).exists():
             error = 'Pedido de Horário igual!'
             ultimo_pedido = Pedido.objects.last()
             ultimo_pedido.delete()
