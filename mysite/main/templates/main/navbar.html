@@ -3,11 +3,7 @@
 
 <nav id="main-navbar" class="navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-<<<<<<< HEAD
-    <a class="navbar-item logo" href="home">
-=======
     <a class="navbar-item logo" href="{% url 'main:home'%}">
->>>>>>> e2f449b53f23c43b15a4064dc071cc077589123a
       <img src="{% static 'img/ualg-logo.png' %}" alt="FCT">
     </a>
 
@@ -60,7 +56,6 @@
       </div>
       {% if user.is_authenticated %}
       <div class="navbar-end">
-<<<<<<< HEAD
         <a href="{% url 'main:logout' %}">
           <div type="button" class="button">
             <span class="icon is-small">
@@ -70,16 +65,10 @@
           </div>
         </a>
         {% else %}
-      <a href="escolher" class="navbar-item">
-        Registo
-      </a>
-      <a href="login" class="navbar-item">
-=======
       <a href="{% url 'main:escolher' %}" class="navbar-item">
         Registo
       </a>
       <a href="{% url 'main:login' %}" class="navbar-item">
->>>>>>> e2f449b53f23c43b15a4064dc071cc077589123a
         Login
       </a>
       {% endif %}
