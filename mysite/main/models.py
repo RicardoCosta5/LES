@@ -196,6 +196,8 @@ class Pedido(models.Model):
     status = models.CharField(max_length=255,default="Em Análise")
     atribuido = models.CharField(max_length=255, default="Não Atribuido")
     Funcionario=models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True)
+    diaCriado = models.DateField(default=datetime.date.today)
+    Docente = models.ForeignKey(Docente, on_delete=models.CASCADE, null=True)
     
 ### Pedidos ( Horario - Outros - UC - Sala) , desta parte esta ok
 class PedidoHorario(models.Model):
