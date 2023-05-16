@@ -230,6 +230,8 @@ class PedidoSala(models.Model):
     status = models.CharField(max_length=255,default="Em Análise")
     hora_de_fim = models.TimeField()
     descri = models.CharField(max_length=1200, default="Default description")
+    dia = models.DateField(default=datetime.date.today)
+    tarefa = models.CharField(max_length=255,default="Criar")
 
 ### vai ser utilizado para obtermos as salas do edificio ###
 class Edificio(models.Model):

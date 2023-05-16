@@ -216,8 +216,8 @@ table th:nth-child(5) {
     {% for n in Pedido %}
       <tbody>
         <tr>
-          <td>{{n.assunto|linebreaksbr|truncatechars:20}}</td>
-          <td class="wide-column2">{{n.desc|linebreaksbr|truncatechars:20 }}</td>
+          <td>{{n.assunto|linebreaksbr|truncatechars:10}}</td>
+          <td class="wide-column2">{{n.desc|linebreaksbr|truncatechars:10 }}</td>
           <td>{{n.dia}}</td>
           <td>{{n.tipo}}</td>
           <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido' %}concluido{% endif %}">{{n.status}}</td>
@@ -236,7 +236,18 @@ table th:nth-child(5) {
         </form>
           {%endif%}
           {% if n.status != 'Criado' %}
+          {% if n.tipo == 'Horário'%}
             <td><a class="button is-warning is-active" href="{% url 'main:update_horario' n.id %}">Update</a></td>
+            {% endif %}
+            {% if n.tipo == 'Sala' %}
+            <td><a class="button is-warning is-active" href="{% url 'main:update_Sala' n.id %}">Update</a></td>
+          {% endif %}
+          {% if n.tipo == 'Outros' %}
+            <td><a class="button is-warning is-active" href="{% url 'main:update_Sala' n.id %}">Update</a></td>
+          {% endif %}
+          {% if n.tipo == 'Unidade Curricular' %}
+            <td><a class="button is-warning is-active" href="{% url 'main:update_Sala' n.id %}">Update</a></td>
+          {% endif %}
           {% endif %}
           {% if n.status != 'Concluído' and n.status != 'Em processamento' and n.status != 'Rejeitado' and n.atribuido != 'Atribuido'  %}
             <td><a class="button is-danger is-active" href="{% url 'main:delete_horario' n.id %}">Delete</a></td>
@@ -259,7 +270,7 @@ table th:nth-child(5) {
                   <div class="select" style="text-align: center" >
                     <select name="funcionari" id="funcionari">
                       {% for fu in funcio %}
-                          <option>{{ fu.nome }}</option>
+                          <option>{{ fu.first_name }}</option>
                       {% endfor %}
                     </select>
                   </div>

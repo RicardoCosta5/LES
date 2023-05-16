@@ -154,30 +154,74 @@ def PedidoSalas(request):
    Edificios = Edificio.objects.all()
    UC = UnidadesCurriculares.objects.all()
    if request.method == "POST":
+   
       salaa= request.POST.getlist('salaa')
-      uc = request.POST['unc']
+      uc_list = request.POST.getlist('unc')
       dia= request.POST['data']
-      assunto = request.POST['assunto'] 
-      hora_de_inicio = request.POST.getlist('hora_inicio')
-      hora_de_fim= request.POST.getlist('hora_fim')
+      assunto = request.POST['assunto']
+
+      hora_de_inicio_list = request.POST.getlist('hora_inicio')
+      hora_de_fim_list= request.POST.getlist('hora_fim')
       desc = request.POST['desc']
-      descri = request.POST.getlist('descri')
+      descri_list = request.POST.getlist('descri')
+      tarefa = request.POST.getlist('tarefa')
+      dia2 =request.POST.getlist('data2')
+
+      # Verifica se a data escolhida é anterior ao dia de hoje
+      if datetime.strptime(dia, '%Y-%m-%d').date() < date.today():
+         error = 'A data escolhida é anterior ao dia de hoje!'
+         return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
+      
+      if Pedido.objects.filter(assunto=assunto, dia=dia).exists():
+            # Se já existir, retorne uma mensagem de erro
+            error = 'Já existe um pedido com o mesmo assunto!'
+            return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
+      for hora_de_inicio, hora_de_fim in zip(hora_de_inicio_list, hora_de_fim_list):
+         try:
+            datetime.strptime(hora_de_inicio, '%H:%M:%S')
+            datetime.strptime(hora_de_fim, '%H:%M:%S')
+         except ValueError:
+            error = 'Formato de hora inválido!'
+            return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
+
 
       new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala")
       new_Pedido.save()
 
-      for i in range(len(uc)):
+      for i in range(len(uc_list)):
          new_PedidoSala = PedidoSala(
-            sal=salaa[i],
-            hora_de_inicio=hora_de_inicio[i],
-            hora_de_fim=hora_de_fim[i],
-            descri=descri[i],
-            uc = uc[i],
+            
+            hora_de_inicio=hora_de_inicio_list[i],
+            hora_de_fim=hora_de_fim_list[i],
+            descri=descri_list[i],
+            uc = uc_list[i],
+            dia = dia2[i],
             pedido=new_Pedido
          )
+
+         if PedidoSala.objects.filter(uc=uc_list[i], dia=dia2[i],hora_de_inicio=hora_de_inicio_list[i],hora_de_fim=hora_de_fim_list[i],tarefa=tarefa[i]).exists():
+            error = 'Pedido de Horário igual!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
+         if datetime.strptime(dia2[i], '%Y-%m-%d').date() < date.today():
+            error = 'A data escolhida é anterior ao dia de hoje!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
+         hora_de_inicio_list[i] = datetime.strptime(hora_de_inicio, '%H:%M:%S')
+         hora_de_fim_list[i] = datetime.strptime(hora_de_fim, '%H:%M:%S')
+         if hora_de_inicio_list[i] >= hora_de_fim_list[i]:
+            error = 'A hora de fim deve ser maior que a hora de início!'
+            ultimo_pedido = Pedido.objects.last()
+            ultimo_pedido.delete()
+            return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
          new_PedidoSala.save()
-         
-   return render(request, template_name="main/PedidoSala.html",context={"Sala": Salas, "Edificio": Edificios, "UC": UC})
+      
+      succes = 'Enviado para a base de dados'
+      return render(request, template_name="main/PedidoSala.html",context={ "salaa": Salas , "edificios": Edificios,"UC": UC, "succes": succes})
+  
+   return render(request, template_name="main/PedidoSala.html",context={ "salaa": Salas , "edificios": Edificios,"UC": UC})
 
 ### Update dos Pedidos ###
 def updateHorario(request, pk):
@@ -282,21 +326,75 @@ def updateUC(request, pk):
 
 
 def updateSala(request, pk):
-    pedido_Sala = Pedido.objects.get(id=pk)
+    pedido = Pedido.objects.get(id=pk)
+    pedido_Sala = PedidoSala.objects.filter(pedido=pk).all()
+    UC = UnidadesCurriculares.objects.all()
     Salas = Sala.objects.all()
     if request.method == "POST":
-      pedido_Sala.dia = request.POST['data']
-      pedido_Sala.assunto = request.POST['assunto']
-      pedido_Sala.desc = request.POST['desc']
-      pedido_Sala.save()
-  
-      return redirect('main:tableSala')
-    return render(request, template_name="main/PedidoSala.html", context={
-        "assunto": pedido_Sala.assunto,
-        "desc": pedido_Sala.desc,
-        "dia": pedido_Sala.dia,     
-    })  
+      pedido.dia = request.POST['data']
+      pedido.assunto = request.POST['assunto']
+      pedido.desc = request.POST['desc']
 
+      if datetime.strptime(pedido.dia, '%Y-%m-%d').date() < date.today():
+         error = 'A data escolhida é anterior ao dia de hoje!'
+         return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido.assunto,
+         "desc": pedido.desc,
+         "dia": pedido.dia,
+         "Salas":Salas,
+         "pedido_Sala":pedido_Sala, "UC":UC})
+      
+      if Pedido.objects.filter(Q(assunto=pedido.assunto, dia=pedido.dia) & ~Q(id=pk)).exists():
+         # Se já existir, retorne uma mensagem de erro
+         error = 'Já existe um pedido com o mesmo assunto!'
+         return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido_Sala.assunto,
+         "desc": pedido_Sala.desc,
+         "dia": pedido_Sala.dia,
+         "Salas":Salas,
+         "pedido_Sala":pedido_Sala, "UC":UC})
+                                                      
+      pedido.save()
+
+      sala_list = request.POST.getlist('sala')
+      descricao_list = request.POST.getlist('descri')
+      hora_inicio_list = request.POST.getlist('hora_de_inicio')
+      hora_fim_list = request.POST.getlist('hora_de_fim')
+      tarefa = request.POST.getlist('tarefa')
+      dia2 =request.POST.getlist('data2')
+
+      # Combine as listas em uma lista de tuplas
+      updates = zip(pedido_Sala, sala_list, descricao_list, hora_inicio_list, hora_fim_list, tarefa, dia2)
+
+      # Atualize os objetos PedidoSala
+      for pedido_Sala, sala, descri, hora_inicio, hora_fim, tarefa, dia2 in updates:
+         pedido_Sala.sal = sala
+         pedido_Sala.descri = descri
+         pedido_Sala.hora_de_inicio = hora_inicio
+         pedido_Sala.hora_de_fim = hora_fim
+         pedido_Sala.tarefa = tarefa
+         pedido_Sala.dia = dia2
+         try:
+            datetime.strptime(pedido_Sala.hora_de_inicio, '%H:%M:%S')
+            datetime.strptime(pedido_Sala.hora_de_fim, '%H:%M:%S')
+         except ValueError:
+            error = 'Formato de hora inválido!'
+            return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido.assunto,
+         "desc": pedido.desc,
+         "dia": pedido.dia,
+         "Salas":Salas,
+         "pedido_Sala":pedido_Sala, "UC":UC})
+         pedido_Sala.save()
+      
+      redirect_url = reverse('main:tablePedidos')
+      params = urlencode({'success': 'Enviado para a base de dados'})
+      redirect_url = f"{redirect_url}?{params}"
+      return HttpResponseRedirect(redirect_url)
+    return render(request, template_name="main/PedidoSala2.html", context={
+        "assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "Salas":Salas,
+        "pedido_Sala":pedido_Sala, "UC":UC     
+    })
 
 ### Apagar Pedidos ISTO SO JA APAGA TODOS OS TIPOS DO PEDIDO ###
 def deletHorario(request,pk):
@@ -349,7 +447,7 @@ def tablePedidos2(request,pk):
     pedido = Pedido.objects.get(id=pk)
     if PedidoHorario.objects.filter(pedido=pedido).exists():
         pedidoshorario = PedidoHorario.objects.filter(pedido=pedido)
-        return render(request, template_name="main/tableHorario2.html", context={"outros": pedidoshorario,"pedido":pedido})
+        return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidoshorario,"pedido":pedido})
     elif PedidosOutros.objects.filter(pedido=pedido).exists():
         pedidosoutros = PedidosOutros.objects.filter(pedido=pedido)
         return render(request, template_name="main/tableHorario2.html", context={"Pedido": pedidosoutros,"pedido":pedido})
