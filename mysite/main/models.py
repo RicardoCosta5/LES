@@ -1,175 +1,116 @@
 import datetime
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-class FuncionarioManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, email, password=None, **extra_fields):
-        user = self.create_user(email, password, **extra_fields)
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-        return user
-
-class Funcionario(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, default="gnomo")
-    first_name = models.CharField(max_length=255, default="gnomo")
-    last_name = models.CharField(max_length=255, default="gnomo")
-    email = models.CharField(max_length=255, default="gnomo", unique=True)
+class Utilizador(User):
     telefone = models.IntegerField()
-    ativo = models.BooleanField(default=True)
+    valido = models.CharField(max_length=255, blank=False, null=False)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo', 'username']
+    def getProfiles(self):
+        type = ''
+        if Administrador.objects.filter(utilizador_ptr_id=self):
+            type = self.concat(type=type, string='Administrador')
+        if Docente.objects.filter(utilizador_ptr_id=self):
+            type = self.concat(type=type, string='Docente')
+        if Funcionario.objects.filter(utilizador_ptr_id=self):
+            type = self.concat(type=type, string='Funcionário')
+        return type
 
-    objects = FuncionarioManager()
-
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='funcionario_group_set',
-        blank=True,
-        verbose_name='groups',
-        help_text='The groups this user belongs to.',
-        related_query_name='funcionario_group'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='funcionario_permission_set',
-        blank=True,
-        verbose_name='user permissions',
-        help_text='Specific permissions for this user.',
-        related_query_name='funcionario_permission'
-    )
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser
-
-    def has_module_perms(self, app_label):
-        return self.is_superuser
+    def concat(self, type, string):
+        if type == '':
+            type = string
+        else:
+            type += ', '+string
+        return type
 
     @property
-    def is_staff(self):
-        return self.is_superuser
+    def firstProfile(self):
+        return self.getProfiles().split(' ')[0]
 
-class AdministradorManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save()
-        return user
+    def getUser(self):
+        user = User.objects.get(id=self.id)
+        if user.groups.filter(name = "Docente").exists():
+            result = Docente.objects.get(id=self.id)
+        elif user.groups.filter(name = "Administrador").exists():
+            result = Administrador.objects.get(id=self.id)
+        elif user.groups.filter(name = "Funcionário").exists():
+            result = Funcionario.objects.get(id=self.id)
+        else:
+            result = None
+        return result   
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        user = self.create_user(email, password, **extra_fields)
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-        return user
 
-class Administrador(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, default="gnomo")
-    first_name = models.CharField(max_length=255, default="gnomo")
-    last_name = models.CharField(max_length=255, default="gnomo")
-    email = models.CharField(max_length=255, default="gnomo", unique=True)
-    telefone = models.IntegerField()
-    ativo = models.BooleanField(default=True)
-    gabinete = models.CharField(max_length=255, default="C1.54")
+    def getProfile(self):
+        user = User.objects.get(id=self.id)
+        if user.groups.filter(name = "Docente").exists():
+            result = "Docente"
+        elif user.groups.filter(name = "Administrador").exists():
+            result = "Administrador"
+        elif user.groups.filter(name = "Funcionário").exists():
+            result = "Funcionário"
+        else:
+            result = None
+        return result 
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo', 'username', 'gabinete']
+    def emailValidoUO(self,uo):
+        user = User.objects.get(email=self.email)
+        if user.groups.filter(name = "Docente").exists():
+            utilizador = Docente.objects.get(email=self.email)
+        elif user.groups.filter(name = "Administrador").exists():
+            return True
+        elif user.groups.filter(name = "Funcionário").exists():
+            utilizador = Funcionario.objects.get(email=self.email)
+        else:
+            return False
+        if utilizador.faculdade == uo:
+            return True
+        else:
+            return False   
 
-    objects = AdministradorManager()
-
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='administrador_group_set',
-        blank=True,
-        verbose_name='groups',
-        help_text='The groups this user belongs to.',
-        related_query_name='administrador_group'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='administrador_permission_set',
-        blank=True,
-        verbose_name='user permissions',
-        help_text='Specific permissions for this user.',
-        related_query_name='administrador_permission'
-    )
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser
-
-    def has_module_perms(self, app_label):
-        return self.is_superuser
-
+    def emailValidoParticipante(self):
+        user = User.objects.get(email=self.email)
+        if user.groups.filter(name = "Administrador").exists():
+            return True
+        else:
+            return False    
     @property
-    def is_staff(self):
-        return self.is_superuser
-
-### ver o que é importante pegar ###
-class DocenteManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, email, password=None, **extra_fields):
-        user = self.create_user(email, password, **extra_fields)
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-        return user
-
-class Docente(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, default="gnomo")
-    first_name = models.CharField(max_length=255, default="gnomo")
-    last_name = models.CharField(max_length=255, default="gnomo")
-    email = models.CharField(max_length=255, default="gnomo", unique=True)
-    telefone = models.IntegerField()
-    ativo = models.BooleanField(default=True)
-    gabinete = models.CharField(max_length=255, default="C1.2")
-    faculdade = models.CharField(max_length=255, default="FCT")
-    departamento = models.CharField(max_length=255, default="Engenharia")
+    def full_name(self):
+        return self.first_name + ' ' + self.last_name
+    class Meta:
+        db_table = 'Utilizador'
 
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo', 'username', 'faculdade', 'departamento', 'gabinete']
+#Faculdade Departamento
+class Faculdade(models.Model):
+    nome = models.CharField(max_length=255, default="FCT - Faculdade de Ciencias e Tecnologia")
 
-    objects = DocenteManager()
+class Departamento(models.Model):
+    nome = models.CharField(max_length=255, default="Departamento de Engenharia informática")
+class Administrador(Utilizador):
+    gabinete = models.CharField(max_length=255, blank=False, null=False)
 
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='docente_group_set',
-        blank=True,
-        verbose_name='groups',
-        help_text='The groups this user belongs to.',
-        related_query_name='docente_group'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='docente_permission_set',
-        blank=True,
-        verbose_name='user permissions',
-        help_text='Specific permissions for this user.',
-        related_query_name='docente_permission'
-    )
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser
+    class Meta:
+        db_table = 'Administrador'
 
-    def has_module_perms(self, app_label):
-        return self.is_superuser
 
-    @property
-    def is_staff(self):
-        return self.is_superuser
+class Funcionario(Utilizador):
+    class Meta:
+        db_table = 'Funcionário'
+
+
+class Docente(Utilizador):
+    gabinete = models.CharField(db_column='Gabinete', max_length=255, blank=False, null=False)
+
+    faculdade = models.ForeignKey(Faculdade, models.CASCADE)
+
+    departamento = models.ForeignKey(Departamento, models.CASCADE)
+
+    def __str__(self):
+        return str(self.gabinete) + ' ' + str(self.faculdade) + ' ' + str(self.departamento)
+    class Meta:
+        db_table = 'Docente'
  ### Literalmente nao é utilizado em nada ###   
 class Horario(models.Model):
     data = models.DateField()
@@ -313,11 +254,3 @@ class EstatisticaPedido(models.Model):
     VarTempo = models.CharField(max_length=255, default="3 dias")
     percetagem = models.CharField(max_length=255, default="40%")
 
-
-
-#Faculdade Departamento
-class Faculdade(models.Model):
-    nome = models.CharField(max_length=255, default="FCT - Faculdade de Ciencias e Tecnologia")
-
-class Departamento(models.Model):
-    nome = models.CharField(max_length=255, default="Departamento de Engenharia informática")

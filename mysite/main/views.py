@@ -13,7 +13,8 @@ from .forms import *
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user
 from . import views
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
+
 
 
 
@@ -775,7 +776,7 @@ def deletSala(request,pk):
 
 
 #Login e Register
-def login(request):
+def login_action(request):
     ''' Fazer login na plataforma do dia aberto e gestão de acessos à plataforma '''
     if request.user.is_authenticated: 
         return redirect("main:home")   
@@ -811,6 +812,10 @@ def login(request):
                   template_name="main/login.html",
                   context={"form": form,"msg": msg, "error": error, 'u': u})
 
+def logout_action(request):
+    ''' Fazer logout na plataforma '''
+    logout(request)
+    return redirect('main:home')
 
 def escolher(request):
     ''' Escolher tipo de perfil para criar um utilizador '''
@@ -870,7 +875,7 @@ def register(request, id):
             first_name = form.cleaned_data.get('first_name')
             user.groups.add(my_group)
 
-            if tipo == 1:
+            if tipo == 3:
                 user.valido = True
                 user.save()
                 p = 1

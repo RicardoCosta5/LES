@@ -3,7 +3,7 @@
 
 <nav id="main-navbar" class="navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item logo" href="{% url 'main:home'% }">
+    <a class="navbar-item logo" href="home">
       <img src="{% static 'img/ualg-logo.png' %}" alt="FCT">
     </a>
 
@@ -41,7 +41,7 @@
         </div>
       </div>
     <div class="navbar-item has-dropdown is-hoverable">
-      <a href="{% url 'main:tableEstatisticaPedido' %}" class="navbar-item">Estatistica Pedidos</a>
+      <a href="tableEstatisticaPedido" class="navbar-item">Estatistica Pedidos</a>
     </div>
 
       <div class="navbar-item has-dropdown is-hoverable">
@@ -54,13 +54,24 @@
       </div>
   </div>
       </div>
+      {% if user.is_authenticated %}
       <div class="navbar-end">
-      <a href="{url 'main:escolher'}" class="navbar-item">
+        <a href="{% url 'main:logout' %}">
+          <div type="button" class="button">
+            <span class="icon is-small">
+              <i class="mdi mdi-login-variant"></i>
+            </span>
+            <span>Sair</span>
+          </div>
+        </a>
+        {% else %}
+      <a href="escolher" class="navbar-item">
         Registo
       </a>
-      <a href="{url 'main:login'}" class="navbar-item">
+      <a href="login" class="navbar-item">
         Login
       </a>
+      {% endif %}
       </div>
    
 

@@ -47,9 +47,10 @@ urlpatterns = [
 
 #Login e register
 
-    path("login", views.login, name="login"),
+    path("login", views.login_action, name="login"),
     path("register/<int:id>", views.register, name="register"),
     path("escolher", views.escolher, name="escolher"),
+    path("logout", views.logout_action, name="logout"),
 
 #Tabelas
     path ("tablePedidos", views.tablePedidos, name="tablePedidos"),
