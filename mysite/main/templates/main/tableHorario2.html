@@ -41,8 +41,14 @@
             {% if pedido.tipo == 'Horário' %}
           {% for ph in Pedido %}
           <li>
+            
           <div id="novo-campo-uc"><div class="field is-horizontal">
             <div class="field-body">
+              <div class="field">
+                <label class="label" style="white-space: nowrap;">Tarefa</label>
+                <p>{{ph.tarefa}}</p>
+                </div>
+            
               <div class="field">
             <label class="label" style="white-space: nowrap; ">Unidade Curricular</label>
                 <p>{{ph.uc}}</p>
@@ -55,11 +61,7 @@
                      <label class="label" style="white-space: nowrap;">Hora de Fim</label>
                      <p>{{ph.hora_fim|time:'H:i:s'}}</p>
                     </div>
-                    <div class="field">
-                      <label class="label" style="white-space: nowrap;">Tarefa</label>
-                      <p>{{ph.tarefa}}</p>
-                      </div>
-                    </div>
+                    
                     <div class="field">
                             <label class="label">Dia</label>
                            
@@ -83,13 +85,14 @@
           
             <div class="field-body">
               <div class="field">
+                <label class="label fixed-label" style="white-space: nowrap;">Tarefa</label>
+                <p>{{ph.tarefa}}</p>
+                </div>
+              <div class="field">
             <label class="label fixed-label " style="white-space: nowrap;">Unidade Curricular</label>
                 <p>{{ph.uc|linebreaksbr|truncatechars:50}}</p>
           </div>
-                    <div class="field">
-                      <label class="label fixed-label" style="white-space: nowrap;">Tarefa</label>
-                      <p>{{ph.tarefa}}</p>
-                      </div>
+                    
                    
                     <div class="field">
                       <label class="label fixed-label" style="white-space: nowrap;">Regente</label>
@@ -106,7 +109,7 @@
                   </div>
                   </div>
                   {% empty %}
-                  <li>Não há pedidos Unidade Curricular  para este pedido.</li>
+                  <li>Não há pedidos Unidade Curricular para este pedido.</li>
               {% endfor %}
                 </ul>
                 {% elif pedido.tipo == 'Sala' %}
@@ -115,16 +118,17 @@
           
             <div class="field-body">
               <div class="field">
+                <label class="label fixed-label" style="white-space: nowrap;">Tarefa</label>
+                <p>{{ph.tarefa}}</p>
+                </div>
+              <div class="field">
             <label class="label fixed-label " style="white-space: nowrap;">Sala</label>
                 <p>{{ph.|linebreaksbr|truncatechars:50}}</p>
           </div>
           <label class="label fixed-label " style="white-space: nowrap;">Unidade Curricular</label>
                 <p>{{ph.uc|linebreaksbr|truncatechars:50}}</p>
           </div>
-                    <div class="field">
-                      <label class="label fixed-label" style="white-space: nowrap;">Tarefa</label>
-                      <p>{{ph.tarefa}}</p>
-                      </div>
+          
                    
                       <div class="field">
                         <label class="label" style="white-space: nowrap;">Hora de Inicio</label>
@@ -162,7 +166,7 @@
                     
                   </div>
                   {% empty %}
-                  <li>Não há pedidos Sala para este pedido.</li>
+                  <li>Não há pedidos Outros para este pedido.</li>
               {% endfor %}
                 </ul>
                 {% endif %}

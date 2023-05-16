@@ -313,17 +313,64 @@ def UPDATEPeidosOUT(request, pk):
 
 
 def updateUC(request, pk):
-    pedido_UC = PedidoUC.objects.get(id=pk)
+    pedido = Pedido.objects.get(id=pk)
+    pedido_horario = PedidoUC.objects.filter(pedido=pk).all()
     UC = UnidadesCurriculares.objects.all()
     if request.method == "POST":
-      pedido_UC.uc= request.POST['unc']
-      pedido_UC.dia = request.POST['data']
-      pedido_UC.assunto = request.POST['assunto']
-      pedido_UC.desc = request.POST['desc']
-      pedido_UC.save()
+        pedido.dia = request.POST['data']
+        dias = pedido.dia
+        pedido.assunto = request.POST['assunto']
+        pedido.desc = request.POST['desc']
+
+        if datetime.strptime(dias, '%Y-%m-%d').date() < date.today():
+         error = 'A data escolhida é anterior ao dia de hoje!'
+         return render(request, 'main/PedidoUC2.html', {"error": error,"assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_horario":pedido_horario,
+        "UC": UC,})
       
-      return redirect('main:tableUC')
-    return render(request, template_name="main/PedidoUC.html", context={"unc": pedido_UC.uc, "desc": pedido_UC.desc, "dia" : pedido_UC.dia, "assunto" : pedido_UC.assunto, "UC" : UC})
+        if Pedido.objects.filter(Q(assunto=pedido.assunto, dia=pedido.dia) & ~Q(id=pk)).exists():
+            # Se já existir, retorne uma mensagem de erro
+            error = 'Já existe um pedido com o mesmo assunto!'
+            return render(request, 'main/PedidoUC2.html', {"error": error,"assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_horario":pedido_horario,
+        "UC": UC,})
+      
+        pedido.save()
+
+        uc_list = request.POST.getlist('unc')
+        descri_list = request.POST.getlist('descri')
+        tarefa = request.POST.getlist('tarefa')
+        regente = request.POST.getlist('regente')
+
+        
+        # Combine as listas em uma lista de tuplas
+        updates = zip(pedido_horario, uc_list, regente,descri_list, tarefa)
+
+        # Atualize os objetos PedidoHorario
+        for pedido_horario, uc, descri_list, regente, tarefa in updates:
+            pedido_horario.uc = uc
+            pedido_horario.descri = descri_list
+            pedido_horario.tarefa = tarefa
+            pedido_horario.regente = regente
+            pedido_horario.save()
+            
+        
+        redirect_url = reverse('main:tablePedidos')
+        params = urlencode({'success': 'Enviado para a base de dados'})
+        redirect_url = f"{redirect_url}?{params}"
+        return HttpResponseRedirect(redirect_url)
+    return render(request, template_name="main/PedidoUC2.html", context={
+        "assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_horario":pedido_horario,
+        "UC": UC,
+    })
+
 
 
 def updateSala(request, pk):

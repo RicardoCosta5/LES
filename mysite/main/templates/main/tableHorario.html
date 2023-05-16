@@ -246,7 +246,7 @@ table th:nth-child(5) {
             <td><a class="button is-warning is-active" href="{% url 'main:update_Sala' n.id %}">Update</a></td>
           {% endif %}
           {% if n.tipo == 'Unidade Curricular' %}
-            <td><a class="button is-warning is-active" href="{% url 'main:update_Sala' n.id %}">Update</a></td>
+            <td><a class="button is-warning is-active" href="{% url 'main:update_UC' n.id %}">Update</a></td>
           {% endif %}
           {% endif %}
           {% if n.status != 'Concluído' and n.status != 'Em processamento' and n.status != 'Rejeitado' and n.atribuido != 'Atribuido'  %}
