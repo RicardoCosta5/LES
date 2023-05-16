@@ -12,6 +12,9 @@ from .filters import PedidoFilter
 from .forms import *
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user
+from . import views
+from django.contrib.auth import authenticate
+
 
 
 ### Pagina Inicial ###
@@ -731,6 +734,8 @@ def escolher(request):
 
 def register(request, id):
     ''' Criar um novo utilizador que poderá ter de ser validado dependendo do seu tipo '''
+    faculdade = Faculdade.objects.all()
+    departamento = Departamento.objects.all()
     if request.user.is_authenticated:
         user = get_user(request)
         if user.groups.filter(name="Administrador").exists():
@@ -776,7 +781,7 @@ def register(request, id):
                 recipient_id = user.id
                 user.save()
                 p = 0
-                views.enviar_notificacao_automatica(request, "validarRegistosPendentes", recipient_id)
+               # views.enviar_notificacao_automatica(request, "validarRegistosPendentes", recipient_id)
             if request.user.is_authenticated:
                 user = get_user(request)
                 if user.groups.filter(name="Administrador").exists():
@@ -788,7 +793,7 @@ def register(request, id):
             tipo = id
             return render(request=request,
                           template_name="main/criar_utilizador.html",
-                          context={"form": form, 'perfil': perfil, 'u': u, 'registo': tipo, 'msg': msg})
+                          context={"form": form, 'perfil': perfil, 'u': u, 'registo': tipo, 'msg': msg, 'faculdade' : faculdade, 'departamento':departamento})
     else:
         tipo = id
         if tipo == 1:
@@ -804,7 +809,7 @@ def register(request, id):
             return redirect("main:escolher-perfil")
     return render(request=request,
                   template_name="main/criar_utilizador.html",
-                  context={"form": form, 'perfil': perfil, 'u': u, 'registo': tipo, 'msg': msg})
+                  context={"form": form, 'perfil': perfil, 'u': u, 'registo': tipo, 'msg': msg, 'faculdade' : faculdade, 'departamento':departamento})
 
 
 def concluir_registo(request,id):

@@ -197,16 +197,15 @@
                     <label class="label">Faculdade</label>
                     <div class="control is-clearfix">
 
-                            <div class="field">
-                                <!---->
-                                <div class="control is-expanded">
-                                    <span class="select is-fullwidth is-empty">
-                                        {{form.faculdade}}
-                                    </span>
-                                    <!---->
-                                </div>
-                                <!---->
+                        <div class="field">
+                            <div class="control is-expanded">
+                                <select class="select is-fullwidth" name="faculdade">
+                                    {% for f in faculdade %}
+                                        <option value="{{ f.nome }}">{{ f.nome }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
+                        </div>
 
                     </div>
                     <!---->
@@ -219,12 +218,11 @@
                     
                             <div class="field">
                                 <!---->
-                                <div class="control is-expanded">
-                                    <span class="select is-fullwidth is-empty">
-                                        {{form.departamento}}
-                                    </span>
-                                    <!---->
-                                </div>
+                                <select class="select is-fullwidth" name="departamento">
+                                    {% for d in departamento %}
+                                        <option value="{{ d.nome }}">{{ d.nome }}</option>
+                                    {% endfor %}
+                                </select>
                                 <!---->
                             </div>
 

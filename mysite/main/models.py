@@ -19,6 +19,7 @@ class FuncionarioManager(BaseUserManager):
         return user
 
 class Funcionario(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=255, default="gnomo")
     first_name = models.CharField(max_length=255, default="gnomo")
     last_name = models.CharField(max_length=255, default="gnomo")
     email = models.CharField(max_length=255, default="gnomo", unique=True)
@@ -26,7 +27,7 @@ class Funcionario(AbstractBaseUser, PermissionsMixin):
     ativo = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo', 'username']
 
     objects = FuncionarioManager()
 
@@ -56,17 +57,119 @@ class Funcionario(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_superuser
 
-### ver o que é importante pegar ###
-class Docente(models.Model):
+class AdministradorManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        user = self.create_user(email, password, **extra_fields)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+        return user
+
+class Administrador(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=255, default="gnomo")
     first_name = models.CharField(max_length=255, default="gnomo")
     last_name = models.CharField(max_length=255, default="gnomo")
-    email = models.CharField(max_length=255, default="gnomo")
+    email = models.CharField(max_length=255, default="gnomo", unique=True)
     telefone = models.IntegerField()
-    ativo = models.BooleanField()
+    ativo = models.BooleanField(default=True)
+    gabinete = models.CharField(max_length=255, default="C1.54")
 
-    gabinete = models.CharField(max_length=255, default="defaults")
-    faculdade = models.CharField(max_length=255, default="defaults")
-    departamento = models.CharField(max_length=255, default="defaults")
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo', 'username', 'gabinete']
+
+    objects = AdministradorManager()
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='administrador_group_set',
+        blank=True,
+        verbose_name='groups',
+        help_text='The groups this user belongs to.',
+        related_query_name='administrador_group'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='administrador_permission_set',
+        blank=True,
+        verbose_name='user permissions',
+        help_text='Specific permissions for this user.',
+        related_query_name='administrador_permission'
+    )
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
+    @property
+    def is_staff(self):
+        return self.is_superuser
+
+### ver o que é importante pegar ###
+class DocenteManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        user = self.create_user(email, password, **extra_fields)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+        return user
+
+class Docente(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=255, default="gnomo")
+    first_name = models.CharField(max_length=255, default="gnomo")
+    last_name = models.CharField(max_length=255, default="gnomo")
+    email = models.CharField(max_length=255, default="gnomo", unique=True)
+    telefone = models.IntegerField()
+    ativo = models.BooleanField(default=True)
+    gabinete = models.CharField(max_length=255, default="C1.2")
+    faculdade = models.CharField(max_length=255, default="FCT")
+    departamento = models.CharField(max_length=255, default="Engenharia")
+
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'ativo', 'username', 'faculdade', 'departamento', 'gabinete']
+
+    objects = DocenteManager()
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='docente_group_set',
+        blank=True,
+        verbose_name='groups',
+        help_text='The groups this user belongs to.',
+        related_query_name='docente_group'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='docente_permission_set',
+        blank=True,
+        verbose_name='user permissions',
+        help_text='Specific permissions for this user.',
+        related_query_name='docente_permission'
+    )
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
+    @property
+    def is_staff(self):
+        return self.is_superuser
  ### Literalmente nao é utilizado em nada ###   
 class Horario(models.Model):
     data = models.DateField()
@@ -207,3 +310,12 @@ class EstatisticaPedido(models.Model):
     TempoMedio = models.CharField(max_length=255, default="1 dia")
     VarTempo = models.CharField(max_length=255, default="3 dias")
     percetagem = models.CharField(max_length=255, default="40%")
+
+
+
+#Faculdade Departamento
+class Faculdade(models.Model):
+    nome = models.CharField(max_length=255, default="FCT - Faculdade de Ciencias e Tecnologia")
+
+class Departamento(models.Model):
+    nome = models.CharField(max_length=255, default="Departamento de Engenharia informática")

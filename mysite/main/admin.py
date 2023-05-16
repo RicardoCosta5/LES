@@ -16,4 +16,7 @@ admin.site.register(UnidadesCurriculares)
 admin.site.register(EstatisticaPedido)
 admin.site.register(AnoLetivo)
 admin.site.register(DSD)
+admin.site.register(Administrador)
+admin.site.register(Faculdade)
+admin.site.register(Departamento)
 
