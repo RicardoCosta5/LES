@@ -64,11 +64,11 @@
           </div>
               <div class="field">
                       <label class="label" style="white-space: nowrap;">Hora de Inicio</label>
-                      <input class="input" type="text" id="hora_inicio" name="hora_inicio" placeholder="HH:MM:SS" value="{{ ph.hora_inicio|time:'H:i:s' }}" required>
+                      <input class="input" type="text" id="hora_inicio" name="hora_inicio" placeholder="HH:MM:SS" value="{{ ph.hora_de_inicio|time:'H:i:s' }}" required>
                     </div>
                     <div class="field">
                      <label class="label" style="white-space: nowrap;">Hora de Fim</label>
-                     <input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{ph.hora_fim|time:'H:i:s'}}"required>
+                     <input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{ph.hora_de_fim|time:'H:i:s'}}"required>
                     </div>
                     <div class="field">
                       <label class="label" style="white-space: nowrap;">Tarefa</label>
@@ -96,7 +96,7 @@
                   </div>
                   </div>
                   {% empty %}
-                  <li>Não há pedidos horários para este pedido.</li>
+                  <li>Não há pedidos Sala para este pedido.</li>
               {% endfor %}
                 </ul>
           <br>

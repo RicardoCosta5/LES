@@ -323,29 +323,33 @@ def updateUC(request, pk):
 
 
 def updateSala(request, pk):
-    pedido_Sala = Pedido.objects.get(id=pk)
+    pedido = Pedido.objects.get(id=pk)
+    pedido_Sala = PedidoSala.objects.filter(pedido=pk).all()
+    UC = UnidadesCurriculares.objects.all()
     Salas = Sala.objects.all()
     if request.method == "POST":
-      pedido_Sala.dia = request.POST['data']
-      pedido_Sala.assunto = request.POST['assunto']
-      pedido_Sala.desc = request.POST['desc']
+      pedido.dia = request.POST['data']
+      pedido.assunto = request.POST['assunto']
+      pedido.desc = request.POST['desc']
 
-      if datetime.strptime(pedido_Sala.dia, '%Y-%m-%d').date() < date.today():
+      if datetime.strptime(pedido.dia, '%Y-%m-%d').date() < date.today():
          error = 'A data escolhida é anterior ao dia de hoje!'
-         return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido_Sala.assunto,
-         "desc": pedido_Sala.desc,
-         "dia": pedido_Sala.dia,
-         "Salas":Salas,})
+         return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido.assunto,
+         "desc": pedido.desc,
+         "dia": pedido.dia,
+         "Salas":Salas,
+         "pedido_Sala":pedido_Sala, "UC":UC})
       
-      if Pedido.objects.filter(Q(assunto=pedido_Sala.assunto, dia=pedido_Sala.dia) & ~Q(id=pk)).exists():
+      if Pedido.objects.filter(Q(assunto=pedido.assunto, dia=pedido.dia) & ~Q(id=pk)).exists():
          # Se já existir, retorne uma mensagem de erro
          error = 'Já existe um pedido com o mesmo assunto!'
          return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido_Sala.assunto,
          "desc": pedido_Sala.desc,
          "dia": pedido_Sala.dia,
-         "Salas":Salas,})
+         "Salas":Salas,
+         "pedido_Sala":pedido_Sala, "UC":UC})
                                                       
-      pedido_Sala.save()
+      pedido.save()
 
       sala_list = request.POST.getlist('sala')
       descricao_list = request.POST.getlist('descri')
@@ -370,10 +374,11 @@ def updateSala(request, pk):
             datetime.strptime(pedido_Sala.hora_de_fim, '%H:%M:%S')
          except ValueError:
             error = 'Formato de hora inválido!'
-            return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido_Sala.assunto,
-         "desc": pedido_Sala.desc,
-         "dia": pedido_Sala.dia,
-         "Salas":Salas,})
+            return render(request, 'main/PedidoSala2.html', {"error": error,"assunto": pedido.assunto,
+         "desc": pedido.desc,
+         "dia": pedido.dia,
+         "Salas":Salas,
+         "pedido_Sala":pedido_Sala, "UC":UC})
          pedido_Sala.save()
       
       redirect_url = reverse('main:tablePedidos')
@@ -381,10 +386,11 @@ def updateSala(request, pk):
       redirect_url = f"{redirect_url}?{params}"
       return HttpResponseRedirect(redirect_url)
     return render(request, template_name="main/PedidoSala2.html", context={
-        "assunto": pedido_Sala.assunto,
-        "desc": pedido_Sala.desc,
-        "dia": pedido_Sala.dia,
-        "Salas":Salas,     
+        "assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "Salas":Salas,
+        "pedido_Sala":pedido_Sala, "UC":UC     
     })
 
 ### Apagar Pedidos ISTO SO JA APAGA TODOS OS TIPOS DO PEDIDO ###
