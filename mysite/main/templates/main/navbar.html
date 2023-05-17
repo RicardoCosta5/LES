@@ -1,4 +1,5 @@
 {% load static %}
+{% load poll_extras %}
 
 
 <nav id="main-navbar" class="navbar" role="navigation" aria-label="main navigation">
@@ -43,6 +44,7 @@
     <div class="navbar-item has-dropdown is-hoverable">
       <a href="tableEstatisticaPedido" class="navbar-item">Estatistica Pedidos</a>
     </div>
+    
 
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
@@ -53,6 +55,13 @@
         <a href="{% url 'main:tableAL' %}" class="navbar-item">Tabela Ano Letivo</a>
       </div>
   </div>
+  {% if request.user|has_group:'Administrador' %}
+  <div class="navbar-item has-dropdown is-hoverable">
+    <a href="{% url 'main:consultar-utilizadores' %}" class="navbar-item">
+      Utilizadores
+    </a>
+  </div>
+{% endif %}
       </div>
       {% if user.is_authenticated %}
       <div class="navbar-end">
@@ -68,7 +77,11 @@
       <a href="{% url 'main:escolher' %}" class="navbar-item">
         Registo
       </a>
+<<<<<<< HEAD
+      <a href="% url 'main:login' %" class="navbar-item">
+=======
       <a href="{% url 'main:login' %}" class="navbar-item">
+>>>>>>> c9622b9971e06bfb3e738e6af9442417392e5426
         Login
       </a>
       {% endif %}

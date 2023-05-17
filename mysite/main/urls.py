@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.urls import path
 from . import views
+from .views import consultar_utilizadores
 
 app_name = "main"
 
@@ -46,12 +47,16 @@ urlpatterns = [
 
 
 #Login e register
-
+    path('mensagem/<int:id>', views.mensagem,name='mensagem'),
     path("login", views.login_action, name="login"),
     path("register/<int:id>", views.register, name="register"),
     path("escolher", views.escolher, name="escolher"),
     path("logout", views.logout_action, name="logout"),
-
+    path('consultarutilizadores', consultar_utilizadores.as_view(), name='consultar-utilizadores'),
+    path('validarutilizador/<int:id>', views.validar_utilizador,name='validar-utilizador'),
+    path('rejeitarutilizador/<int:id>', views.rejeitar_utilizador,name='rejeitar-utilizador'),
+    path('validar/<str:nome>/<int:id>', views.enviar_email_validar,name='validar'),
+    path('rejeitar/<str:nome>/<int:id>', views.enviar_email_rejeitar,name='rejeitar'),
 #Tabelas
     path ("tablePedidos", views.tablePedidos, name="tablePedidos"),
     path ("tablePedidos2/<str:pk>/", views.tablePedidos2, name="tablePedidos2"),

@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, Pass
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 
-from .models import Docente, Funcionario, Administrador
+from .models import *
 class ParticipanteForm(UserCreationForm):
     class Meta:
         model = Docente
@@ -59,24 +59,46 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Funcionario
 
 class FuncionarioRegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
     class Meta:
         model = Funcionario
-        fields = ('email', 'telefone', 'password1', 'password2')
+        fields = ('username', 'password1', 'password2', 'email',
+                  'first_name', 'last_name', 'telefone')
 
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if Funcionario.objects.filter(email=email).exists():
-            raise forms.ValidationError("Email already exists")
-        return email
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        email = self.cleaned_data.get('email')
+        first_name = self.cleaned_data.get('first_name')
+        last_name = self.cleaned_data.get('last_name')
+        telefone = self.cleaned_data.get('telefone')
+        erros = []
+        if email == "" or first_name=="" or last_name=="" or username==None:
+            raise forms.ValidationError(f'Todos os campos são obrigatórios!')
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
-        if commit:
-            user.save()
-        return user
+        if username and User.objects.filter(username=username).exists():
+            erros.append(forms.ValidationError(f'O username já existe'))
+
+        
+        if password1==None or password2==None:
+            if password1==None:
+                raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+            if password1==None:
+                raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+            else:
+                erros.append(forms.ValidationError(f'As palavras-passe não correspondem'))
+
+
+        if email and User.objects.filter(email=email).exclude(username=username).exists():
+            raise forms.ValidationError(f'O email já existe')
+        elif email==None:
+            erros.append(forms.ValidationError(f'O email é inválido'))
+
+        
+        if telefone==None:
+            erros.append(forms.ValidationError(f'Preencha corretamente o telefone'))    
+        if len(erros)>0:
+            raise ValidationError([erros])
 
 
 class AdministradorRegisterForm(UserCreationForm):
@@ -119,30 +141,56 @@ class AdministradorRegisterForm(UserCreationForm):
 
         
         if telefone==None:
-            erros.append(forms.ValidationError(f'Preencha corretamente o contacto'))    
+            erros.append(forms.ValidationError(f'Preencha corretamente o telefone'))    
         if len(erros)>0:
             raise ValidationError([erros])
 
 
 class DocenteRegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
     class Meta:
         model = Docente
-        fields = ('email', 'telefone', 'password1', 'password2', 'gabinete', 'faculdade', 'departamento')
+        fields = ('username', 'password1', 'password2', 'email',
+                  'first_name', 'last_name', 'telefone','gabinete', 'faculdade', 'departamento')
 
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if Funcionario.objects.filter(email=email).exists():
-            raise forms.ValidationError("Email already exists")
-        return email
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        email = self.cleaned_data.get('email')
+        first_name = self.cleaned_data.get('first_name')
+        last_name = self.cleaned_data.get('last_name')
+        telefone = self.cleaned_data.get('telefone')
+        gabinete = self.cleaned_data.get('gabinete')
+        departamento = self.cleaned_data.get('departamento')
+        faculdade = self.cleaned_data.get('faculdade')
+        erros = []
+        if email == "" or first_name=="" or last_name=="" or username==None:
+            raise forms.ValidationError(f'Todos os campos são obrigatórios!')
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
-        if commit:
-            user.save()
-        return user
+        if username and User.objects.filter(username=username).exists():
+            erros.append(forms.ValidationError(f'O username já existe'))
+
+        
+        if password1==None or password2==None:
+            if password1==None:
+                raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+            if password1==None:
+                raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+            else:
+                erros.append(forms.ValidationError(f'As palavras-passe não correspondem'))
+
+
+        if email and User.objects.filter(email=email).exclude(username=username).exists():
+            raise forms.ValidationError(f'O email já existe')
+        elif email==None:
+            erros.append(forms.ValidationError(f'O email é inválido'))
+
+        
+        if telefone==None:
+            erros.append(forms.ValidationError(f'Preencha corretamente o telefone'))    
+        if len(erros)>0:
+            raise ValidationError([erros])
+
 
 class LoginForm(AuthenticationForm):
     username=CharField(widget=TextInput(attrs={'class':'input','style':''}), label="Nome de Utilizador", max_length=255, required=False)
