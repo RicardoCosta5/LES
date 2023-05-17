@@ -19,6 +19,7 @@ from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
 from .tables import UtilizadoresTable
 from .filters import UtilizadoresFilter
+from dateutil.parser import parse
 
 def user_check(request, user_profile = None):
     ''' 
@@ -59,6 +60,7 @@ def register(request):
 def PedidoHorarios(request):
    name=Docente.objects.all()
    UC = UnidadesCurriculares.objects.all()
+   user = get_user(request)
    if request.method == "POST":
       uc_list = request.POST.getlist('unc')
       dia = request.POST['data']
@@ -71,7 +73,7 @@ def PedidoHorarios(request):
       dia2 =request.POST.getlist('data2')
 
       # Verifica se a data escolhida é anterior ao dia de hoje
-      if datetime.strptime(dia, '%Y-%m-%d').date() < date.today():
+      if parse(dia).date() < date.today():
          error = 'A data escolhida é anterior ao dia de hoje!'
          return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
       
@@ -81,14 +83,14 @@ def PedidoHorarios(request):
             return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
       for hora_inicio, hora_fim in zip(hora_inicio_list, hora_fim_list):
          try:
-            datetime.strptime(hora_inicio, '%H:%M:%S')
-            datetime.strptime(hora_fim, '%H:%M:%S')
+            parse(hora_inicio).time()
+            parse(hora_fim).time()
          except ValueError:
             error = 'Formato de hora inválido!'
             return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
         
-      
-      new_pedido = Pedido(assunto=assunto,desc=desc,dia=dia, tipo="Horário")
+      docente = Docente.objects.get(utilizador_ptr=user)
+      new_pedido = Pedido(assunto=assunto,desc=desc,dia=dia, tipo="Horário",Docente=docente)
       new_pedido.save()
       
       for i in range(len(uc_list)):
@@ -106,13 +108,13 @@ def PedidoHorarios(request):
             ultimo_pedido = Pedido.objects.last()
             ultimo_pedido.delete()
             return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
-         if datetime.strptime(dia2[i], '%Y-%m-%d').date() < date.today():
+         if parse(dia2[i]).date() < date.today():
             error = 'A data escolhida é anterior ao dia de hoje!'
             ultimo_pedido = Pedido.objects.last()
             ultimo_pedido.delete()
             return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
-         hora_inicio_list[i] = datetime.strptime(hora_inicio, '%H:%M:%S')
-         hora_fim_list[i] = datetime.strptime(hora_fim, '%H:%M:%S')
+         hora_inicio_list[i] = parse(hora_inicio_list[i]).time()
+         hora_fim_list[i] = parse(hora_fim_list[i]).time()
          if hora_inicio_list[i] >= hora_fim_list[i]:
             error = 'A hora de fim deve ser maior que a hora de início!'
             ultimo_pedido = Pedido.objects.last()
@@ -127,14 +129,15 @@ def PedidoHorarios(request):
 
 
 def PedidosOUT(request):
+    user = get_user(request)
     name = Docente.objects.all()
     if request.method == "POST":
         assunto = request.POST['assunto']
         descricao = request.POST['desc']
         data = request.POST['dia']
         arquivo = request.FILES.getlist('resume')
-
-        new_Pedido = Pedido(assunto=assunto, desc=descricao, dia=data, tipo = "Outros")
+        docente = Docente.objects.get(utilizador_ptr=user)
+        new_Pedido = Pedido(assunto=assunto, desc=descricao, dia=data, tipo = "Outros",Docente=docente)
         new_Pedido.save()
 
         for i in range(len(arquivo)):
@@ -148,6 +151,7 @@ def PedidosOUT(request):
 
 
 def PedidoUnidadeCurricular(request):
+      user = get_user(request)
       UC = UnidadesCurriculares.objects.all()
       if request.method == "POST":
          date = request.POST['data']
@@ -158,8 +162,8 @@ def PedidoUnidadeCurricular(request):
          tarefa = request.POST.getlist('tarefa')
          regente = request.POST.getlist('regente')
          descri = request.POST.getlist('descri')
-
-         new_Pedido = Pedido(assunto=assunto,desc=desc,dia=date,tipo="Unidade Curricular")
+         docente = Docente.objects.get(utilizador_ptr=user)
+         new_Pedido = Pedido(assunto=assunto,desc=desc,dia=date,tipo="Unidade Curricular",Docente=docente)
          new_Pedido.save()
 
          
@@ -176,6 +180,7 @@ def PedidoUnidadeCurricular(request):
 
 
 def PedidoSalas(request):
+   user = get_user(request)
    Salas = Sala.objects.all()
    Edificios = Edificio.objects.all()
    UC = UnidadesCurriculares.objects.all()
@@ -194,7 +199,7 @@ def PedidoSalas(request):
       dia2 =request.POST.getlist('data2')
 
       # Verifica se a data escolhida é anterior ao dia de hoje
-      if datetime.strptime(dia, '%Y-%m-%d').date() < date.today():
+      if parse(dia).date() < date.today():
          error = 'A data escolhida é anterior ao dia de hoje!'
          return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
       
@@ -204,14 +209,14 @@ def PedidoSalas(request):
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
       for hora_de_inicio, hora_de_fim in zip(hora_de_inicio_list, hora_de_fim_list):
          try:
-            datetime.strptime(hora_de_inicio, '%H:%M:%S')
-            datetime.strptime(hora_de_fim, '%H:%M:%S')
+            parse(hora_de_inicio).time()
+            parse(hora_de_fim).time()
          except ValueError:
             error = 'Formato de hora inválido!'
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
 
-
-      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala")
+      docente = Docente.objects.get(utilizador_ptr=user)
+      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente)
       new_Pedido.save()
 
       for i in range(len(uc_list)):
@@ -230,13 +235,13 @@ def PedidoSalas(request):
             ultimo_pedido = Pedido.objects.last()
             ultimo_pedido.delete()
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
-         if datetime.strptime(dia2[i], '%Y-%m-%d').date() < date.today():
+         if parse(dia2[i]).date() < date.today():
             error = 'A data escolhida é anterior ao dia de hoje!'
             ultimo_pedido = Pedido.objects.last()
             ultimo_pedido.delete()
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
-         hora_de_inicio_list[i] = datetime.strptime(hora_de_inicio, '%H:%M:%S')
-         hora_de_fim_list[i] = datetime.strptime(hora_de_fim, '%H:%M:%S')
+         hora_de_inicio_list[i] = parse(hora_de_inicio_list[i]).time()
+         hora_de_fim_list[i] = parse(hora_de_fim_list[i]).time()
          if hora_de_inicio_list[i] >= hora_de_fim_list[i]:
             error = 'A hora de fim deve ser maior que a hora de início!'
             ultimo_pedido = Pedido.objects.last()
@@ -481,11 +486,26 @@ def deletHorario(request,pk):
 
 ### Tabela Pedidos###
 def tablePedidos(request):
+   if request.user.is_authenticated:
+        user = get_user(request)
+        if user.groups.filter(name="Administrador").exists():
+            u = "Administrador"
+        elif user.groups.filter(name="Docente").exists():
+            u = "Docente"
+        elif user.groups.filter(name="Funcionário").exists():
+            u = "Funcionario"
+        else:
+            u = ""
+   else:
+        u = ""
    pedidoshorario = Pedido.objects.all()
    pedidoshorarios = PedidoHorario.objects.all()
    funciona = Funcionario.objects.all()
    myFilter = PedidoFilter(request.GET,queryset=pedidoshorario)
    pedidoshorario = myFilter.qs
+   if user.groups.filter(name="Docente").exists():
+      docente = Docente.objects.get(utilizador_ptr=user)
+      pedidoshorario = pedidoshorario.filter(Docente=docente)
    paginator = Paginator(pedidoshorario, 10)  # Define a quantidade de itens por página
    page_number = request.GET.get('page')  # Obtém o número da página da solicitação
    page_obj = paginator.get_page(page_number)
@@ -503,15 +523,17 @@ def tablePedidos(request):
          return redirect(f'{reverse("main:tablePedidos")}?page={page_obj.number}&success=Funcionario desassociado!')
       else:
          nome = request.POST.get('funcionari')
-         funcionario = Funcionario.objects.get(nome=nome)
-         pedido.Funcionario = funcionario
+         user = get_user(request)
+         funcionario = Funcionario.objects.get(utilizador_ptr=user)
+         pedido.status = nome
          pedido.atribuido = "Atribuido"
+         pedido.Funcionario = funcionario
          pedido.save()
          return redirect(f'{reverse("main:tablePedidos")}?page={page_obj.number}&success=Funcionario Atribuido!')
       
       
   
-   return render(request, template_name="main/tableHorario.html",context={"Pedido":page_obj, "item":pedidoshorarios, "funcio":funciona,'success': success, 'myFilter':myFilter})
+   return render(request, template_name="main/tableHorario.html",context={"Pedido":page_obj, "item":pedidoshorarios, "funcio":funciona,'success': success, 'myFilter':myFilter, 'u':u})
 
 
 ### Tabela Pedidos veie###
