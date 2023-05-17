@@ -97,62 +97,54 @@
 
 
 
-              {% if registo == 2%}
-
-              <div class="columns">
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Faculdade</label>
-                    <div class="control is-clearfix">
-
-                      <div class="field">
-                        <!---->
-                        <div class="control is-expanded">
-                          <span class="select is-fullwidth is-empty">
-                            {{form.faculdade}}
-                          </span>
-                          <!---->
-                        </div>
-                        <!---->
-                      </div>
-
-                    </div>
-                    <!---->
-                  </div>
-                </div>
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Departamento</label>
-                    <div class="control is-clearfix">
-
-                      <div class="field">
-                        <!---->
-                        <div class="control is-expanded">
-                          <span class="select is-fullwidth is-empty">
-                            {{form.departamento}}
-                          </span>
-                          <!---->
-                        </div>
-                        <!---->
-                      </div>
-
-                    </div>
-                    <!---->
-                  </div>
-                </div>
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Gabinete</label>
-                    <div class="control is-clearfix">
-                      <input class="input" name="gabinete" id="id_gabinete"
-                        value="{{form.gabinete.value|default_if_none:"" }}" type="text" style="" maxlength="255">
-                    </div>
-                    <!---->
-                  </div>
-                </div>
-                <hr>
-              </div>
-              
+              {% if registo == 2 %}
+  <div class="columns">
+    <div class="column">
+      <div class="field">
+        <label class="label">Faculdade</label>
+        <div class="control is-clearfix">
+          <div class="field">
+            <div class="control is-expanded">
+              <span class="select is-fullwidth is-empty">
+                <select class="select is-fullwidth" name="faculdade">
+                  {% for f in faculdade %}
+                    <option value="{{ f.nome }}" {% if f.nome == form.faculdade.value %} selected {% endif %}>{{ f.nome }}</option>
+                  {% endfor %}
+                </select>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="column">
+      <div class="field">
+        <label class="label">Departamento</label>
+        <div class="control is-clearfix">
+          <div class="field">
+            <div class="control is-expanded">
+              <span class="select is-fullwidth is-empty">
+                <select class="select is-fullwidth" name="departamento">
+                  {% for d in departamento %}
+                    <option value="{{ d.nome }}" {% if d.nome == form.departamento.value %} selected {% endif %}>{{ d.nome }}</option>
+                  {% endfor %}
+                </select>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="column">
+      <div class="field">
+        <label class="label">Gabinete</label>
+        <div class="control is-clearfix">
+          <input class="input" name="gabinete" id="id_gabinete" value="{{ form.gabinete.value|default_if_none:'' }}" type="text" style="" maxlength="255">
+        </div>
+      </div>
+    </div>
+    <hr>
+  </div>
               {% elif registo == 3%}
 
               <div class="columns" style="margin-right:66.6%;">

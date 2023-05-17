@@ -242,15 +242,6 @@ class DocenteAlterarPerfilForm(ModelForm):
         super().__init__(*args, **kwargs)
        
 
-        if 'faculdade' in self.data:
-            try:
-                faculdadeid = int(self.data.get('faculdade'))
-                self.fields['departamento'].queryset = Departamento.objects.filter(faculdadeid=faculdadeid).order_by('nome')
-            except (ValueError, TypeError):
-                pass   
-        elif self.instance.pk:
-            self.fields['departamento'].queryset = Departamento.objects.filter(nome=self.instance.faculdade).order_by('nome')
-
 
 
     def clean(self):

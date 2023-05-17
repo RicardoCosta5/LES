@@ -1224,6 +1224,8 @@ def mensagem(request, id, *args, **kwargs):
 
 def alterar_utilizador_admin(request,id):
     ''' Funcionalidade de o administrador alterar um utilizador '''
+    faculdade = Faculdade.objects.all()
+    departamento = Departamento.objects.all()
     if request.user.is_authenticated:    
         utilizador_atual = get_user(request)
         if utilizador_atual.groups.filter(name = "Administrador").exists():
@@ -1283,20 +1285,20 @@ def alterar_utilizador_admin(request,id):
         if form.is_valid() and len(erros)==0:
             utilizador_form_object = form.save(commit=False)
             if tipo == 2:
-                utilizador_form_object.faculdade = submitted_data['faculdade'].nome
-                utilizador_form_object.departamento = submitted_data['departamento'].nome
+                utilizador_form_object.faculdade = submitted_data['faculdade']
+                utilizador_form_object.departamento = submitted_data['departamento']
             utilizador_form_object.save()
             return redirect('main:consultar-utilizadores')   
         else:
             msg=True
             return render(request=request,
                           template_name="main/alterar_utilizador_admin.html",
-                          context={"form": form, 'perfil': perfil, 'u': admin,'registo' : tipo,'msg': msg, 'erros':erros,'id':id})
+                          context={"form": form, 'perfil': perfil, 'u': admin,'registo' : tipo,'msg': msg, 'erros':erros,'id':id,'faculdade':faculdade,'departamento':departamento})
     else:
 
         return render(request=request,
                   template_name="main/alterar_utilizador_admin.html",
-                  context={"form": utilizador_form, 'perfil': perfil,'u': admin,'registo' : tipo,'msg': msg,'id':id})
+                  context={"form": utilizador_form, 'perfil': perfil,'u': admin,'registo' : tipo,'msg': msg,'id':id,'faculdade':faculdade,'departamento':departamento})
 
 
 def mudar_perfil_escolha_admin(request,id):
