@@ -34,6 +34,11 @@
            
                 <p>{{ pedido.dia|date:'d-m-Y' }}</p>
           </div>
+          <div class="field">
+            <label class="label">Funcionario</label>
+           
+                <p>{{ pedido.Funcionario.first_name}} {{ pedido.Funcionario.last_name}}</p>
+          </div>
           
           
           <br>

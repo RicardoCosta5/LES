@@ -15,9 +15,13 @@
             
         <div class="column is-7">
             <h1 class="title has-text-centered">Pedidos Horários</h1>
-            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}</div>
+            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}
+              <p>Pedidos pendentes: {{ pending_pedidos }}</p>
+            <p>Número médio de pedidos processados por dia nos últimos 7 dias: {{ avg_processed_per_day }}</p>  
+            </div>
             <div id="error" {% if error %}style="display: block;"{% endif %}>{{ error }}</div>
-              <div class="field ">
+  
+            <div class="field ">
                 <label class="label">Assunto</label>
                 <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}" required>
                

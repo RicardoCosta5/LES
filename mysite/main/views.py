@@ -1,3 +1,4 @@
+from django.db.models.functions import TruncDate
 from django.shortcuts import render,redirect
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.urls import reverse
@@ -20,6 +21,8 @@ from django_filters.views import FilterView
 from .tables import UtilizadoresTable
 from .filters import UtilizadoresFilter
 from dateutil.parser import parse
+from django.db.models import Count, Avg
+from django.utils.timezone import datetime, timedelta
 
 def user_check(request, user_profile = None):
     ''' 
@@ -122,8 +125,18 @@ def PedidoHorarios(request):
             return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
          new_pedido_hor.save()
       
+
+      pending_pedidos = Pedido.objects.filter(Docente=docente).exclude(status__in=['Aprovado', 'Rejeitado']).count()
+      # Calculate the average number of pedidos processed per day in the last 7 days
+      seven_days_ago = datetime.now().date() - timedelta(days=7)
+      avg_processed_per_day = Pedido.objects.filter(Docente=docente, dia__gte=seven_days_ago).annotate(
+         date=TruncDate('dia')
+      ).values('date').annotate(processed_count=Count('id')).aggregate(avg_processed=Avg('processed_count'))
+
+
       succes = 'Enviado para a base de dados'
-      return render(request, template_name="main/PedidoHorario.html",context={"nome": name,"UC": UC,"succes": succes})
+      return render(request, template_name="main/PedidoHorario.html",context={"nome": name,"UC": UC,"succes": succes, "pending_pedidos": pending_pedidos,
+         "avg_processed_per_day": avg_processed_per_day['avg_processed']})
   
    return render(request, template_name="main/PedidoHorario.html",context={"nome": name,"UC": UC})
 

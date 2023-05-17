@@ -244,7 +244,7 @@ table th:nth-child(5) {
           {%endif%}
           {%endif%}
           {% if u == 'Docente' %}
-          {% if n.status != 'Criado' %}
+          {% if n.status != 'Rejeitado' and n.status != 'Concluido' %}
           {% if n.tipo == 'Horário'%}
             <td><a class="button is-warning is-active" href="{% url 'main:update_horario' n.id %}">Update</a></td>
             {% endif %}
