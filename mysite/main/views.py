@@ -1244,31 +1244,31 @@ def alterar_utilizador_admin(request,id):
         tipo=2
         u = "Docente"
         utilizador_object = Docente.objects.get(id=user.id)
-        utilizador_form = ProfessorUniversitarioAlterarPerfilForm(instance=utilizador_object)
+        utilizador_form = DocenteAlterarPerfilForm(instance=utilizador_object)
         perfil="Docente"
     elif user.groups.filter(name = "Funcionario").exists():
         tipo=1
         u = "Funcionario" 
         utilizador_object = Funcionario.objects.get(id=user.id)
-        utilizador_form = ParticipanteAlterarPerfilForm(instance=utilizador_object)
+        utilizador_form = FuncionarioAlterarPerfilForm(instance=utilizador_object)
         perfil= "Funcionario"
     else:
-        return redirect('main:mensagem',5)     
+        return redirect('main:mensagem',3)     
     
     msg=False
     if request.method == "POST":
         submitted_data = request.POST.copy()
         if tipo == 1:
-            form = ParticipanteAlterarPerfilForm(submitted_data,instance=utilizador_object)
-            my_group = Group.objects.get(name='Participante') 
+            form = FuncionarioAlterarPerfilForm(submitted_data,instance=utilizador_object)
+            my_group = Group.objects.get(name='Funcionário') 
         elif tipo == 2:
-            form = ProfessorUniversitarioAlterarPerfilForm(submitted_data,instance=utilizador_object)
-            my_group = Group.objects.get(name='ProfessorUniversitario')
+            form = DocenteAlterarPerfilForm(submitted_data,instance=utilizador_object)
+            my_group = Group.objects.get(name='Docente')
         elif tipo == 3:
             form = AdministradorAlterarPerfilForm(submitted_data,instance=utilizador_object)
             my_group = Group.objects.get(name='Administrador')    
         else:
-            return redirect('utilizadores:mensagem',5)   
+            return redirect('main:mensagem',3)   
 
         email = request.POST.get('email')
 
@@ -1282,10 +1282,10 @@ def alterar_utilizador_admin(request,id):
 
         if form.is_valid() and len(erros)==0:
             utilizador_form_object = form.save(commit=False)
-            if tipo==2:
-                utilizador_form_object.faculdade = Faculdade.objects.get(id=submitted_data['faculdade'])
-                utilizador_form_object.departamento = Departamento.objects.get(id=submitted_data['departamento'])
-            utilizador_form_object.save()  
+            if tipo == 2:
+                utilizador_form_object.faculdade = submitted_data['faculdade'].nome
+                utilizador_form_object.departamento = submitted_data['departamento'].nome
+            utilizador_form_object.save()
             return redirect('main:consultar-utilizadores')   
         else:
             msg=True
@@ -1355,3 +1355,19 @@ def apagar_utilizador(request, id):
     u.delete()             
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def load_departamentos(request):
+    ''' Carregar todos os departamentos para uma determinada faculdade '''
+    faculdadeid = request.GET.get('faculdade')
+    departamentos = Departamento.objects.filter(unidadeorganicaid=faculdadeid).order_by('nome')
+    return render(request, 'main/departamento_dropdown_list_options.html', {'departamentos': departamentos})
+
+
+
+
+
+def load_cursos(request):
+    ''' Carregar todos os cursos para uma determinada faculdade '''
+    faculdadeid = request.GET.get('faculdade')
+    cursos = Curso.objects.filter(unidadeorganicaid=faculdadeid).order_by('nome')
+    return render(request, 'main/curso_dropdown_list_options.html', {'cursos': cursos})

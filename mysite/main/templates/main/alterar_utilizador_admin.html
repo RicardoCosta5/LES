@@ -13,7 +13,14 @@
 
 
 
-  
+  {% if registo == 1 or registo == 3 %}
+  <form method="post">
+    {% csrf_token %}
+    {% elif registo == 2  %}
+    <form method="post" id="ProfessorUniversitarioRegisterForm"
+      data-departamentos-url="{% url 'main:ajax_load_departamentos' %}" novalidate>
+          {% csrf_token %}
+          {% endif %}
 
           <div style="padding: 1rem 2vw 0px;">
             <nav class="breadcrumb" aria-label="breadcrumbs">
@@ -76,7 +83,7 @@
                 </div>
                 <div class="column">
                   <div class="field">
-                    <label class="label">Telefone</label>
+                    <label class="label">Contacto</label>
                     <div class="control is-clearfix">
 
                       <input name="telefone" class="input" id="id_contacto"
@@ -90,7 +97,7 @@
 
 
 
-              {% if registo == 2 %}
+              {% if registo == 2%}
 
               <div class="columns">
                 <div class="column">
@@ -145,6 +152,7 @@
                 </div>
                 <hr>
               </div>
+              
               {% elif registo == 3%}
 
               <div class="columns" style="margin-right:66.6%;">
@@ -167,13 +175,18 @@
                 <button type="button" value="Voltar" class="button is-outlined" style="margin-right:5%">Voltar</button>
                 </a>
 
-                {% if perfil == "Funcionario" %}
+                {% if perfil == "Participante" %}
                 <a
                   onclick="alert.render('<b>Atenção!</b><br><br>Ao alterar o perfil deste participante a sua <b>incrição</b> será apagada permanentemente.','{% url 'main:mudar-perfil-escolha-admin' id %}')">
-                  
-                    {% elif perfil == "Docente" %}
+                  {% elif perfil == "Colaborador" %}
+                  <a
+                    onclick="alert.render('<b>Atenção!</b><br><br>Ao alterar o perfil deste colaborador as suas <b>tarefas</b> deixarão de lhe estar atribuidas.','{% url 'main:mudar-perfil-escolha-admin' id %}')">
+                    {% elif perfil == "Professor Universitario" %}
                     <a
                       onclick="alert.render('<b>Atenção!</b><br><br>Ao alterar o perfil deste professor universitário as suas <b>atividades</b> serão apagadas permanentemente.','{% url 'main:mudar-perfil-escolha-admin' id %}')">
+                      {% elif  perfil == "Coordenador" %}
+                      <a
+                        onclick="alert.render('<b>Atenção!</b><br><br>Ao alterar o perfil deste coordenador as <b>atividades dos departamentos</b> pelo qual está responsável serão apagadas permanentemente.<br><br>As <b>tarefas dos colaboradores</b> pelo qual este coordenador está responsável serão apagadas permanentemente.','{% url 'main:mudar-perfil-escolha-admin' id %}')">
                         {% elif  perfil == "Administrador" %}
                         <a
                           onclick="alert.render('<b>Atenção!</b><br><br>Ao alterar o perfil deste administrador todas as suas <b>informações</b> serão apagadas frequentemente incluindo os <b>dados de configuração</b> do dia aberto pelo qual este administrador está responsável.','{% url 'main:mudar-perfil-escolha-admin' id %}')">
