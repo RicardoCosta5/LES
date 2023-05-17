@@ -28,11 +28,11 @@
         {% if row.record|has_group:"Docente" %}
         <tr>
             <td><strong>Faculdade:</strong></td>
-            <td>{{row.record|get_faculdade_pu:row.record.id}}</td>
+            <td>{{row.record.Faculdade}}</td>
         </tr>
         <tr>
             <td><strong>Departamento:</strong></td>
-            <td>{{row.record|get_departamento_pu:row.record.id}}</td>
+            <td>{{row.record.Departamento}}</td>
         </tr>
         <tr>
             <td><strong>Gabinete:</strong></td>
