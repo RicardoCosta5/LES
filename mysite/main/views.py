@@ -1089,7 +1089,7 @@ def enviar_email_validar(request,nome,id):
 def enviar_email_rejeitar(request,nome,id):  
     ''' Envio de email quando o utilizador é rejeitado na pagina consultar utilizadores '''
     msg="A enviar email a "+nome+" a informar que o seu registo foi rejeitado"
-    user_check_var = user_check(request=request, user_profile=[Coordenador, Administrador])
+    user_check_var = user_check(request=request, user_profile=[Administrador])
     if user_check_var.get('exists') == False: 
         return user_check_var.get('render')
     request.session['consultar_utilizadores'] = request.META.get('HTTP_REFERER', '/')
@@ -1222,7 +1222,7 @@ def apagar_utilizador(request, id):
         u = Funcionario.objects.get(id=id)
         for tarefa in Pedido.objects.filter(Funcionario=u):
             if tarefa.status=="Em Análise":
-                return redirect('utilizadores:mensagem',14)
+                return redirect('main:mensagem',14)
             elif tarefa.status=="Concluida":
                 tarefa.delete()
             else:    
