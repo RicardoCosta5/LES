@@ -65,7 +65,8 @@ urlpatterns = [
     path ("tablePedidos2/<str:pk>/", views.tablePedidos2, name="tablePedidos2"),
     path ("tableEstatisticaPedido", views.tableEstatisticaPedido, name="tableEstatisticaPedido"),
     path('concluirregisto/<int:id>', views.concluir_registo,name='concluir-registo'),
-
+    path('ajax/load-departamentos/', views.load_departamentos, name='ajax_load_departamentos'),
+    path('ajax/load-cursos/', views.load_cursos, name='ajax_load_cursos'),
    
 
 

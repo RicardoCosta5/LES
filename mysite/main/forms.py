@@ -100,12 +100,32 @@ class FuncionarioRegisterForm(UserCreationForm):
         if len(erros)>0:
             raise ValidationError([erros])
 
+class FuncionarioAlterarPerfilForm(ModelForm):
+
+    class Meta:
+        model = Funcionario
+        fields = ('email',
+                  'first_name', 'last_name', 'telefone')
+
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        first_name = self.cleaned_data.get('first_name')
+        last_name = self.cleaned_data.get('last_name')
+        telefone = self.cleaned_data.get('telefone')
+        erros = []
+        if email == "" or first_name=="" or last_name=="":
+            raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+        
+        if telefone==None:
+            erros.append(forms.ValidationError(f'Preencha corretamente o telefone'))    
+        if len(erros)>0:
+            raise ValidationError([erros])
+
 class AdministradorAlterarPerfilForm(ModelForm):
 
     class Meta:
         model = Administrador
-        fields = ('email',
-                  'first_name', 'last_name', 'telefone','gabinete')
+        fields = ('email','first_name', 'last_name', 'telefone','gabinete')
 
     def clean(self):
         email = self.cleaned_data.get('email')
@@ -211,6 +231,44 @@ class DocenteRegisterForm(UserCreationForm):
         if len(erros)>0:
             raise ValidationError([erros])
 
+
+class DocenteAlterarPerfilForm(ModelForm):
+    class Meta:
+        model = Docente
+        fields = ('email',
+                  'first_name', 'last_name', 'telefone', 'gabinete','faculdade','departamento')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+       
+
+        if 'faculdade' in self.data:
+            try:
+                faculdadeid = int(self.data.get('faculdade'))
+                self.fields['departamento'].queryset = Departamento.objects.filter(faculdadeid=faculdadeid).order_by('nome')
+            except (ValueError, TypeError):
+                pass   
+        elif self.instance.pk:
+            self.fields['departamento'].queryset = Departamento.objects.filter(nome=self.instance.faculdade).order_by('nome')
+
+
+
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        first_name = self.cleaned_data.get('first_name')
+        last_name = self.cleaned_data.get('last_name')
+        telefone = self.cleaned_data.get('telefone')
+        gabinete = self.cleaned_data.get('gabinete')
+        faculdade = self.cleaned_data.get('faculdade')
+        departamento = self.cleaned_data.get('departamento')
+        erros = []
+        if email == "" or first_name=="" or last_name=="" or gabinete==None or faculdade==None or departamento==None:
+            raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+        
+        if telefone==None:
+            erros.append(forms.ValidationError(f'Preencha corretamente o telefone'))    
+        if len(erros)>0:
+            raise ValidationError([erros])
 
 class LoginForm(AuthenticationForm):
     username=CharField(widget=TextInput(attrs={'class':'input','style':''}), label="Nome de Utilizador", max_length=255, required=False)
