@@ -1190,3 +1190,44 @@ def mensagem(request, id, *args, **kwargs):
         continuar = "off" 
     return render(request=request,
         template_name="mensagem.html", context={'m': m, 'tipo': tipo ,'u': u, 'continuar': continuar,})
+def alterar_utilizador_admin(request,id):
+    ''' Funcionalidade de o administrador alterar um utilizador '''
+    if request.user.is_authenticated:    
+        utilizador_atual = get_user(request)
+        if utilizador_atual.groups.filter(name = "Administrador").exists():
+            admin = "Administrador"         
+        else:
+            return redirect('main:mensagem',3) 
+    else:
+        return redirect('main:mensagem',3)
+
+def apagar_utilizador(request, id): 
+    ''' Apagar um utilizador na pagina consultar utilizadores '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"        
+        else:
+            return redirect('main:mensagem',5) 
+    else:
+        return redirect('main:mensagem',5)
+
+    user = User.objects.get(id=id)
+    # try:
+    if user.groups.filter(name = "Docente").exists():
+        u = Docente.objects.get(id=id)
+    elif user.groups.filter(name = "Administrador").exists():
+        u = Administrador.objects.get(id=id)
+    elif user.groups.filter(name = "Funcionario").exists():
+        u = Funcionario.objects.get(id=id)
+        for tarefa in Pedido.objects.filter(Funcionario=u):
+            if tarefa.status=="Em Análise":
+                return redirect('utilizadores:mensagem',14)
+            elif tarefa.status=="Concluida":
+                tarefa.delete()
+            else:    
+                tarefa.atribuido="Não atribuido"
+                tarefa.Funcionario=None
+                tarefa.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

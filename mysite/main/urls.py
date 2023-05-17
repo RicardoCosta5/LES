@@ -57,6 +57,9 @@ urlpatterns = [
     path('rejeitarutilizador/<int:id>', views.rejeitar_utilizador,name='rejeitar-utilizador'),
     path('validar/<str:nome>/<int:id>', views.enviar_email_validar,name='validar'),
     path('rejeitar/<str:nome>/<int:id>', views.enviar_email_rejeitar,name='rejeitar'),
+    path('alterarutilizadoradmin/<int:id>', views.alterar_utilizador_admin,name='alterar-utilizador-admin'),
+    path('apagarutilizador/<int:id>', views.apagar_utilizador,name='apagar-utilizador'),
+
 #Tabelas
     path ("tablePedidos", views.tablePedidos, name="tablePedidos"),
     path ("tablePedidos2/<str:pk>/", views.tablePedidos2, name="tablePedidos2"),
