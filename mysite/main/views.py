@@ -1229,5 +1229,6 @@ def apagar_utilizador(request, id):
                 tarefa.atribuido="Não atribuido"
                 tarefa.Funcionario=None
                 tarefa.save()
+    u.delete()             
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
