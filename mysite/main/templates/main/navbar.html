@@ -65,7 +65,8 @@
       </div>
       {% if user.is_authenticated %}
       <div class="navbar-end">
-        <a href="{% url 'main:logout' %}">
+       <p class="navbar-item"> Bem Vindo {{user.first_name}} {{user.last_name}}</p>
+        <a href="{% url 'main:logout' %}" class="navbar-item">
           <div type="button" class="button">
             <span class="icon is-small">
               <i class="mdi mdi-login-variant"></i>

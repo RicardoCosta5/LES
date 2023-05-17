@@ -100,7 +100,27 @@ class FuncionarioRegisterForm(UserCreationForm):
         if len(erros)>0:
             raise ValidationError([erros])
 
+class AdministradorAlterarPerfilForm(ModelForm):
 
+    class Meta:
+        model = Administrador
+        fields = ('email',
+                  'first_name', 'last_name', 'telefone','gabinete')
+
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        first_name = self.cleaned_data.get('first_name')
+        last_name = self.cleaned_data.get('last_name')
+        telefone = self.cleaned_data.get('telefone')
+        gabinete = self.cleaned_data.get('gabinete')
+        erros = []
+        if email == "" or first_name=="" or last_name=="" or gabinete==None:
+            raise forms.ValidationError(f'Todos os campos são obrigatórios!')
+        
+        if telefone==None:
+            erros.append(forms.ValidationError(f'Preencha corretamente o telefone'))    
+        if len(erros)>0:
+            raise ValidationError([erros])
 class AdministradorRegisterForm(UserCreationForm):
 
     class Meta:

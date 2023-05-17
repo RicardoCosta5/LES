@@ -849,7 +849,7 @@ def login_action(request):
                     error="O seu registo não é válido"
                 else:
                     login(request, user)
-                    return redirect('main:home')
+                    return redirect('main:mensagem',1)
             else:
                 msg=True
                 error="O nome de utilizador ou a palavra-passe inválidos!"
@@ -1101,16 +1101,12 @@ def mensagem(request, id, *args, **kwargs):
 
     if request.user.is_authenticated:    
         user = get_user(request)
-        if user.groups.filter(name = "Coordenador").exists():
-            u = "Coordenador"
-        elif user.groups.filter(name = "Administrador").exists():
+        if user.groups.filter(name = "Administrador").exists():
             u = "Administrador"
-        elif user.groups.filter(name = "ProfessorUniversitario").exists():
-            u = "ProfessorUniversitario"
+        elif user.groups.filter(name = "Docente").exists():
+            u = "Docente"
         elif user.groups.filter(name = "Colaborador").exists():
-            u = "Colaborador"
-        elif user.groups.filter(name = "Participante").exists():
-            u = "Participante" 
+            u = "Funcionario"
         else:
             u=""     
     else:
@@ -1189,7 +1185,8 @@ def mensagem(request, id, *args, **kwargs):
     if id == 400 or id == 500:
         continuar = "off" 
     return render(request=request,
-        template_name="mensagem.html", context={'m': m, 'tipo': tipo ,'u': u, 'continuar': continuar,})
+        template_name="main/mensagem.html", context={'m': m, 'tipo': tipo ,'u': u, 'continuar': continuar,})
+
 def alterar_utilizador_admin(request,id):
     ''' Funcionalidade de o administrador alterar um utilizador '''
     if request.user.is_authenticated:    
@@ -1200,6 +1197,97 @@ def alterar_utilizador_admin(request,id):
             return redirect('main:mensagem',3) 
     else:
         return redirect('main:mensagem',3)
+    
+    user = User.objects.get(id=id)
+    if user.groups.filter(name = "Administrador").exists():
+        tipo=3
+        u = "Administrador"
+        utilizador_object = Administrador.objects.get(id=user.id)
+        utilizador_form = AdministradorAlterarPerfilForm(instance=utilizador_object)
+        perfil="Administrador"
+    elif user.groups.filter(name = "Docente").exists():
+        tipo=2
+        u = "Docente"
+        utilizador_object = Docente.objects.get(id=user.id)
+        utilizador_form = ProfessorUniversitarioAlterarPerfilForm(instance=utilizador_object)
+        perfil="Docente"
+    elif user.groups.filter(name = "Funcionario").exists():
+        tipo=1
+        u = "Funcionario" 
+        utilizador_object = Funcionario.objects.get(id=user.id)
+        utilizador_form = ParticipanteAlterarPerfilForm(instance=utilizador_object)
+        perfil= "Funcionario"
+    else:
+        return redirect('main:mensagem',5)     
+    
+    msg=False
+    if request.method == "POST":
+        submitted_data = request.POST.copy()
+        if tipo == 1:
+            form = ParticipanteAlterarPerfilForm(submitted_data,instance=utilizador_object)
+            my_group = Group.objects.get(name='Participante') 
+        elif tipo == 2:
+            form = ProfessorUniversitarioAlterarPerfilForm(submitted_data,instance=utilizador_object)
+            my_group = Group.objects.get(name='ProfessorUniversitario')
+        elif tipo == 3:
+            form = AdministradorAlterarPerfilForm(submitted_data,instance=utilizador_object)
+            my_group = Group.objects.get(name='Administrador')    
+        else:
+            return redirect('utilizadores:mensagem',5)   
+
+        email = request.POST.get('email')
+
+        erros=[]
+
+
+        if email and User.objects.exclude(email=utilizador_object.email).filter(email=email).exists():
+            erros.append('O email já existe')
+        elif email==None:
+            erros.append('O email é inválido')
+
+        if form.is_valid() and len(erros)==0:
+            utilizador_form_object = form.save(commit=False)
+            if tipo==2:
+                utilizador_form_object.faculdade = Faculdade.objects.get(id=submitted_data['faculdade'])
+                utilizador_form_object.departamento = Departamento.objects.get(id=submitted_data['departamento'])
+            utilizador_form_object.save()  
+            return redirect('main:consultar-utilizadores')   
+        else:
+            msg=True
+            return render(request=request,
+                          template_name="main/alterar_utilizador_admin.html",
+                          context={"form": form, 'perfil': perfil, 'u': admin,'registo' : tipo,'msg': msg, 'erros':erros,'id':id})
+    else:
+
+        return render(request=request,
+                  template_name="main/alterar_utilizador_admin.html",
+                  context={"form": utilizador_form, 'perfil': perfil,'u': admin,'registo' : tipo,'msg': msg,'id':id})
+
+
+def mudar_perfil_escolha_admin(request,id):
+    '''  Funcionalidade de o administrador alterar o perfil de um dado utilizador 
+     Redireciona para uma pagina onde é possível escolher o perfil que quer alterar '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"
+        else:
+            return redirect('main:mensagem',5)   
+    else:
+        return redirect('main:mensagem',5) 
+
+    user=User.objects.get(id=id)  
+    if user.groups.filter(name = "Administrador").exists():
+        x = "Administrador"
+    elif user.groups.filter(name = "Docente").exists():
+        x = "Docente"
+    elif user.groups.filter(name = "Funcionario").exists():
+        x = "Funcionario" 
+    else:
+        return redirect('main:mensagem',5)     
+
+    utilizadores = ["Docente", "Funcionario","Administrador"]
+    return render(request=request, template_name='main/mudar_perfil_escolha_admin.html', context={"utilizadores": utilizadores,'u': u,'id':id ,'x':x})
 
 def apagar_utilizador(request, id): 
     ''' Apagar um utilizador na pagina consultar utilizadores '''

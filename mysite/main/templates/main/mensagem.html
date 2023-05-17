@@ -1,4 +1,4 @@
-{% extends 'app.html' %}
+{% extends 'main/app.html' %}
 
 
 
@@ -46,7 +46,7 @@
 </div>
     {% if continuar != 'off' %}
     <div style="text-align: center;position:center;margin-top:4%">
-        <a href="{% url 'home' %}">
+        <a href="{% url 'main:home' %}">
             <button  class="button">Continuar</button>
         </a>
     </div>

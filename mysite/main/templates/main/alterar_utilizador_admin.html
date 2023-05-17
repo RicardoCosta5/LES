@@ -76,11 +76,11 @@
                 </div>
                 <div class="column">
                   <div class="field">
-                    <label class="label">Contacto</label>
+                    <label class="label">Telefone</label>
                     <div class="control is-clearfix">
 
-                      <input name="contacto" class="input" id="id_contacto"
-                        value="{{form.contacto.value |default_if_none:"" }}" style="" type="text" maxlength="255">
+                      <input name="telefone" class="input" id="id_contacto"
+                        value="{{form.telefone.value |default_if_none:"" }}" style="" type="text" maxlength="255">
                     </div>
                     <!---->
                   </div>
@@ -90,7 +90,7 @@
 
 
 
-              {% registo == 2 %}
+              {% if registo == 2 %}
 
               <div class="columns">
                 <div class="column">

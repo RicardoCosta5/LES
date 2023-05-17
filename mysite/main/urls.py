@@ -59,7 +59,7 @@ urlpatterns = [
     path('rejeitar/<str:nome>/<int:id>', views.enviar_email_rejeitar,name='rejeitar'),
     path('alterarutilizadoradmin/<int:id>', views.alterar_utilizador_admin,name='alterar-utilizador-admin'),
     path('apagarutilizador/<int:id>', views.apagar_utilizador,name='apagar-utilizador'),
-
+    path('mudarperfilescolha/<int:id>', views.mudar_perfil_escolha_admin,name='mudar-perfil-escolha-admin'),
 #Tabelas
     path ("tablePedidos", views.tablePedidos, name="tablePedidos"),
     path ("tablePedidos2/<str:pk>/", views.tablePedidos2, name="tablePedidos2"),
