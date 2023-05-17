@@ -1,13 +1,10 @@
 {% load static %}
+{% load poll_extras %}
 
 
 <nav id="main-navbar" class="navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-<<<<<<< HEAD
-    <a class="navbar-item logo" href="home">
-=======
     <a class="navbar-item logo" href="{% url 'main:home'%}">
->>>>>>> e2f449b53f23c43b15a4064dc071cc077589123a
       <img src="{% static 'img/ualg-logo.png' %}" alt="FCT">
     </a>
 
@@ -47,6 +44,7 @@
     <div class="navbar-item has-dropdown is-hoverable">
       <a href="tableEstatisticaPedido" class="navbar-item">Estatistica Pedidos</a>
     </div>
+    
 
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
@@ -57,10 +55,16 @@
         <a href="{% url 'main:tableAL' %}" class="navbar-item">Tabela Ano Letivo</a>
       </div>
   </div>
+  {% if request.user|has_group:'Administrador' %}
+  <div class="navbar-item has-dropdown is-hoverable">
+    <a href="{% url 'main:consultar-utilizadores' %}" class="navbar-item">
+      Utilizadores
+    </a>
+  </div>
+{% endif %}
       </div>
       {% if user.is_authenticated %}
       <div class="navbar-end">
-<<<<<<< HEAD
         <a href="{% url 'main:logout' %}">
           <div type="button" class="button">
             <span class="icon is-small">
@@ -70,16 +74,10 @@
           </div>
         </a>
         {% else %}
-      <a href="escolher" class="navbar-item">
-        Registo
-      </a>
-      <a href="login" class="navbar-item">
-=======
       <a href="{% url 'main:escolher' %}" class="navbar-item">
         Registo
       </a>
-      <a href="{% url 'main:login' %}" class="navbar-item">
->>>>>>> e2f449b53f23c43b15a4064dc071cc077589123a
+      <a href="% url 'main:login' %" class="navbar-item">
         Login
       </a>
       {% endif %}

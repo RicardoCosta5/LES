@@ -103,9 +103,9 @@ class Funcionario(Utilizador):
 class Docente(Utilizador):
     gabinete = models.CharField(db_column='Gabinete', max_length=255, blank=False, null=False)
 
-    faculdade = models.ForeignKey(Faculdade, models.CASCADE)
+    faculdade = models.CharField(db_column='Faculdade', max_length=255, blank=False, null=False)
 
-    departamento = models.ForeignKey(Departamento, models.CASCADE)
+    departamento = models.CharField(db_column='Departamento', max_length=255, blank=False, null=False)
 
     def __str__(self):
         return str(self.gabinete) + ' ' + str(self.faculdade) + ' ' + str(self.departamento)

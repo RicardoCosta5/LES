@@ -8,15 +8,40 @@ from datetime import datetime, date
 from urllib.parse import urlencode
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.core.mail import send_mail
 from .filters import PedidoFilter
 from .forms import *
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user
 from . import views
 from django.contrib.auth import authenticate, login, logout
+from django_tables2 import SingleTableMixin
+from django_filters.views import FilterView
+from .tables import UtilizadoresTable
+from .filters import UtilizadoresFilter
 
-
-
+def user_check(request, user_profile = None):
+    ''' 
+    Verifica se o utilizador que esta logado pertence a pelo menos um dos perfis mencionados 
+    e.g. user_profile = {Administrador,Coordenador,ProfessorUniversitario}
+    Isto faz com que o user que esta logado possa ser qualquer um dos 3 perfis. 
+    '''
+    if not request.user.is_authenticated:
+        return {'exists': False, 'render': redirect('main:login')}
+    elif user_profile is not None:
+        matches_profile = False
+        for profile in user_profile:
+            if profile.objects.filter(utilizador_ptr_id = request.user.id).exists():
+                return {'exists': True, 'firstProfile': profile.objects.filter(utilizador_ptr_id = request.user.id).first()}
+        return {'exists': False, 
+                'render': render(request=request,
+                            template_name='mensagem.html',
+                            context={
+                                'tipo':'error',
+                                'm':'Não tem permissões para aceder a esta página!'
+                            })
+                }
+    raise Exception('Unknown Error!')
 
 ### Pagina Inicial ###
 def homepage(request):
@@ -914,7 +939,7 @@ def register(request, id):
             perfil = "Administrador"
             my_group, _ = Group.objects.get_or_create(name='Administrador')
         else:
-            return redirect("utilizadores:escolher-perfil")
+            return redirect("main:escolher-perfil")
 
         if form.is_valid():
             user = form.save()
@@ -985,3 +1010,209 @@ def concluir_registo(request,id):
     return render(request=request,
                   template_name="main/concluir_registo.html",
                   context={'participante': participante, 'u': u})
+
+
+class consultar_utilizadores(SingleTableMixin, FilterView):
+    ''' Consultar todos os utilizadores com as funcionalidades dos filtros '''
+    table_class = UtilizadoresTable
+    template_name = 'main/consultar_utilizadores.html'
+    filterset_class = UtilizadoresFilter
+    table_pagination = {
+        'per_page': 10
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        user_check_var = user_check(
+            request=request, user_profile=[Administrador])
+        if not user_check_var.get('exists'):
+            return user_check_var.get('render')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SingleTableMixin, self).get_context_data(**kwargs)
+        table = self.get_table(**self.get_table_kwargs())
+        table.request = self.request
+        table.fixed = True
+        context[self.get_context_table_name(table)] = table
+        return context
+
+
+
+def validar_utilizador(request, id): 
+    ''' Validar um utilizador na pagina consultar utilizadores '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"   
+        else:
+            return redirect('main:mensagem',3) 
+    else:
+        return redirect('main:mensagem',3) 
+        
+    try:
+        u = Utilizador.objects.get(id = id)
+        u.valido = 'True'           
+        u.save()   
+        subject = 'Validação do registo do na plataforma do dia aberto'
+        message = 'Caro(a) '+u.first_name+"\n\n"
+        message+='O seu registo na plataforma do dia aberto foi bem sucedido!'+",\n\n"
+        message+='Equipa do dia aberto da Ualg'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [u.email,]
+        send_mail( subject, message, email_from, recipient_list )
+    except:
+        pass
+
+    if 'consultar_utilizadores' not in request.session:
+        return redirect('main:consultar-utilizadores')
+    else:    
+        return HttpResponseRedirect(request.session['consultar_utilizadores'])
+
+
+def rejeitar_utilizador(request, id): 
+    ''' Funcionalidade de rejeitar um utilizador na pagina de consultar utilizadores '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"        
+        else:
+            return redirect('utilizadores:mensagem',3) 
+    else:
+        return redirect('utilizadores:mensagem',3) 
+        
+    try:
+        u = Utilizador.objects.get(id = id)
+        u.valido = 'Rejeitado'           
+        u.save()   
+        subject = 'Validação do registo do na plataforma do dia aberto'
+        message = 'Caro(a) '+u.first_name+",\n\n"
+        message+='O seu registo na plataforma do dia aberto foi rejeitado!'+"\n\n"
+        message+='Equipa do dia aberto da Ualg'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [u.email,]
+        send_mail( subject, message, email_from, recipient_list )
+    except:
+        pass
+    if 'consultar_utilizadores' not in request.session:
+        return redirect('main:consultar-utilizadores')
+    else:    
+        return HttpResponseRedirect(request.session['consultar_utilizadores'])
+
+
+def enviar_email_validar(request,nome,id):
+    ''' Envio de email quando o utilizador é validado na pagina consultar utilizadores '''  
+    msg="A enviar email a "+nome+" a informar que o seu registo foi validado"
+    user_check_var = user_check(request=request, user_profile=[Administrador])
+    if user_check_var.get('exists') == False: 
+        return user_check_var.get('render')
+    request.session['consultar_utilizadores'] = request.META.get('HTTP_REFERER', '/')
+    return render(request=request,
+                  template_name="main/enviar_email_validar.html",
+                  context={"msg": msg, "id":id})
+
+
+
+def enviar_email_rejeitar(request,nome,id):  
+    ''' Envio de email quando o utilizador é rejeitado na pagina consultar utilizadores '''
+    msg="A enviar email a "+nome+" a informar que o seu registo foi rejeitado"
+    user_check_var = user_check(request=request, user_profile=[Coordenador, Administrador])
+    if user_check_var.get('exists') == False: 
+        return user_check_var.get('render')
+    request.session['consultar_utilizadores'] = request.META.get('HTTP_REFERER', '/')
+    return render(request=request,
+                  template_name="main/enviar_email_rejeitar.html",
+                  context={"msg": msg, "id":id})
+def mensagem(request, id, *args, **kwargs):
+    ''' Template de mensagens informativas/erro/sucesso '''
+
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Coordenador").exists():
+            u = "Coordenador"
+        elif user.groups.filter(name = "Administrador").exists():
+            u = "Administrador"
+        elif user.groups.filter(name = "ProfessorUniversitario").exists():
+            u = "ProfessorUniversitario"
+        elif user.groups.filter(name = "Colaborador").exists():
+            u = "Colaborador"
+        elif user.groups.filter(name = "Participante").exists():
+            u = "Participante" 
+        else:
+            u=""     
+    else:
+        u = ""
+
+
+    if id == 400 or id == 500:
+        user = get_user(request)
+        m = "Erro no servidor"
+        tipo = "error"
+    elif id == 1:
+        user = get_user(request)
+        m = "Bem vindo(a) "+user.first_name
+        tipo = "info"
+
+    elif id == 2:
+        m = "Até á próxima!"
+        tipo = "info"
+
+    elif id == 3:
+        m = "Registo feito com sucesso!"
+        tipo = "sucess"
+
+    elif id == 4:
+        m = "É necessário fazer login primeiro"
+        tipo = "error"
+
+    elif id == 5:
+        m = "Não permitido"
+        tipo = "error"
+    elif id == 6:
+        m = "Senha alterada com sucesso!"
+        tipo = "success"    
+    elif id == 7:
+        m = "Conta apagada com sucesso"
+        tipo = "success"   
+    elif id == 8:
+        m = "Perfil alterado com sucesso"
+        tipo = "success" 
+    elif id == 9:
+        m = "Perfil criado com sucesso"
+        tipo = "success" 
+    elif id == 10:
+        m = "Não existem notificações"
+        tipo = "info"
+    elif id == 11:
+        m = "Esta tarefa deixou de estar atribuída"
+        tipo = "error"
+    elif id == 12:
+        m = "Ainda não é permitido criar inscrições"
+        tipo = "error"
+    elif id == 13:
+        m = "Erro ao apagar dados do utilizador"
+        tipo = "error" 
+    elif id == 14:
+        m = "Não existem mensagens"
+        tipo = "info"  
+    elif id == 15:
+        m = "Este colaborador tem tarefas iniciadas pelo que apenas deverá ser apagado quando estas estiverem concluidas"
+        tipo = "info"  
+    elif id == 16:
+        m = "Para puder apagar a sua conta deverá concluir primeiro as tarefas que estão iniciadas"
+        tipo = "info"                 
+    elif id == 17:
+        m = "A sua disponibilidade foi alterada com sucesso"
+        tipo = "success"
+    elif id == 18:
+        m = "Antes de poder ver dados e estatísticas é preciso configurar um Dia Aberto."
+        tipo = "error"
+    else:
+        m = "Esta pagina não existe"
+        tipo = "error"                                     
+
+    
+    continuar = "on" 
+    if id == 400 or id == 500:
+        continuar = "off" 
+    return render(request=request,
+        template_name="mensagem.html", context={'m': m, 'tipo': tipo ,'u': u, 'continuar': continuar,})
