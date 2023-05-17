@@ -523,9 +523,11 @@ def tablePedidos(request):
          return redirect(f'{reverse("main:tablePedidos")}?page={page_obj.number}&success=Funcionario desassociado!')
       else:
          nome = request.POST.get('funcionari')
-         funcionario = Funcionario.objects.get(nome=nome)
-         pedido.Funcionario = funcionario
+         user = get_user(request)
+         funcionario = Funcionario.objects.get(utilizador_ptr=user)
+         pedido.status = nome
          pedido.atribuido = "Atribuido"
+         pedido.Funcionario = funcionario
          pedido.save()
          return redirect(f'{reverse("main:tablePedidos")}?page={page_obj.number}&success=Funcionario Atribuido!')
       

@@ -85,9 +85,11 @@ table th:nth-child(5) {
   margin-top: 20px;
 }
 
-
-.registado {
+.rejeitado {
   color: #9e0000; /* cor do texto para o estado "registado" */
+}
+.registado {
+  color: #00159e; /* cor do texto para o estado "registado" */
 }
 
 .em-analise {
@@ -208,7 +210,7 @@ table th:nth-child(5) {
         <th>Status</th>
         <th>Estado Atribuição</th>
         <th>View</th>
-        {% if u == 'Funcionário' %}
+        {% if u == 'Funcionario' %}
         <th>Associar</th>
         {% endif %}
         {% if u == 'Docente' %}
@@ -224,14 +226,14 @@ table th:nth-child(5) {
           <td class="wide-column2">{{n.desc|linebreaksbr|truncatechars:10 }}</td>
           <td>{{n.dia}}</td>
           <td>{{n.tipo}}</td>
-          <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido' %}concluido{% endif %}">{{n.status}}</td>
+          <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido' and n.status == 'Aprovado' %}concluido{% elif n.status == 'Rejeitado' %}rejeitado{% endif %}">{{n.status}}</td>
 
       
           <td>{{n.atribuido}}</td>
           
           <td><a class="button is-info view-button" href="{% url 'main:tablePedidos2' n.id %}">View</a></td>
-          {% if u == 'Funcionário' %}
-          {% if n.atribuido == 'Não Atribuido' %}
+          {% if u == 'Funcionario' %}
+          {% if n.atribuido == 'Não Atribuido'%}
           <td><button id="expand-btn-2" class="button is-info2">Associar</button></td>
           {% else %}
           <form onsubmit="myFunction()" method="POST">
@@ -262,7 +264,7 @@ table th:nth-child(5) {
           {% endif %}
         </tr>
         <tr class="hidden-row2" style="text-align: center">
-          <td colspan="10">
+          <td colspan="8">
             <form onsubmit="myFunction()" method="POST">
               {% csrf_token %}
               <input type="hidden" name="pedido_id" value="{{ n.id }}">
@@ -270,17 +272,17 @@ table th:nth-child(5) {
               <table style="text-align: center">
                 <thead>
                   <tr>
-                    <th >Funcionário</th>
+                    <th >Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   <td>
                   <div class="select" style="text-align: center" >
                     <select name="funcionari" id="funcionari">
-                      {% for fu in funcio %}
-                          <option>{{ fu.first_name }}</option>
-                      {% endfor %}
-                    </select>
+                      <option value="Em Análise">Em Análise</option>
+                      <option value="Rejeitado">Rejeitado</option>
+                      <option value="Aprovado">Aprovado</option>
+                  </select>
                   </div>
                   <button class="button is-info view-button3"type="submit" id="sai" style="text-align: center">Done</button>
                   </td>

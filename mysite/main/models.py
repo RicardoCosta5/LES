@@ -134,7 +134,7 @@ class Pedido(models.Model):
     assunto = models.CharField(max_length=255, default="assunto")  
     desc = models.CharField(max_length=1200,default= "Default description")
     dia = models.DateField()
-    status = models.CharField(max_length=255,default="Em Análise")
+    status = models.CharField(max_length=255,default="Registado")
     atribuido = models.CharField(max_length=255, default="Não Atribuido")
     Funcionario=models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True)
     diaCriado = models.DateField(default=datetime.date.today)
