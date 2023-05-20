@@ -575,32 +575,45 @@ def tablePedidos2(request,pk):
    return render(request, template_name="main/tableHorario2.html",context={"Pedido":pedidoshorario,"pedido":pedido})
 
 
-### Criar Ano Letivo ###
+
+
 def AnoLetivoAdd(request):
    UC = UnidadesCurriculares.objects.all()
    success = None
    error = None
 
-   #Gerar a lista de opções de anos letivos
+   # Gerar a lista de opções de anos letivos
    anos_letivos = [f"{year}/{year+1:02}" for year in range(date.today().year, 2099)]
+
    if request.method == "POST":
       anoletivo = request.POST['anoletivo']
       datainicio = request.POST['datainicio']
       datafinal = request.POST['datafinal']
+
+      # Verificar se o ano letivo já existe
       if AnoLetivo.objects.filter(anoletivo=anoletivo).exists():
-         # Verificar se o ano letivo já existe
          error = f"O ano letivo {anoletivo} já existe."
          return render(request, template_name="main/PedidoAL.html",context={"UC": UC,"anos_letivos": anos_letivos,'succes':success,'error':error})
       else:
-         new_ano = AnoLetivo(
-            anoletivo = anoletivo,
-            datainicio = datainicio,
-            datafinal = datafinal
-         )
-         new_ano.save()
-         success = f"Ano letivo {anoletivo} criado com sucesso."
-   return render(request, template_name="main/PedidoAL.html",context={"UC": UC,"anos_letivos": anos_letivos,'succes':success,'error':error})
+         # Verificar se as datas pertencem ao ano letivo escolhido
+         ano_inicio = int(anoletivo.split('/')[0])
+         ano_fim = int(anoletivo.split('/')[1])
+         if int(datainicio.split('-')[0]) != ano_inicio or int(datafinal.split('-')[0]) != ano_fim:
+            error = "As datas devem pertencer ao ano letivo selecionado."
+            return render(request, template_name="main/PedidoAL.html",context={"UC": UC,"anos_letivos": anos_letivos,'succes':success,'error':error})
+         elif datainicio >= datafinal:
+            error = "A data de início deve ser anterior à data de fim."
+            return render(request, template_name="main/PedidoAL.html",context={"UC": UC,"anos_letivos": anos_letivos,'succes':success,'error':error})
+         else:
+            new_ano = AnoLetivo(
+               anoletivo=anoletivo,
+               datainicio=datainicio,
+               datafinal=datafinal
+            )
+            new_ano.save()
+            success = f"Ano letivo {anoletivo} criado com sucesso."
 
+   return render(request, template_name="main/PedidoAL.html", context={"UC": UC, "anos_letivos": anos_letivos, "succes": success, "error": error})
 
 ### Update Ano Letivo ###
 def updateAL(request, pk):
