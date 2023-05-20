@@ -131,7 +131,7 @@ class Horario(models.Model):
 ### Ano letivo ###
 class AnoLetivo(models.Model):
     anoletivo = models.CharField(max_length=9, default="2022/2023")
-    ativo = models.BooleanField(default=True)
+    ativo = models.BooleanField(default=False)
     datainicio = models.DateField()
     datafinal = models.DateField()  
 

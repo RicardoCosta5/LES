@@ -37,6 +37,7 @@ table th:nth-child(5) {
         <th>Ano Letivo</th>
         <th>Inicio</th>
         <th>Fim</th>
+        <th>Ativo</th>
         <th>Update</th>
         <th>Remove</th>
         </th>
@@ -48,6 +49,7 @@ table th:nth-child(5) {
         <td>{{n.anoletivo}}</td>
         <td>{{n.datainicio}}</td>>
         <td>{{n.datafinal}}</td>
+        <td>{{n.ativo}}</td>
         <td ><a class="button is-warning is-active" href="{% url 'main:update_AL' n.id %}">Update</button></td>
         <td ><a class="button is-danger is-active" href="{% url 'main:delete_AL' n.id %}">Delete</button></td>
       </tr>

@@ -48,7 +48,7 @@
       <a href="tableEstatisticaPedido" class="navbar-item">Estatistica Pedidos</a>
     </div>
     
-    {% if request.user|has_group:'Docente' %}
+    {% if request.user|has_group:'Administrador' %}
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
           Ano Letivo
