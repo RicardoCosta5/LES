@@ -127,6 +127,14 @@ class Horario(models.Model):
              'pedido_horario_pedido_docente_id'),
         )
 
+
+### Ano letivo ###
+class AnoLetivo(models.Model):
+    anoletivo = models.CharField(max_length=9, default="2022/2023")
+    ativo = models.BooleanField(default=True)
+    datainicio = models.DateField()
+    datafinal = models.DateField()  
+
 ### Parte mais importante deste models ####
 class Pedido(models.Model):
     
@@ -140,6 +148,8 @@ class Pedido(models.Model):
     diaCriado = models.DateField(default=datetime.date.today)
     Docente = models.ForeignKey(Docente, on_delete=models.CASCADE, null=True)
     Rejeitarpedido = models.CharField(max_length=1000,default="Nao sei")
+    Anoletivo = models.ForeignKey(AnoLetivo, on_delete=models.CASCADE, null=True)
+
     
 ### Pedidos ( Horario - Outros - UC - Sala) , desta parte esta ok
 class PedidoHorario(models.Model):
@@ -242,12 +252,7 @@ class Sala(models.Model):
     IdTipoSala = models.CharField(max_length=255, default = "Default name")
     LotaçãoPresencialSala = models.CharField(max_length=255, default = "Default name")
 
-### Ano letivo ###
-class AnoLetivo(models.Model):
-    anoletivo = models.CharField(max_length=9, default="2022/2023")
-    ativo = models.BooleanField(default=True)
-    datainicio = models.DateField()
-    datafinal = models.DateField()  
+
 
 ###estatisticas dos Pedidos ###
 class EstatisticaPedido(models.Model):

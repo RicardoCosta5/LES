@@ -24,6 +24,7 @@ from .filters import UtilizadoresFilter
 from dateutil.parser import parse
 from django.db.models import Count, Avg
 from django.utils.timezone import datetime, timedelta
+import re
 
 def user_check(request, user_profile = None):
     ''' 
@@ -639,7 +640,8 @@ def uploadRUC(request):
 
         for index, row in testes.iterrows():
             AnoLetivo = row['Ano letivo']
-            Docente = row['Docente']
+            nome_docente = row['Docente'].split("-")[1].strip()
+            Docente = nome_docente
             Regencia = row['Regência']
             Tipo = row['Tipo']
             Horas = row['Horas']
@@ -647,8 +649,19 @@ def uploadRUC(request):
             #Desc = row['Descrição']
 
             
-            novAUC = UnidadesCurriculares(AnoLetivo=AnoLetivo,Docentes=Docente,Regência=Regencia,Tipo=Tipo,Horas=Horas)
-            novAUC.save()
+            # Verificar se a linha começa com "ENGENHARIA"
+            if not Regencia.startswith('ENGENHARIA') and not re.search(r'FCT', Regencia):
+                # Extrair apenas os nomes das unidades curriculares
+                match = re.search(r'(.+?)\s*\(\d+\)', Regencia)
+                if match:
+                    Regencia = match.group(1).strip()
+                
+                match_tipo = re.search(r'Regência de disciplina', Tipo)
+                if match_tipo:
+                    Tipo = match_tipo.group(0)
+                
+                    novAUC = UnidadesCurriculares(AnoLetivo=AnoLetivo, Docentes=Docente, Regência=Regencia, Tipo=Tipo, Horas=Horas)
+                    novAUC.save()
             succes = 'Importado para a base de dados'
         return render(request=request, template_name='main/IMPORTCSV.html', context={"succes": succes})
     return render(request=request, template_name='main/IMPORTCSV.html')
@@ -1146,9 +1159,11 @@ def enviar_email_validarpedido(request, nome, id, pedidoid):
 
 def enviar_email_rejeitarpedido(request, nome, id, pedidoid): 
     msg="A enviar email a "+nome+" a informar que o seu pedido foi Rejeitado"
-
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo_rejeitar')
     pedido = Pedido.objects.get(id=pedidoid)
     pedido.status ="Concluido"
+    pedido.Rejeitarpedido = motivo
     pedido.save()
     return render(request=request,
                   template_name="main/enviar_email_validarpedido.html",
