@@ -93,9 +93,16 @@ def PedidoHorarios(request):
          except ValueError:
             error = 'Formato de hora inválido!'
             return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name,"UC": UC})
+      # Verifica se há um ano letivo ativo
+      try:
+            ano_letivo_ativo = AnoLetivo.objects.get(ativo=True)
+      except AnoLetivo.DoesNotExist:
+            error = 'É necessário ter um ano letivo ativo.'
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name, "UC": UC})
+
         
       docente = Docente.objects.get(utilizador_ptr=user)
-      new_pedido = Pedido(assunto=assunto,desc=desc,dia=dia, tipo="Horário",Docente=docente)
+      new_pedido = Pedido(assunto=assunto,desc=desc,dia=dia, tipo="Horário",Docente=docente,Anoletivo=ano_letivo_ativo)
       new_pedido.save()
       
       for i in range(len(uc_list)):
@@ -128,7 +135,7 @@ def PedidoHorarios(request):
          new_pedido_hor.save()
       
 
-      pending_pedidos = Pedido.objects.filter(Docente=docente).exclude(status__in=['Aprovado', 'Rejeitado']).count()
+      pending_pedidos = Pedido.objects.filter(Docente=docente).exclude(status__in=['Concluido']).count()
       # Calculate the average number of pedidos processed per day in the last 7 days
       seven_days_ago = datetime.now().date() - timedelta(days=7)
       avg_processed_per_day = Pedido.objects.filter(Docente=docente, dia__gte=seven_days_ago).annotate(
@@ -643,9 +650,30 @@ def deletAL(request,pk):
 
 ### Tabela Ano Letivo ###
 def tableAL(request):
-   pedidosAL = AnoLetivo.objects.all()
-   return render(request, template_name="main/tableAL.html",context={"AnoLetivo":pedidosAL})
+    pedidosAL = AnoLetivo.objects.all()
 
+    # Verificar se há um ano letivo ativo
+    ano_letivo_ativo = AnoLetivo.objects.filter(ativo=True).first()
+
+    if ano_letivo_ativo:
+        # Desativar todos os anos letivos
+        AnoLetivo.objects.update(ativo=False)
+
+    if request.method == "POST":
+        ano_id = request.POST.get("ano_id")
+
+        if ano_id:
+            # Verificar se o valor de ano_id é um número válido
+            try:
+                ano_id = int(ano_id)
+                ano_letivo = AnoLetivo.objects.get(id=ano_id)
+                ano_letivo.ativo = True
+                ano_letivo.save()
+            except (ValueError, AnoLetivo.DoesNotExist):
+                # Lidar com o valor inválido de ano_id ou se não existir um ano letivo com o ID fornecido
+                pass
+
+    return render(request, template_name="main/tableAL.html", context={"AnoLetivo": pedidosAL})
 
 
 ### Importações ###

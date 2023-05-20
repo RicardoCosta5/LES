@@ -47,9 +47,14 @@ table th:nth-child(5) {
         {% for n in AnoLetivo %}
       <tr>
         <td>{{n.anoletivo}}</td>
-        <td>{{n.datainicio}}</td>>
+        <td>{{n.datainicio}}</td>
         <td>{{n.datafinal}}</td>
-        <td>{{n.ativo}}</td>
+        <td> <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="ano_id" value="{{ n.id }}">
+        <button type="submit" name="ativo" value="true" class="button {% if n.ativo %}is-success{% else %}is-light{% endif %}">Sim</button>
+        <button type="submit" name="ativo" value="false" class="button {% if not n.ativo %}is-danger{% else %}is-light{% endif %}">Não</button>
+      </form></td>
         <td ><a class="button is-warning is-active" href="{% url 'main:update_AL' n.id %}">Update</button></td>
         <td ><a class="button is-danger is-active" href="{% url 'main:delete_AL' n.id %}">Delete</button></td>
       </tr>
