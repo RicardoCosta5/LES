@@ -18,6 +18,7 @@ from . import views
 from django.contrib.auth import authenticate, login, logout
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
+from django.conf import settings
 from .tables import UtilizadoresTable
 from .filters import UtilizadoresFilter
 from dateutil.parser import parse
@@ -1131,6 +1132,28 @@ def enviar_email_rejeitar(request,nome,id):
     return render(request=request,
                   template_name="main/enviar_email_rejeitar.html",
                   context={"msg": msg, "id":id})
+
+
+def enviar_email_validarpedido(request, nome, id, pedidoid): 
+    msg="A enviar email a "+nome+" a informar que o seu pedido foi validado"
+
+    pedido = Pedido.objects.get(id=pedidoid)
+    pedido.status ="Concluido"
+    pedido.save()
+    return render(request=request,
+                  template_name="main/enviar_email_validarpedido.html",
+                  context={"msg": msg, "id":id,"pedidoid":pedidoid})
+
+def enviar_email_rejeitarpedido(request, nome, id, pedidoid): 
+    msg="A enviar email a "+nome+" a informar que o seu pedido foi Rejeitado"
+
+    pedido = Pedido.objects.get(id=pedidoid)
+    pedido.status ="Concluido"
+    pedido.save()
+    return render(request=request,
+                  template_name="main/enviar_email_validarpedido.html",
+                  context={"msg": msg, "id":id,"pedidoid":pedidoid})
+
 def mensagem(request, id, *args, **kwargs):
     ''' Template de mensagens informativas/erro/sucesso '''
 

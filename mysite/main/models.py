@@ -139,6 +139,7 @@ class Pedido(models.Model):
     Funcionario=models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True)
     diaCriado = models.DateField(default=datetime.date.today)
     Docente = models.ForeignKey(Docente, on_delete=models.CASCADE, null=True)
+    Rejeitarpedido = models.CharField(max_length=1000,default="Nao sei")
     
 ### Pedidos ( Horario - Outros - UC - Sala) , desta parte esta ok
 class PedidoHorario(models.Model):

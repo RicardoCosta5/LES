@@ -212,6 +212,7 @@ table th:nth-child(5) {
         <th>View</th>
         {% if u == 'Funcionario' %}
         <th>Associar</th>
+        <th>Ações</th>
         {% endif %}
         {% if u == 'Docente' %}
         <th>Update</th>
@@ -226,7 +227,7 @@ table th:nth-child(5) {
           <td class="wide-column2">{{n.desc|linebreaksbr|truncatechars:10 }}</td>
           <td>{{n.dia}}</td>
           <td>{{n.tipo}}</td>
-          <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido' and n.status == 'Aprovado' %}concluido{% elif n.status == 'Rejeitado' %}rejeitado{% endif %}">{{n.status}}</td>
+          <td class="{% if n.status == 'Registado' %}registado{% elif n.status == 'Em Análise' %}em-analise{% elif n.status == 'Concluido'%}concluido{% elif n.status == 'Rejeitado' %}rejeitado{% endif %}">{{n.status}}</td>
 
       
           <td>{{n.atribuido}}</td>
@@ -239,12 +240,24 @@ table th:nth-child(5) {
             <input type="hidden" name="pedido_id" value="{{ n.id }}">
           <td><button id="expand-btn-2" class="button is-info2">Associar</button></td>
           </form>
-          {% else %}
+          {% elif n.status != 'Concluido' and n.Funcionario.id == user.id %}
           <form onsubmit="myFunction()" method="POST">
             {% csrf_token %}
           <input type="hidden" name="pedido_id" value="{{ n.id }}">
           <td><button class="button is-info2_desa" type="submit" name="desassociar" value="{{ n.id }}" id="desassociar-{{ n.id }}" >Desassociar</button></td>
+          <td><a data-tooltip="Validar" href="{% url 'main:validarpedido' n.Docente.first_name n.Docente.id n.id %}">
+            <span class="icon">
+                <i class="fas fa-check" style="color: #32CD32"></i>
+            </span>
+        </a>
+      
         </form>
+        <a class="is-info2" data-tooltip="Rejeitar" >
+          <span class="icon has-text-danger">
+              <i class="fas fa-ban"></i>
+          </span>
+      </a>
+    </td>
           {%endif%}
           {%endif%}
           {% if u == 'Docente' %}
@@ -266,6 +279,34 @@ table th:nth-child(5) {
             <td><a class="button is-danger is-active" href="{% url 'main:delete_horario' n.id %}">Delete</a></td>
           {% endif %}
           {% endif %}
+        </tr>
+        <tr class="hidden-row2" style="text-align: center">
+          <td colspan="9">
+            <form onsubmit="myFunction()" method="POST" action="{% url 'main:rejeitarpedido' n.Docente.first_name n.Docente.id n.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="pedido_id" value="{{ n.id }}">
+            <div class="pedido-details2" style="text-align: center">
+              <table style="text-align: center">
+                <thead>
+                  <tr>
+                    <th >Motivo Rejeitar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <td>
+                  <textarea name="motivo_rejeitar" id="motivo_rejeitar" rows="4" cols="50"></textarea>
+                  <button class="button is-info view-button3"type="submit" id="sai" style="text-align: center">Done</button>
+                  </td>
+                </form>
+                    
+                
+                </tbody>
+      
+           
+              </table>
+          
+            </div>
+          </td>
         </tr>
   
       </tbody>
@@ -341,8 +382,8 @@ thElements.forEach(function(th, index) {
 document.querySelectorAll('.hidden-row2').forEach(function(row) {
 row.style.display = 'none';
 });
-// Quando o botão "Associar" é clicado, exibir os detalhes do pedido
-document.querySelectorAll('.button.is-info2').forEach(function(button) {
+// Quando o botão "icon rejeitar" é clicado, exibir os detalhes do pedido
+document.querySelectorAll('.is-info2').forEach(function(button) {
 button.addEventListener('click', function(event) {
 // Encontre o elemento pai "tr"
 var row = event.target.closest('tr');

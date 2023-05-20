@@ -67,7 +67,8 @@ urlpatterns = [
     path('concluirregisto/<int:id>', views.concluir_registo,name='concluir-registo'),
     path('ajax/load-departamentos/', views.load_departamentos, name='ajax_load_departamentos'),
     path('ajax/load-cursos/', views.load_cursos, name='ajax_load_cursos'),
-   
+    path('validarpedido/<str:nome>/<int:id>/<int:pedidoid>', views.enviar_email_validarpedido,name='validarpedido'),
+    path('rejeitarpedido/<str:nome>/<int:id>/<int:pedidoid>', views.enviar_email_rejeitarpedido,name='rejeitarpedido'),
 
 
 
