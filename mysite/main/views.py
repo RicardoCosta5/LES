@@ -25,7 +25,12 @@ from dateutil.parser import parse
 from django.db.models import Count, Avg
 from django.utils.timezone import datetime, timedelta
 import re
+<<<<<<< HEAD
 import datetime
+=======
+import smtplib
+from smtplib import SMTPException
+>>>>>>> f5c13de1772d9843e14ebe936415d58d0a5f261a
 
 def user_check(request, user_profile = None):
     ''' 
@@ -248,9 +253,15 @@ def PedidoSalas(request):
          except ValueError:
             error = 'Formato de hora inválido!'
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
+            # Verifica se há um ano letivo ativo
+      try:
+            ano_letivo_ativo = AnoLetivo.objects.get(ativo=True)
+      except AnoLetivo.DoesNotExist:
+            error = 'É necessário ter um ano letivo ativo.'
+            return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas, "edificios": Edificios, "UC": UC})
 
       docente = Docente.objects.get(utilizador_ptr=user)
-      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente)
+      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente, AnoLetivo=ano_letivo_ativo)
       new_Pedido.save()
 
       for i in range(len(uc_list)):
@@ -742,36 +753,25 @@ def uploadDSD(request):
         excel_file = request.FILES['file']
         excel_data = pd.ExcelFile(excel_file)
         sheetx = pd.read_excel(excel_data, sheet_name=0)
-        testes = sheetx[['Período', 'Cód. disciplina', 'Disciplina', 'Inst. discip.', 'Inst. disciplina', 'Depart. disciplina', 'Turma', 'Código curso', 'Curso',
-                         'Cód. Docente', 'Docente', 'Função docente', 'Inst. docente', 'Depart. docente', 'Horas semanais', 'Horas período', 'Factor', 
-                         'Horas serviço', 'Data início', 'Data fim', 'Nome Docente', 'Agrupamento']] 
+        testes = sheetx[['Período', 'Cód. disciplina', 'Disciplina', 'Inst. disciplina', 'Turma', 'Curso',
+                         'Cód. Docente', 'Docente', 'Depart. docente', 'Horas semanais' , 'Data início', 'Data fim']] 
 
         for index, row in testes.iterrows():
             Periodo = row['Período']
             codDisci = row['Cód. disciplina']
             disciplina = row['Disciplina']
-            instituic = row['Inst. discip.']
             instituto = row['Inst. disciplina']
-            departamento = row['Depart. disciplina']
             turma = row['Turma']
-            codCurso = row['Código curso']
             curso = row['Curso']
             codDocente = row['Cód. Docente']
             docente = row['Docente']
-            funcDocente = row['Função docente']
-            instDocente = row['Inst. docente']
             departDocente = row['Depart. docente']
             horasSem = row['Horas semanais']
-            horasPeri = row['Horas período']
-            factor = row['Factor']
-            horasServ = row['Horas serviço']
             Datainicial = row['Data início']
             DataFim = row['Data fim']
-            Nome = row['Nome Docente']
-            Agrupamento = row['Agrupamento']
-            novAUC = DSD(Periodo = Periodo, codDisci =  codDisci, disciplina = disciplina, instituic = instituic, instituto = instituto, departamento = departamento,
-                         turma = turma, codCurso = codCurso, curso = curso, codDocente = codDocente, docente = docente, funcDocente = funcDocente, instDocente = instDocente,
-                         horasSem = horasSem, horasPeri = horasPeri, factor = factor, Datainicial = Datainicial, DataFim = DataFim, Nome = Nome, Agrupamento = Agrupamento)
+            novAUC = DSD(Periodo = Periodo, codDisci =  codDisci, disciplina = disciplina, instituto = instituto,
+                         turma = turma, curso = curso, codDocente = codDocente, docente = docente, departDocente = departDocente,
+                         horasSem = horasSem, Datainicial = Datainicial, DataFim = DataFim)
             novAUC.save()
         success = 'Dados do DSD importados com sucesso'
         return render(request=request, template_name='main/upload_DSD.html', context={'success': success})
@@ -1158,6 +1158,37 @@ class consultar_utilizadores(SingleTableMixin, FilterView):
 
 
 
+def validar_p(request, id,pedidoid): 
+    ''' Validar um utilizador na pagina consultar utilizadores '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        if user.groups.filter(name = "Funcionário").exists():
+            u = "Funcionário"   
+        else:
+            return redirect('main:mensagem',3) 
+    else:
+        return redirect('main:mensagem',3) 
+        
+    try:
+        u = Utilizador.objects.get(id = id)
+        u.valido = 'True'           
+        u.save()   
+        subject = 'Validação do pedido na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT'
+        message = 'Caro(a) '+u.first_name+"\n\n"
+        message+='O seu pedido na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT foi bem sucedido!'+",\n\n"
+        message+='Equipa do Conselho Pedagógico da Ualg'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [u.email,]
+        send_mail( subject, message, email_from, recipient_list )
+    except SMTPException as e:
+     print(f"Failed to send email: {e}")
+      
+
+    if 'tablePedidos' not in request.session:
+        return redirect('main:tablePedidos')
+    else:    
+        return HttpResponseRedirect(request.session['tablePedidos'])
+    
 def validar_utilizador(request, id): 
     ''' Validar um utilizador na pagina consultar utilizadores '''
     if request.user.is_authenticated:    
@@ -1173,15 +1204,16 @@ def validar_utilizador(request, id):
         u = Utilizador.objects.get(id = id)
         u.valido = 'True'           
         u.save()   
-        subject = 'Validação do registo do na plataforma do dia aberto'
+        subject = 'Validação do registo na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT'
         message = 'Caro(a) '+u.first_name+"\n\n"
-        message+='O seu registo na plataforma do dia aberto foi bem sucedido!'+",\n\n"
-        message+='Equipa do dia aberto da Ualg'
+        message+='O seu registo na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT foi bem sucedido!'+",\n\n"
+        message+='Equipa do Conselho Pedagógico da Ualg'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [u.email,]
         send_mail( subject, message, email_from, recipient_list )
-    except:
-        pass
+    except SMTPException as e:
+     print(f"Failed to send email: {e}")
+      
 
     if 'consultar_utilizadores' not in request.session:
         return redirect('main:consultar-utilizadores')
@@ -1189,6 +1221,40 @@ def validar_utilizador(request, id):
         return HttpResponseRedirect(request.session['consultar_utilizadores'])
 
 
+
+def rejeitar_p(request, id,pedidoid): 
+    ''' Funcionalidade de rejeitar um utilizador na pagina de consultar utilizadores '''
+    if request.user.is_authenticated:    
+        user = get_user(request)
+        print(user)
+        if user.groups.filter(name = "Funcionário").exists():
+            u = "Funcionário"   
+            print(u)     
+        else:
+            return redirect('main:mensagem',3) 
+    else:
+        return redirect('main:mensagem',3) 
+        
+    try:
+        u = Utilizador.objects.get(id = id)
+        pedido = Pedido.objects.get(id=pedidoid)
+        u.valido = 'Rejeitado'           
+        u.save()   
+        subject = 'Validação do pedido na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT'
+        message = 'Caro(a) '+u.first_name+",\n\n"
+        message+='O seu pedido na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT foi rejeitado!'+"\n\n"
+        message+=pedido.Rejeitarpedido+"\n\n"
+        message+='Equipa do Conselho Pedagógico da Ualg'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [u.email,]
+        send_mail( subject, message, email_from, recipient_list )
+    except:
+        pass
+    if 'tablePedidos' not in request.session:
+        return redirect('main:tablePedidos')
+    else:    
+        return HttpResponseRedirect(request.session['tablePedidos'])
+    
 def rejeitar_utilizador(request, id): 
     ''' Funcionalidade de rejeitar um utilizador na pagina de consultar utilizadores '''
     if request.user.is_authenticated:    
@@ -1196,18 +1262,18 @@ def rejeitar_utilizador(request, id):
         if user.groups.filter(name = "Administrador").exists():
             u = "Administrador"        
         else:
-            return redirect('utilizadores:mensagem',3) 
+            return redirect('main:mensagem',3) 
     else:
-        return redirect('utilizadores:mensagem',3) 
+        return redirect('main:mensagem',3) 
         
     try:
         u = Utilizador.objects.get(id = id)
         u.valido = 'Rejeitado'           
         u.save()   
-        subject = 'Validação do registo do na plataforma do dia aberto'
+        subject = 'Validação do registo na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT'
         message = 'Caro(a) '+u.first_name+",\n\n"
-        message+='O seu registo na plataforma do dia aberto foi rejeitado!'+"\n\n"
-        message+='Equipa do dia aberto da Ualg'
+        message+='O seu registo na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT foi rejeitado!'+"\n\n"
+        message+='Equipa do Conselho Pedagógico da Ualg'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [u.email,]
         send_mail( subject, message, email_from, recipient_list )
@@ -1216,7 +1282,7 @@ def rejeitar_utilizador(request, id):
     if 'consultar_utilizadores' not in request.session:
         return redirect('main:consultar-utilizadores')
     else:    
-        return HttpResponseRedirect(request.session['consultar_utilizadores'])
+        return HttpResponseRedirect(request.session['consultar_utilizadores'])    
 
 
 def enviar_email_validar(request,nome,id):
@@ -1265,7 +1331,7 @@ def enviar_email_rejeitarpedido(request, nome, id, pedidoid):
     pedido.Rejeitarpedido = motivo
     pedido.save()
     return render(request=request,
-                  template_name="main/enviar_email_validarpedido.html",
+                  template_name="main/enviar_email_rejeitarpedido.html",
                   context={"msg": msg, "id":id,"pedidoid":pedidoid})
 
 def mensagem(request, id, *args, **kwargs):

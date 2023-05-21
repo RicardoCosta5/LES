@@ -137,6 +137,18 @@
   novoCampo.innerHTML = '<div class="field is-horizontal">' +
   '<div class="field-body">' +
     '<div class="field">' +
+      '<label class="label">Tarefa</label>' +
+      '<div class="control">' +
+        '<div class="select">' +
+          '<select name="tarefa" id="tarefa">' +
+            '<option value="Criar">Criar</option>' +
+            '<option value="Editar">Editar</option>' +
+            '<option value="Apagar">Apagar</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field">' +
       '<label class="label">Unidade curricular</label>' +
       '<div class="control">' +
         '<div class="select">' +
@@ -148,18 +160,6 @@
                 '<option>{{ u.Regência }}</option>' +
               '{% endif %}' +
             '{% endfor %}' +
-          '</select>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="field">' +
-      '<label class="label">Tarefa</label>' +
-      '<div class="control">' +
-        '<div class="select">' +
-          '<select name="tarefa" id="tarefa">' +
-            '<option value="Criar">Criar</option>' +
-            '<option value="Editar">Editar</option>' +
-            '<option value="Apagar">Apagar</option>' +
           '</select>' +
         '</div>' +
       '</div>' +

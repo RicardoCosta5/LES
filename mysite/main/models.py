@@ -213,29 +213,19 @@ class Outros(models.Model):
         )
 
 ### ver o que é importante pegar ###
-class DSD(models.Model):
-    Periodo = models.CharField(max_length=9, default="2022/2023")
+class Turma(models.Model):
+    Periodo = models.CharField(max_length=255, default="2022/2023")
     codDisci = models.IntegerField()
-    disciplina = models.CharField(max_length=9, default="2022/2023")
-    instituic = models.CharField(max_length=9, default="2022/2023")
-    instituto = models.CharField(max_length=9, default="2022/2023")
-    departamento = models.CharField(max_length=9, default="2022/2023")
-    turma = models.CharField(max_length=9, default="2022/2023")
-    codCurso = models.CharField(max_length=9)
-    curso = models.CharField(max_length=9, default="2022/2023")
-    codDocente = models.CharField(max_length=9)
-    docente = models.CharField(max_length=9, default="2022/2023")
-    funcDocente = models.CharField(max_length=9, default="2022/2023")
-    instDocente = models.CharField(max_length=9, default="2022/2023")
-    departDocente = models.CharField(max_length=9, default="2022/2023")
-    horasSem = models.CharField(max_length=9)
-    horasPeri = models.CharField(max_length=9)
-    factor = models.CharField(max_length=9, default="2022/2023")
-    horasServ = models.CharField(max_length=9)
-    Datainicial = models.CharField(max_length=9)
-    DataFim = models.CharField(max_length=9)
-    Nome = models.CharField(max_length=9, default="2022/2023")
-    Agrupamento = models.CharField(max_length=9, default="2022/2023")    
+    disciplina = models.CharField(max_length=255, default="2022/2023")
+    instituto = models.CharField(max_length=255, default="2022/2023")
+    turma = models.CharField(max_length=255, default="2022/2023")
+    curso = models.CharField(max_length=255, default="2022/2023")
+    codDocente = models.CharField(max_length=255)
+    docente = models.CharField(max_length=255, default="2022/2023")
+    departDocente = models.CharField(max_length=255, default="2022/2023")
+    horasSem = models.CharField(max_length=255)
+    Datainicial = models.CharField(max_length=255)
+    DataFim = models.CharField(max_length=255) 
 
     ### ver o que é importante pegar ###
 class UnidadesCurriculares(models.Model):
