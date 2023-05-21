@@ -186,6 +186,18 @@ function showPopUp(event) {
   novoCampo.innerHTML = '<div class="field is-horizontal">' +
   '<div class="field-body">' +
     '<div class="field">' +
+      '<label class="label">Tarefa</label>' +
+      '<div class="control">' +
+        '<div class="select">' +
+          '<select name="tarefa" id="tarefa">' +
+            '<option value="Criar">Criar</option>' +
+            '<option value="Editar">Editar</option>' +
+            '<option value="Apagar">Apagar</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field">' +
   '<label class="label" style="white-space: nowrap;">Unidade Curricular</label>' +
   '<div class="control">' +
     '<div class="select">' +
@@ -209,19 +221,7 @@ function showPopUp(event) {
            '<label class="label" style="white-space: nowrap;">Hora de Fim</label>'+
            '<input class="input" type="text" id="hora_fim" name="hora_fim" placeholder="HH:MM:SS" value="{{hora_fim|time:"H:i:s"}}"required>'+
           '</div>' +
-          '<div class="field">' +
-      '<label class="label">Tarefa</label>' +
-      '<div class="control">' +
-        '<div class="select">' +
-          '<select name="tarefa" id="tarefa">' +
-            '<option value="Criar">Criar</option>' +
-            '<option value="Editar">Editar</option>' +
-            '<option value="Apagar">Apagar</option>' +
-          '</select>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="field">'+
+           '<div class="field">'+
             '<label class="label">Dia</label>'+
            
                 '<input type="date" id="data2" name="data2" value="{{ dia|date:"Y-m-d" }}" required>'+
@@ -229,7 +229,7 @@ function showPopUp(event) {
           '<div class="field">'+
            '<label class="label">Descrição</label>'+
             '<div class="control">'+
-              '<input class="input" id="descri" placeholder="Escreva os detalhes do pedido" name="descri" required>{{ descri }}</textarea>'+
+              '<input class="input" id="descri" placeholder="Escreva os detalhes do pedido" name="descri" style="width: 200px"required>{{ descri }}</textarea>'+
             '</div>' +
           '</div>' +
     '<div class="field  ">' +
