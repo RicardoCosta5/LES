@@ -1,6 +1,54 @@
 {% extends 'main/app.html' %}
 {% load static %}
 {% block content %}
+
+<style>
+    .filters-column {
+    width: 30%;
+    margin-right: 20px;
+    float: left; /* Adicione esta propriedade para alinhar à esquerda */
+  }
+
+  .chart-container {
+    width: 50%; /* Reduza a largura para acomodar os filtros */
+    float: right; /* Adicione esta propriedade para alinhar à esquerda */
+    margin-top: -1.1%;
+  }
+
+
+    .filters-column2 {
+    width: 30%;
+    margin-right: 20px;
+    float: left; /* Adicione esta propriedade para alinhar à esquerda */
+  }
+
+  .chart-container2 {
+    width: 80%; /* Reduza a largura para acomodar os filtros */
+    float: right; /* Adicione esta propriedade para alinhar à esquerda */
+    margin-top: -10.5%;
+  }
+
+
+  .filters-column3 {
+    width: 30%;
+    margin-right: 20px;
+    float: left; /* Adicione esta propriedade para alinhar à esquerda */
+  }
+
+  .chart-container3 {
+    width: 50%; /* Reduza a largura para acomodar os filtros */
+    float: right; /* Adicione esta propriedade para alinhar à esquerda */
+    margin-top: -1.1%;
+  }
+
+
+</style>
+
+
+
+<h1 class="title has-text-centered">Estatisticas dos Pedidos</h1>
+
+<!--grafico dos funcionarios */ -- !--> 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="chart-container">
@@ -8,9 +56,90 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+<!--grafico dos Pedidos */ -- !--> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="chart-container">
+    <canvas id="chart2"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!--grafico dos tempo de processamneto do pedido */ -- !--> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="chart-container3">
+    <canvas id="chart3"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
 <script>
-  // Obter os estados dos pedidos
-  var estados = [
+  //grafico dos funcionarios
+  // Obter os funcionários
+  var funcionarios = [
+  "{% for funcionario in Funcionarios %}",
+    "{{ funcionario.full_name }}",
+  "{% endfor %}"
+  ];
+
+  // Obter a quantidade de pedidos recebidos por funcionário
+  var pedidosRecebidos = [
+  "{% for numPedidos in PedidosConcluidos %}",
+    "{{ numPedidos }}",
+  "{% endfor %}"
+  ];
+
+  // Configurar o gráfico
+  var chart = new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+      labels: funcionarios,
+      datasets: [{
+        label: 'Pedidos Recebidos',
+        data: pedidosRecebidos,
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          precision: 0,
+          title: {
+            display: true,
+            text: 'Número de Pedidos Processados'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Funcionários'
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Pedidos Processados pelo Funcionário nos ultimos 7 dias'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      }
+    }
+  });
+
+
+
+  //grafico dos Pedidos
+    // Obter os estados dos pedidos
+    var estados = [
   "{% for n in Pedido %}",
       "{{ n.Status }}",
     "{% endfor %}"
@@ -24,7 +153,7 @@
   ];
 
   // Configurar o gráfico
-  var chart = new Chart(document.getElementById('chart'), {
+  var chart = new Chart(document.getElementById('chart2'), {
     type: 'bar',
     data: {
       labels: estados,
@@ -56,7 +185,7 @@
       plugins: {
         title: {
           display: true,
-          text: 'Quantidade de Pedidos por Estado'
+          text: 'Quantidade de Pedidos'
         },
         legend: {
           display: true,
@@ -65,6 +194,64 @@
       }
     }
   });
+
+  //grafico tempo de processemento do pedido por funcionario
+  // Obter os funcionários
+  var funcionarios = [
+    "{% for funcionario in Funcionarios %}",
+      "{{ funcionario.full_name }}",
+    "{% endfor %}"
+  ];
+
+  // Obter os tempos de processamento médio por funcionário
+  var temposProcessamento = [
+    "{% for tempo in TemposProcessamento %}",
+      "{{ tempo }}",
+    "{% endfor %}"
+  ];
+
+  // Configurar o gráfico
+  var chart = new Chart(document.getElementById('chart3'), {
+    type: 'bar',
+    data: {
+      labels: funcionarios,
+      datasets: [{
+        label: 'Tempo de Processamento',
+        data: temposProcessamento,
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Tempo de Processamento'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Funcionários'
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Tempo de Processamento Médio por Funcionário'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      }
+    }
+  });
+
 </script>
 
 {% endblock content %}

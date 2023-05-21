@@ -25,8 +25,12 @@ from dateutil.parser import parse
 from django.db.models import Count, Avg
 from django.utils.timezone import datetime, timedelta
 import re
+<<<<<<< HEAD
+import datetime
+=======
 import smtplib
 from smtplib import SMTPException
+>>>>>>> f5c13de1772d9843e14ebe936415d58d0a5f261a
 
 def user_check(request, user_profile = None):
     ''' 
@@ -160,6 +164,17 @@ def PedidosOUT(request):
         descricao = request.POST['desc']
         data = request.POST['dia']
         arquivo = request.FILES.getlist('resume')
+
+        # Verifica se a data escolhida é anterior ao dia de hoje
+        if parse(data).date() < date.today():
+          error = 'A data escolhida é anterior ao dia de hoje!'
+          return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name})
+        
+        if Pedido.objects.filter(assunto=assunto, dia=data).exists():
+            # Se já existir, retorne uma mensagem de erro
+            error = 'Já existe um pedido com o mesmo assunto!'
+            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name})
+
         docente = Docente.objects.get(utilizador_ptr=user)
         new_Pedido = Pedido(assunto=assunto, desc=descricao, dia=data, tipo = "Outros",Docente=docente)
         new_Pedido.save()
@@ -775,28 +790,17 @@ def uploadDocente(request):
         excel_file = request.FILES['file']
         excel_data = pd.ExcelFile(excel_file)
         sheetx = pd.read_excel(excel_data, sheet_name=0)
-        testes = sheetx[['Código', 'Docente', 'Ativo', 'Nome', 'Indivíduo', 'Data de nascimento', 'Sexo', 'Tipo de identificação', 'Identificação', 'Data de emissão da identificação', 'Nacionalidade', 'Arquivo', 'Data de validade da identificação', 'NIF', 'País fiscal', 'Digito verificação', '&nbsp;']] 
+        testes = sheetx[['Código','Ativo', 'Nome', 'Indivíduo', 'Data de nascimento', 'Sexo', 'Tipo de identificação', 'Identificação', 'Data de emissão da identificação', 'Nacionalidade', 'Arquivo', 'Data de validade da identificação', 'NIF', 'País fiscal', 'Digito verificação', '&nbsp;']] 
 
         for index, row in testes.iterrows():
             codigo = row['Código']
-            docente = row['Docente']
             ativo = row['Ativo']
             nome = row['Nome']
-            individuo = row['Indivíduo']
-            data_nascimento = row['Data de nascimento']
-            sexo = row['Sexo']
-            tipo_identificacao = row['Tipo de identificação']
-            identificacao = row['Identificação']
-            data_emissao_identificacao = row['Data de emissão da identificação']
-            nacionalidade = row['Nacionalidade']
-            arquivo = row['Arquivo']
-            data_validade_identificacao = row['Data de validade da identificação']
-            nif = row['NIF']
-            pais_fiscal = row['País fiscal']
-            digito_verificacao = row['Digito verificação']
-            nbsp = row['&nbsp;']
+            if ativo == "S":
+                    ativo = True
+            else: ativo = False
 
-            novoDocente = Docente(codigo=codigo, docente=docente, ativo=ativo, nome=nome, individuo=individuo, data_nascimento=data_nascimento, sexo=sexo, tipo_identificacao=tipo_identificacao, identificacao=identificacao, data_emissao_identificacao=data_emissao_identificacao, nacionalidade=nacionalidade, arquivo=arquivo, data_validade_identificacao=data_validade_identificacao, nif=nif, pais_fiscal=pais_fiscal, digito_verificacao=digito_verificacao, nbsp=nbsp)
+            novoDocente = Docente_import(codigo=codigo, ativo=ativo, nome=nome)
             novoDocente.save()
             succes = 'Importado para a base de dados'
         return render(request=request, template_name='main/Upload_Docentes.html', context={"succes": succes})
@@ -830,7 +834,51 @@ def uploadSALAS(request):
 
 
 ### Estatisticas ###
+def obter_dados_pedidos_funcionarios():
+    funcionarios = Funcionario.objects.all()
+
+    pedidos_recebidos = []
+
+    for funcionario in funcionarios:
+        num_pedidos_recebidos = Pedido.objects.filter(Funcionario=funcionario).count()
+        pedidos_recebidos.append(num_pedidos_recebidos)
+
+    return funcionarios, pedidos_recebidos
+
+
 def tableEstatisticaPedido(request):
+   
+       # Verificar se os registros já existem
+   if not EstatisticaPedido.objects.filter(Status='Em Análise').exists():
+        EstatisticaPedido.objects.create(Status='Em Análise')
+   if not EstatisticaPedido.objects.filter(Status='Registado').exists():
+        EstatisticaPedido.objects.create(Status='Registado')
+   if not EstatisticaPedido.objects.filter(Status='Concluído').exists():
+        EstatisticaPedido.objects.create(Status='Concluído')
+   
+       # Get all the employees
+   funcionarios = Funcionario.objects.all()
+
+   tempos_processamento = []
+   for funcionario in funcionarios:
+        pedidos_funcionario = Pedido.objects.filter(Funcionario=funcionario, status='Concluído')
+        total_tempos = 0
+        num_pedidos_concluidos = pedidos_funcionario.count()
+        for pedido in pedidos_funcionario:
+            # Calculate the processing time for each order
+            dias_processamento = (pedido.diaFinal - pedido.diaCriado).days + 1
+            total_tempos += dias_processamento
+        if num_pedidos_concluidos > 0:
+            media_tempos = total_tempos / num_pedidos_concluidos
+        else:
+            media_tempos = 0
+        tempos_processamento.append(media_tempos)
+
+   pedidos_concluidos = []
+   for funcionario in funcionarios:
+        # Count the number of completed orders for each employee
+        num_pedidos_concluidos = Pedido.objects.filter(Funcionario=funcionario, status='Concluído').count()
+        pedidos_concluidos.append(num_pedidos_concluidos)
    
    num_pedidos = Pedido.objects.all().count()
    # Obter o número de pedidos com o status "Em Análise"
@@ -863,7 +911,7 @@ def tableEstatisticaPedido(request):
 
 
    pedidosSala = EstatisticaPedido.objects.all()
-   return render(request, template_name="main/tableEstatisticaPedidos.html",context={"Pedido":pedidosSala})
+   return render(request, template_name="main/tableEstatisticaPedidos.html",context={"Pedido":pedidosSala, "Funcionarios": funcionarios, "PedidosConcluidos": pedidos_concluidos, "TemposProcessamento": tempos_processamento})
 
 
 ### Coisa na minha opiniao nao são necessarias ###
@@ -1267,6 +1315,7 @@ def enviar_email_validarpedido(request, nome, id, pedidoid):
 
     pedido = Pedido.objects.get(id=pedidoid)
     pedido.status ="Concluido"
+    pedido.diaFinal= datetime.date.today()
     pedido.save()
     return render(request=request,
                   template_name="main/enviar_email_validarpedido.html",
@@ -1278,6 +1327,7 @@ def enviar_email_rejeitarpedido(request, nome, id, pedidoid):
         motivo = request.POST.get('motivo_rejeitar')
     pedido = Pedido.objects.get(id=pedidoid)
     pedido.status ="Concluido"
+    pedido.diaFinal= datetime.date.today()
     pedido.Rejeitarpedido = motivo
     pedido.save()
     return render(request=request,
