@@ -35,7 +35,7 @@
                 </form>
             </div>
             <div class="has-text-centered">
-                <form method="POST" action="{% url 'main:export' %}">
+                <form method="POST" action="{% url 'main:exportOutros' %}">
                     {% csrf_token %}
                     <button class="export-button purple" type="submit">Export Pedidos Outros</button>
                 </form>
@@ -86,22 +86,22 @@
     }
     
     .export-button.blue {
-        background-color: blue;
+        background-color: #63C5DA;
         color: white;
     }
     
     .export-button.green {
-        background-color: green;
+        background-color: #63C5DA;
         color: white;
     }
     
     .export-button.orange {
-        background-color: orange;
+        background-color: #63C5DA;
         color: white;
     }
     
     .export-button.purple {
-        background-color: purple;
+        background-color: #63C5DA;
         color: white;
     }
 </style>
