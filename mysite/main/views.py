@@ -391,40 +391,42 @@ def UPDATEPeidosOUT(request, pk):
         pedido.assunto = request.POST['assunto']
         pedido.desc = request.POST['desc']
         if datetime.strptime(dias, '%Y-%m-%d').date() < date.today():
-         error = 'A data escolhida é anterior ao dia de hoje!'
-         return render(request, 'main/PedidosOutros2.html', {"error": error,"assunto": pedido.assunto,
-        "desc": pedido.desc,
-        "dia": pedido.dia,
-        "pedido_outros":pedido_outros,})
+            error = 'A data escolhida é anterior ao dia de hoje!'
+            return render(request, 'main/PedidosOutros2.html', {"error": error, "assunto": pedido.assunto,
+                                                                "desc": pedido.desc,
+                                                                "dia": pedido.dia,
+                                                                "pedido_outros": pedido_outros,})
         if Pedido.objects.filter(Q(assunto=pedido.assunto, dia=pedido.dia) & ~Q(id=pk)).exists():
-            # Se já existir, retorne uma mensagem de erro
             error = 'Já existe um pedido com o mesmo assunto!'
-            return render(request, 'main/PedidosOutros2.html', {"error": error,"assunto": pedido.assunto,
-        "desc": pedido.desc,
-        "dia": pedido.dia,
-        "pedido_outros":pedido_outros,})
+            return render(request, 'main/PedidosOutros2.html', {"error": error, "assunto": pedido.assunto,
+                                                                "desc": pedido.desc,
+                                                                "dia": pedido.dia,
+                                                                "pedido_outros": pedido_outros,})
 
         pedido.save()
-        arquivo_list = request.Post.getlist("arquivo")
+        arquivo_list = request.POST.getlist("arquivo")
 
-        # Combine as listas em uma lista de tuplas
-        updates = zip(pedido_outros,arquivo_list)
-        # Atualize os objetos PedidoHorario
+        # Combine the pedido_outros objects and arquivo_list into a list of tuples
+        updates = zip(pedido_outros, arquivo_list)
+
+        # Update the PedidosOutros objects
         for pedido_outros, arquivo in updates:
             pedido_outros.arquivo = arquivo
             pedido_outros.save()
+
         redirect_url = reverse('main:tablePedidos')
         params = urlencode({'success': 'Enviado para a base de dados'})
         redirect_url = f"{redirect_url}?{params}"
         return HttpResponseRedirect(redirect_url)
 
-        # Construct a list of arquivo names for the pedido_outros objects
+    # Construct a list of arquivo names for the pedido_outros objects
     arquivo_names = [pedido_outro.arquivo.name if pedido_outro.arquivo else '' for pedido_outro in pedido_outros]
+
     return render(request, template_name="main/PedidosOutros2.html", context={
         "assunto": pedido.assunto,
         "desc": pedido.desc,
         "dia": pedido.dia,
-        "pedido_outros":pedido_outros,
+        "pedido_outros": pedido_outros,
         "arquivo_names": arquivo_names,
     })
 

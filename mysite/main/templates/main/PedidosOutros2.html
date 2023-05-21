@@ -1,4 +1,3 @@
-
 {% extends 'main/app.html' %}
 
 {% block title %}- Pedido Unidade Curricular{% endblock title %}
@@ -8,73 +7,69 @@
 {% load static %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <div>
-    <form id="form" method="POST">{% csrf_token %}
-        {{form}}
-  <div class="section">
-    <div class="column">
+  <form id="form" method="POST">{% csrf_token %}
+    {{ form }}
+    <div class="section">
+      <div class="column">
         <div class="columns is-centered">
-            
-        <div class="column is-7">
+          <div class="column is-7">
             <h1 class="title has-text-centered">Pedidos Outros</h1>
-            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}</div>
+            <div id="success" {% if success %}style="display: block;"{% endif %}>{{ success }}</div>
             <div id="error" {% if error %}style="display: block;"{% endif %}>{{ error }}</div>
-              <div class="field">
-                <label class="label">Assunto</label>
-                <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}" required>
-               
-              </div>
-          
-         
-          
-          <div class="field">
-            <label class="label">Descrição</label>
-            <div class="control">
-              <textarea class="textarea" id="desc" placeholder="Escreva os detalhes do pedido" name="desc" required>{{ desc }}</textarea>
+            <div class="field">
+              <label class="label">Assunto</label>
+              <input class="input" type="text" id="assunto" name="assunto" value="{{ assunto }}" required>
             </div>
-          </div>
-          <div class="field">
-            <label class="label">Dia</label>
-           
-                <input type="date" id="data" name="data" value="{{ dia|date:'Y-m-d' }}" required>
-          </div>
-          
-          <div class="field is-horizontal">
-            <div class="field-body">
-              <div class="field">
-                <label class="label">Descarregar Documento</label>
-                <div class="file is-normal has-name">
-                  <label class="file-label">
-                    <input class="file-input" type="file" name="resume" id="resume">
-                    <span class="file-cta">
-                      <span class="file-icon">
-                        <i class="fas fa-upload"></i>
+            <div class="field">
+              <label class="label">Descrição</label>
+              <div class="control">
+                <textarea class="textarea" id="desc" placeholder="Escreva os detalhes do pedido" name="desc"
+                  required>{{ desc }}</textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Dia</label>
+              <input type="date" id="data" name="data" value="{{ dia|date:'Y-m-d' }}" required>
+            </div>
+            <div class="field is-horizontal">
+              <div class="field-body">
+                <div class="field">
+                  <label class="label">Descarregar Documento</label>
+                  <div class="file is-normal has-name">
+                    <label class="file-label">
+                      <input class="file-input" type="file" name="resume" id="resume">
+                      <span class="file-cta">
+                        <span class="file-icon">
+                          <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">
+                          Inserir ficheiro
+                        </span>
                       </span>
-                      <span class="file-label">
-                        Inserir ficheiro
+                      <span class="file-name">
+                        {% if arquivo_names %}
+                        {{ arquivo_names.0 }}
+                      {% else %}
+                        Selecione um Ficheiro
+                      {% endif %}
                       </span>
-                    </span>
-                    <span class="file-name">
-                      Selecione um Ficheiro
-                    </span>
-                  </label>
+                    </label>
+                  </div>
+                  <div class="control">
+                  </div>
                 </div>
-                <div class="control">
+                <div class="field">
+                  <div class="control">
+                    <label class="label"></label>
+                    <br>
+                    <button type="button" class="button is-danger is-active remover-campo">Remover</button>
+                  </div>
                 </div>
               </div>
-              <div class="field  ">
-      <div class="control">
-        <label class="label"></label>
-        <br>
-        <button type="button" class="button is-danger is-active remover-campo">Remover</button>
-      </div>
-    </div>
             </div>
-          </div>
-          
-          <br>
-          <input type="hidden" id="num-requests-input" name="num_requests" value="0">
+            <br>
+            <input type="hidden" id="num-requests-input" name="num_requests" value="0">
 
-          
           <div id="popup" class="modal">
             <div class="modal-background"></div>
             <div class="modal-content">
@@ -104,67 +99,8 @@
 </form>
 </div>
 <script>
-  var novoCampo = document.createElement("div");
-  novoCampo.innerHTML =   '<div class="field is-horizontal">'+
-            '<div class="field-body">'+
-              '<div class="field">'+
-                '<label class="label">Descarregar Documento</label>'+
-                '<div class="file is-normal has-name">'+
-                  '<label class="file-label">'+
-                    '<input class="file-input" type="file" name="resume" id="resume">'+
-                    '<span class="file-cta">'+
-                      '<span class="file-icon">'+
-                        '<i class="fas fa-upload"></i>'+
-                      '</span>'+
-                      '<span class="file-label">'+
-                        'Inserir ficheiro'+
-                      '</span>'+
-                    '</span>'+
-                    '<span class="file-name">'+
-                      'Selecione um Ficheiro'+
-                    '</span>'+
-                  '</label>'+
-                '</div>'+
-                '<div class="control">'+
-                '</div>'+
-              '</div>'+
-              '<div class="field  ">' +
-      '<div class="control">' +
-        '<label class="label"></label>'+
-        '<br>' +
-        '<button type="button" class="button is-danger is-active remover-campo">Remover</button>' +
-      '</div>' +
-    '</div>' +
-            '</div>'+
-          '</div>'
 
-  var camposFicheiro = document.querySelector('#novo-campo-ficheiro');
-  camposFicheiro.appendChild(novoCampo);
 
-  var botoesRemover = document.getElementsByClassName("remover-campo");
-  for (var i = 0; i < botoesRemover.length; i++) {
-    botoesRemover[i].addEventListener("click", function() {
-      this.closest('.field.is-horizontal').remove();
-    });
-  }
-
-  var inputsFile = novoCampo.getElementsByTagName("input");
-  for (var i = 0; i < inputsFile.length; i++) {
-    inputsFile[i].addEventListener("change", function() {
-      var fileName = this.files[0].name;
-      this.parentNode.parentNode.parentNode.querySelector(".file-name").innerHTML = fileName;
-      var formData = new FormData();
-      formData.append("resume", this.files[0]);
-
-      axios.post("/url/para/seu/view/", formData)
-        .then(function(response) {
-          console.log(response);
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    });
-  }
   
     const cancelButton = document.querySelector('#cancel-btn');
    cancelButton.addEventListener('click', function(event) {
