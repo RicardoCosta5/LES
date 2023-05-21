@@ -25,16 +25,13 @@ from dateutil.parser import parse
 from django.db.models import Count, Avg
 from django.utils.timezone import datetime, timedelta
 import re
-<<<<<<< HEAD
-import datetime
-from datetime import datetime, timedelta
-=======
 import smtplib
 from smtplib import SMTPException
 from openpyxl import Workbook
 from openpyxl.styles import Font
+import datetime
+from datetime import datetime, timedelta
 
->>>>>>> 3f70598d08a8bd65e43e51907fa2fc999a749706
 
 def user_check(request, user_profile = None):
     ''' 
