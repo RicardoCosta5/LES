@@ -1611,11 +1611,11 @@ def export(request):
 def exportHorarios(request):
     if request.method == 'POST':
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename="pedido_uc.xlsx"'
+        response['Content-Disposition'] = 'attachment; filename="pedido_Horario.xlsx"'
 
         workbook = Workbook()
         worksheet = workbook.active
-        worksheet.title = 'PedidoUC'
+        worksheet.title = 'PedidoHorario'
 
         # Set bold font style for column names
         bold_font = Font(bold=True)
@@ -1634,6 +1634,38 @@ def exportHorarios(request):
         # Write data rows
         for pedido_uc in pedido_uc_data:
             worksheet.append([ pedido_uc.id, pedido_uc.uc, pedido_uc.hora_inicio, pedido_uc.hora_fim, pedido_uc.descri, pedido_uc.tarefa,pedido_uc.dia, pedido_uc.pedido_id])  # Replace with your actual column names
+        workbook.save(response)
+        return response
+
+    return render(request, 'main/export.html')
+
+
+def exportOutros(request):
+    if request.method == 'POST':
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="pedido_Outros.xlsx"'
+
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = 'PedidoOUT'
+
+        # Set bold font style for column names
+        bold_font = Font(bold=True)
+
+        # Write header row
+        header_row = ['ID', 'Arquivo', 'Pedido ID']
+        worksheet.append(header_row)
+
+        # Apply bold font style to column names
+        for cell in worksheet[1]:
+            cell.font = bold_font
+
+        # Retrieve data from the database
+        pedido_uc_data = PedidosOutros.objects.all()
+
+        # Write data rows
+        for pedido_uc in pedido_uc_data:
+            worksheet.append([ pedido_uc.id, str(pedido_uc.arquivo), pedido_uc.pedido_id])  # Replace with your actual column names
         workbook.save(response)
         return response
 

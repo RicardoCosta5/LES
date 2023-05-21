@@ -89,6 +89,7 @@ urlpatterns = [
 
     path("export", views.export, name = "export"),
     path("exportHorarios", views.exportHorarios, name = "exportHorarios"),
+    path("exportOutros", views.exportOutros, name="exportOutros"),
     
 
 
