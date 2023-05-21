@@ -25,12 +25,8 @@ from dateutil.parser import parse
 from django.db.models import Count, Avg
 from django.utils.timezone import datetime, timedelta
 import re
-<<<<<<< HEAD
-import datetime
-=======
 import smtplib
 from smtplib import SMTPException
->>>>>>> f5c13de1772d9843e14ebe936415d58d0a5f261a
 
 def user_check(request, user_profile = None):
     ''' 
