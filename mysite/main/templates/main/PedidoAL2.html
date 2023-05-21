@@ -14,12 +14,24 @@
             
         <div class="column is-7">
             <h1 class="title has-text-centered">Ano Letivo</h1>
+            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}</div>
+              <div id="error" {% if error %}style="display: block;"{% endif %}>{{ error }}</div>
           
-              <div class="field">
-                <label class="label">Ano letivo</label>
-                <input class="input" type="text" id="anoletivo" name="anoletivo" value="{{anoletivo}}">
-               
-              </div>
+            <div class="field">
+              <label class="label">Ano letivo</label>
+              
+              <select class="select" id="anoletivo" name="anoletivo">
+                {% for ano in anos_letivos %}
+                    {% if ano == anoletivo %}
+                        <option value="{{ ano }}" selected>{{ ano }}</option>
+                    {% else %}
+                        <option value="{{ ano }}">{{ ano }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            
+             
+            </div>
           <div class="field">
             <label class="label">Inicio do Ano Letivo</label>
                 <input type="date" id="datainicio" name="datainicio" value="{{ datainicio|date:'Y-m-d' }}">
@@ -28,22 +40,10 @@
             <label class="label">Fim do Ano Letivo</label>
                 <input type="date" id="datafinal" name="datafinal" value="{{ datafinal|date:'Y-m-d' }}">
           </div>
-          <div id="popup" class="modal">
-            <div class="modal-background"></div>
-            <div class="modal-content">
-              <div class="box">
-                <p>Submissão feita com sucesso!</p>
-                <div class="buttons">
-                  <button id="confirm-btn" class="button is-success">OK</button>
-                </div>
-              </div>
-            </div>
-            <button class="modal-close is-large" aria-label="close"></button>
-          </div>
           
           <div class="field is-grouped">
             <div class="control">
-              <button id="submit-btn" class="button is-link" onclick="showPopUp(event)">Submit</button>
+              <button id="submit-btn" class="button is-link">Submit</button>
             </div>
             <div class="control">
               <button id="cancel-btn" class="button is-link is-light" onclick="window.location.reload()">Cancel</button>
@@ -58,29 +58,28 @@
 <script>
   var numRequests = 0;
   const cancelButton = document.querySelector('#cancel-btn');
- cancelButton.addEventListener('click', function(event) {
-   event.preventDefault();
-   const form = document.querySelector('form');
-   form.reset();
- });
-
- function showPopUp(event) {
+  cancelButton.addEventListener('click', function(event) {
     event.preventDefault();
-      // Get the pop-up element
-      var popup = document.getElementById("popup");
+    const form = document.querySelector('form');
+    form.reset();
+  });
 
-      // Show the pop-up
-      popup.classList.add("is-active");
+  function showPopUp(event) {
+    event.preventDefault();
+    // Get the pop-up element
+    var popup = document.getElementById("popup");
 
-      // Get the confirm and cancel buttons
-      var confirmBtn = document.getElementById("confirm-btn");
+    // Show the pop-up
+    popup.classList.add("is-active");
 
-      // Add click listeners to the buttons
-      confirmBtn.addEventListener("click", submitForm);
-      setTimeout(function() {
-          popup.style.display = "none";
-      }, 5000); // Wait for 5 seconds before hiding the popup
-    
+    // Get the confirm and cancel buttons
+    var confirmBtn = document.getElementById("confirm-btn");
+
+    // Add click listeners to the buttons
+    confirmBtn.addEventListener("click", submitForm);
+    setTimeout(function() {
+      popup.style.display = "none";
+    }, 5000); // Wait for 5 seconds before hiding the popup
   }
 
   function hidePopUp() {
@@ -93,11 +92,36 @@
 
   function submitForm() {
     // Submit the form
+    const form = document.querySelector('form');
     form.appendChild(numRequestsInput);
     document.getElementById("submit-btn").click();
   }
 
  </script>
+  <style>
+  
+    #error {
+    display: none;
+    background-color: red;
+    text-align: center;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    top: 50%;
+    left: 50%;
+  }
+  #succes {
+    display: none;
+    background-color: green;
+    text-align: center;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    top: 50%;
+    left: 50%;
+  }
+   </style>
+ 
 
 {% endblock content%}
 

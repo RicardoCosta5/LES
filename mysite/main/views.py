@@ -647,16 +647,33 @@ def AnoLetivoAdd(request):
 ### Update Ano Letivo ###
 def updateAL(request, pk):
     pedido = AnoLetivo.objects.get(id=pk)
+    UC = UnidadesCurriculares.objects.all()
+    success = None
+    error = None
+
+   # Gerar a lista de opções de anos letivos
+    anos_letivos = [f"{year}/{year+1:02}" for year in range(date.today().year, 2099)]
     if request.method == "POST":
         pedido.anoletivo = request.POST['anoletivo']
         pedido.datainicio = request.POST['datainicio']
         pedido.datafinal = request.POST['datafinal']
-        pedido.save()
-        return redirect('main:tableAL')
-    return render(request, template_name="main/PedidoAL2.html", context={
-        "anoletivo": pedido.anoletivo,
-        "datainicio": pedido.datainicio,
-        "datafinal": pedido.datafinal,
+        if AnoLetivo.objects.exclude(id=pk).filter(anoletivo=pedido.anoletivo).exists():
+          error = f"O ano letivo {pedido.anoletivo} já existe."
+          return render(request, template_name="main/PedidoAL2.html",context={"anoletivo": pedido.anoletivo,"datainicio": pedido.datainicio,"datafinal": pedido.datafinal,"anos_letivos": anos_letivos,'succes':success,'error':error})
+        else:
+         # Verificar se as datas pertencem ao ano letivo escolhido
+         ano_inicio = int(pedido.anoletivo.split('/')[0])
+         ano_fim = int(pedido.anoletivo.split('/')[1])
+         if int(pedido.datainicio.split('-')[0]) != ano_inicio or int(pedido.datafinal.split('-')[0]) != ano_fim:
+            error = "As datas devem pertencer ao ano letivo selecionado."
+            return render(request, template_name="main/PedidoAL2.html",context={"anoletivo": pedido.anoletivo,"datainicio": pedido.datainicio,"datafinal": pedido.datafinal,"anos_letivos": anos_letivos,'succes':success,'error':error})
+         elif pedido.datainicio >= pedido.datafinal:
+            error = "A data de início deve ser anterior à data de fim."
+            return render(request, template_name="main/PedidoAL2.html",context={"anoletivo": pedido.anoletivo,"datainicio": pedido.datainicio,"datafinal": pedido.datafinal,"anos_letivos": anos_letivos,'succes':success,'error':error})
+         else:
+          pedido.save()
+          return redirect('main:tableAL')
+    return render(request, template_name="main/PedidoAL2.html", context={"anoletivo": pedido.anoletivo,"datainicio": pedido.datainicio,"datafinal": pedido.datafinal,"anos_letivos": anos_letivos,'succes':success,'error':error
       
     })
 
