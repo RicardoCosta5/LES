@@ -1,0 +1,99 @@
+{% extends 'main/app.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  .filters-column {
+    width: 30%;
+    margin-right: 20px;
+    float: left;
+  }
+
+  .chart-container {
+    width: 50%;
+    
+    margin: 2% auto; /* Center the container horizontally */
+  }
+
+  </style>
+
+<h1 class="title has-text-centered">Estatistica do Numero de Pedidos Processados pelo Funcionário </h1>
+
+<!--grafico dos funcionarios */ -- !--> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="chart-container">
+    <canvas id="chart"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+
+     //grafico dos funcionarios
+  // Obter os funcionários
+  var funcionarios = [
+  "{% for funcionario in Funcionarios %}",
+    "{{ funcionario.username }}",
+  "{% endfor %}"
+  ];
+
+  // Obter a quantidade de pedidos recebidos por funcionário
+  var pedidosRecebidos = [
+  "{% for numPedidos in PedidosConcluidos %}",
+    "{{ numPedidos }}",
+  "{% endfor %}"
+
+  ];
+
+  // Configurar o gráfico
+  var chart = new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+      labels: funcionarios,
+      datasets: [{
+        label: 'Pedidos Recebidos',
+        data: pedidosRecebidos,
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          precision: 0,
+          title: {
+            display: true,
+            text: 'Número de Pedidos Processados (nº:)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Funcionários (nome)'
+          },
+          ticks: {
+            maxRotation: 90, // Rotação máxima dos rótulos em graus
+            minRotation: 90 // Rotação mínima dos rótulos em graus
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Pedidos Processados pelo Funcionário nos ultimos 30 dias'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      }
+    }
+  });
+
+
+
+  </script>
+
+{% endblock content %}

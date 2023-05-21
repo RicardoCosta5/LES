@@ -86,6 +86,12 @@ urlpatterns = [
     path ("delete_AL/<str:pk>/",views.deletAL,name="delete_AL"),
     path ("update_AL/<str:pk>/",views.updateAL,name="update_AL"),    
 
+#estatistica
+    path("quantidade", views.tableEstatisticaPedido, name="quantidade"),
+    path("tempo_processado",views.estatistica_tempo_processado, name="tempo_processado"),
+    path("pedido_processado_funcionario",views.estatistica_pedido_processado_funcionario, name="pedido_processado_funcionario"),
+
+
 
     path("export", views.export, name = "export"),
     path("exportHorarios", views.exportHorarios, name = "exportHorarios"),
