@@ -1115,7 +1115,7 @@ class consultar_utilizadores(SingleTableMixin, FilterView):
 
 
 
-def validar_p(request, id): 
+def validar_p(request, id,pedidoid): 
     ''' Validar um utilizador na pagina consultar utilizadores '''
     if request.user.is_authenticated:    
         user = get_user(request)
@@ -1179,7 +1179,7 @@ def validar_utilizador(request, id):
 
 
 
-def rejeitar_p(request, id): 
+def rejeitar_p(request, id,pedidoid): 
     ''' Funcionalidade de rejeitar um utilizador na pagina de consultar utilizadores '''
     if request.user.is_authenticated:    
         user = get_user(request)
@@ -1194,11 +1194,13 @@ def rejeitar_p(request, id):
         
     try:
         u = Utilizador.objects.get(id = id)
+        pedido = Pedido.objects.get(id=pedidoid)
         u.valido = 'Rejeitado'           
         u.save()   
         subject = 'Validação do pedido na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT'
         message = 'Caro(a) '+u.first_name+",\n\n"
         message+='O seu pedido na plataforma de Gestão de Pedidos do Conselho Pedagógico da FCT foi rejeitado!'+"\n\n"
+        message+=pedido.Rejeitarpedido+"\n\n"
         message+='Equipa do Conselho Pedagógico da Ualg'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [u.email,]
