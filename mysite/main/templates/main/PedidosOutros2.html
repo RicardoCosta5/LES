@@ -31,13 +31,17 @@
               <label class="label">Dia</label>
               <input type="date" id="data" name="data" value="{{ dia|date:'Y-m-d' }}" required>
             </div>
+
+
+            
+            {% for arquivo_name in arquivo_names %}
             <div class="field is-horizontal">
               <div class="field-body">
                 <div class="field">
                   <label class="label">Descarregar Documento</label>
                   <div class="file is-normal has-name">
                     <label class="file-label">
-                      <input class="file-input" type="file" name="resume" id="resume">
+                      <input class="file-input" type="file" name="resume" id="resume{{ forloop.counter }}">
                       <span class="file-cta">
                         <span class="file-icon">
                           <i class="fas fa-upload"></i>
@@ -47,27 +51,24 @@
                         </span>
                       </span>
                       <span class="file-name">
-                        {% if arquivo_names %}
-                        {{ arquivo_names.0 }}
-                      {% else %}
-                        Selecione um Ficheiro
-                      {% endif %}
+                        {{ arquivo_name }}
                       </span>
                     </label>
-                  </div>
-                  <div class="control">
-                  </div>
-                </div>
-                <div class="field">
-                  <div class="control">
-                    <label class="label"></label>
-                    <br>
-                    <button type="button" class="button is-danger is-active remover-campo">Remover</button>
                   </div>
                 </div>
               </div>
             </div>
-            <br>
+            {% endfor %}
+            
+                  
+                  <div class="control">
+                  </div>
+                <div class="field">
+                  <div class="control">
+                    <label class="label"></label>
+                    <br>
+                  </div>
+                </div>
             <input type="hidden" id="num-requests-input" name="num_requests" value="0">
 
           <div id="popup" class="modal">
@@ -179,7 +180,7 @@
                   '<label class="label">Descarregar Documento</label>'+
                   '<div class="file is-normal has-name">'+
                     '<label class="file-label">'+
-                      '<input class="file-input" type="file" name="resume" id="resume">'+
+                      '<<input class="file-input" type="file" name="resume" id="resume" multiple>">'+
                       '<span class="file-cta">'+
                         '<span class="file-icon">'+
                           '<i class="fas fa-upload"></i>'+

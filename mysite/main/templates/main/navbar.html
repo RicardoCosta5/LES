@@ -77,6 +77,13 @@
       {% if user.is_authenticated %}
       <div class="navbar-end">
        <p class="navbar-item"> Bem Vindo {{user.first_name}} {{user.last_name}}</p>
+       <a href="" class="navbar-item">
+        <div type="button" >
+          <span class="icon is-small">
+            <i class="mdi mdi-bell"></i>
+          </span>
+        </div>
+      </a>
         <a href="{% url 'main:logout' %}" class="navbar-item">
           <div type="button" class="button">
             <span class="icon is-small">
@@ -85,7 +92,7 @@
             <span>Sair</span>
           </div>
         </a>
-        {% else %}
+      {% else %}
       <a href="{% url 'main:escolher' %}" class="navbar-item">
         Registo
       </a>
@@ -102,9 +109,3 @@
       
 
 
-{% block scripts %}
-<script>
- 
-</script>
-
-{% endblock scripts %}
