@@ -106,7 +106,6 @@ class Docente(Utilizador):
     faculdade = models.CharField(db_column='Faculdade', max_length=255, blank=False, null=False)
 
     departamento = models.CharField(db_column='Departamento', max_length=255, blank=False, null=False)
-
     def __str__(self):
         return str(self.gabinete) + ' ' + str(self.faculdade) + ' ' + str(self.departamento)
     class Meta:
@@ -126,6 +125,12 @@ class Horario(models.Model):
              'pedido_horario_pedido_id', 'pedido_horario_pedido_funcionario_id', 
              'pedido_horario_pedido_docente_id'),
         )
+
+### import Docente ###
+class Docente_import(models.Model):
+    codigo = models.CharField(db_column='codigo', max_length=255, blank=False, null=False)
+    nome = models.CharField(db_column='nome', max_length=255, blank=False, null=False)
+    ativo = models.BooleanField(db_column='ativo', max_length=255, default = True)
 
 
 ### Ano letivo ###
@@ -149,6 +154,7 @@ class Pedido(models.Model):
     Docente = models.ForeignKey(Docente, on_delete=models.CASCADE, null=True)
     Rejeitarpedido = models.CharField(max_length=1000,default="Nao sei")
     Anoletivo = models.ForeignKey(AnoLetivo, on_delete=models.CASCADE, null=True)
+    diaFinal = models.DateField(default=datetime.date.today)
 
     
 ### Pedidos ( Horario - Outros - UC - Sala) , desta parte esta ok
