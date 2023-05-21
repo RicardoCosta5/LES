@@ -677,9 +677,7 @@ def tableAL(request):
     # Verificar se há um ano letivo ativo
     ano_letivo_ativo = AnoLetivo.objects.filter(ativo=True).first()
 
-    if ano_letivo_ativo:
-        # Desativar todos os anos letivos
-        AnoLetivo.objects.update(ativo=False)
+
 
     if request.method == "POST":
         ano_id = request.POST.get("ano_id")
