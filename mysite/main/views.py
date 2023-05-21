@@ -25,12 +25,8 @@ from dateutil.parser import parse
 from django.db.models import Count, Avg
 from django.utils.timezone import datetime, timedelta
 import re
-<<<<<<< HEAD
 import datetime
-=======
-import smtplib
-from smtplib import SMTPException
->>>>>>> f5c13de1772d9843e14ebe936415d58d0a5f261a
+from datetime import datetime, timedelta
 
 def user_check(request, user_profile = None):
     ''' 
@@ -162,18 +158,18 @@ def PedidosOUT(request):
     if request.method == "POST":
         assunto = request.POST['assunto']
         descricao = request.POST['desc']
-        data = request.POST['dia']
+        data = request.POST['data']
         arquivo = request.FILES.getlist('resume')
 
         # Verifica se a data escolhida é anterior ao dia de hoje
         if parse(data).date() < date.today():
           error = 'A data escolhida é anterior ao dia de hoje!'
-          return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name})
+          return render(request, 'main/PedidosOutros.html', {"error": error, "nome": name})
         
         if Pedido.objects.filter(assunto=assunto, dia=data).exists():
             # Se já existir, retorne uma mensagem de erro
             error = 'Já existe um pedido com o mesmo assunto!'
-            return render(request, 'main/PedidoHorario.html', {"error": error, "nome": name})
+            return render(request, 'main/PedidosOutros.html', {"error": error, "nome": name})
 
         docente = Docente.objects.get(utilizador_ptr=user)
         new_Pedido = Pedido(assunto=assunto, desc=descricao, dia=data, tipo = "Outros",Docente=docente)
@@ -181,10 +177,22 @@ def PedidosOUT(request):
 
         for i in range(len(arquivo)):
            new_pedido_outros = PedidosOutros(
-           arquivo = arquivo[i],
-           pedido = new_Pedido   
+            arquivo = arquivo[i],
+            pedido = new_Pedido   
            )
            new_pedido_outros.save()
+        pending_pedidos = Pedido.objects.filter(Docente=docente).exclude(status__in=['Concluido']).count()
+      # Calculate the average number of pedidos processed per day in the last 7 days
+        seven_days_ago = datetime.now().date() - timedelta(days=7)
+        avg_processed_per_day = Pedido.objects.filter(Docente=docente, dia__gte=seven_days_ago).annotate(
+         date=TruncDate('dia')
+      ).values('date').annotate(processed_count=Count('id')).aggregate(avg_processed=Avg('processed_count'))
+
+
+        succes = 'Enviado para a base de dados'
+        return render(request, template_name="main/PedidosOutros.html",context={"nome": name,"succes": succes, "pending_pedidos": pending_pedidos,
+         "avg_processed_per_day": avg_processed_per_day['avg_processed']})
+
 
     return render(request, template_name="main/PedidosOutros.html", context={"nome": name})
 
@@ -378,13 +386,47 @@ def UPDATEPeidosOUT(request, pk):
     pedido = Pedido.objects.get(id=pk)
     pedido_outros = PedidosOutros.objects.filter(pedido=pk).all()
     if request.method == "POST":
+        pedido.dia = request.POST['data']
+        dias = pedido.dia
         pedido.assunto = request.POST['assunto']
         pedido.desc = request.POST['desc']
-        pedido.dia = request.POST['data']
-        pedido.save()
-        return redirect('main:meus')
+        if datetime.strptime(dias, '%Y-%m-%d').date() < date.today():
+         error = 'A data escolhida é anterior ao dia de hoje!'
+         return render(request, 'main/PedidosOutros2.html', {"error": error,"assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_outros":pedido_outros,})
+        if Pedido.objects.filter(Q(assunto=pedido.assunto, dia=pedido.dia) & ~Q(id=pk)).exists():
+            # Se já existir, retorne uma mensagem de erro
+            error = 'Já existe um pedido com o mesmo assunto!'
+            return render(request, 'main/PedidosOutros2.html', {"error": error,"assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_outros":pedido_outros,})
 
-    return render(request, template_name="main/PedidosOutros2.html", context={"assunto": pedido.assunto,"desc": pedido.desc, "dia":pedido.dia})
+        pedido.save()
+        arquivo_list = request.Post.getlist("arquivo")
+
+        # Combine as listas em uma lista de tuplas
+        updates = zip(pedido_outros,arquivo_list)
+        # Atualize os objetos PedidoHorario
+        for pedido_outros, arquivo in updates:
+            pedido_outros.arquivo = arquivo
+            pedido_outros.save()
+        redirect_url = reverse('main:tablePedidos')
+        params = urlencode({'success': 'Enviado para a base de dados'})
+        redirect_url = f"{redirect_url}?{params}"
+        return HttpResponseRedirect(redirect_url)
+
+        # Construct a list of arquivo names for the pedido_outros objects
+    arquivo_names = [pedido_outro.arquivo.name if pedido_outro.arquivo else '' for pedido_outro in pedido_outros]
+    return render(request, template_name="main/PedidosOutros2.html", context={
+        "assunto": pedido.assunto,
+        "desc": pedido.desc,
+        "dia": pedido.dia,
+        "pedido_outros":pedido_outros,
+        "arquivo_names": arquivo_names,
+    })
 
 
 def updateUC(request, pk):
@@ -845,7 +887,7 @@ def obter_dados_pedidos_funcionarios():
 
     return funcionarios, pedidos_recebidos
 
-
+###quantidade Pedidos ####
 def tableEstatisticaPedido(request):
    
        # Verificar se os registros já existem
@@ -911,7 +953,164 @@ def tableEstatisticaPedido(request):
 
 
    pedidosSala = EstatisticaPedido.objects.all()
-   return render(request, template_name="main/tableEstatisticaPedidos.html",context={"Pedido":pedidosSala, "Funcionarios": funcionarios, "PedidosConcluidos": pedidos_concluidos, "TemposProcessamento": tempos_processamento})
+   return render(request, template_name="main/quantidade_pedido.html",context={"Pedido":pedidosSala, "Funcionarios": funcionarios, "PedidosConcluidos": pedidos_concluidos, "TemposProcessamento": tempos_processamento})
+
+
+
+###Quantidade de pedidos processados pelo funcionario ####
+def estatistica_pedido_processado_funcionario(request):
+   
+       # Verificar se os registros já existem
+   if not EstatisticaPedido.objects.filter(Status='Em Análise').exists():
+        EstatisticaPedido.objects.create(Status='Em Análise')
+   if not EstatisticaPedido.objects.filter(Status='Registado').exists():
+        EstatisticaPedido.objects.create(Status='Registado')
+   if not EstatisticaPedido.objects.filter(Status='Concluído').exists():
+        EstatisticaPedido.objects.create(Status='Concluído')
+   
+
+    # Definir a data de início e fim dos últimos 30 dias
+   data_fim = datetime.now().date()
+   data_inicio = data_fim - timedelta(days=29)
+
+    # Obter todos os funcionários
+   funcionarios = Funcionario.objects.all()
+
+   tempos_processamento = []
+   pedidos_concluidos = []
+
+   for funcionario in funcionarios:
+        # Filtrar pedidos concluídos do funcionário nos últimos 30 dias
+        pedidos_funcionario = Pedido.objects.filter(Funcionario=funcionario, status='Concluído', diaCriado__range=[data_inicio, data_fim])
+        
+        total_tempos = 0
+        num_pedidos_concluidos = pedidos_funcionario.count()
+
+        for pedido in pedidos_funcionario:
+            # Calcular o tempo de processamento para cada pedido
+            dias_processamento = (pedido.diaFinal - pedido.diaCriado).days + 1
+            total_tempos += dias_processamento
+        
+        if num_pedidos_concluidos > 0:
+            media_tempos = total_tempos / num_pedidos_concluidos
+        else:
+            media_tempos = 0
+
+        tempos_processamento.append(media_tempos)
+        pedidos_concluidos.append(num_pedidos_concluidos)
+   
+   num_pedidos = Pedido.objects.all().count()
+   # Obter o número de pedidos com o status "Em Análise"
+   num_pedidos_em_analise = Pedido.objects.filter(status='Em Análise').count()
+   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Em Análise')
+   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
+   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
+   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
+   estatistica_pedido_em_analise.percetagem =texto_formatado
+   estatistica_pedido_em_analise.save()
+
+   # Obter o número de pedidos com o status "Concluido"
+   num_pedidos_em_analise = Pedido.objects.filter(status='Concluído').count()
+   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Concluido')
+   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
+   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
+   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
+   estatistica_pedido_em_analise.percetagem =texto_formatado
+   estatistica_pedido_em_analise.save()
+
+   # Obter o número de pedidos com o status "Rejeitado"
+   num_pedidos_em_analise = Pedido.objects.filter(status='Registado').count()
+   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Registado')
+   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
+   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
+   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
+   estatistica_pedido_em_analise.percetagem =texto_formatado
+   estatistica_pedido_em_analise.save()
+
+
+
+   pedidosSala = EstatisticaPedido.objects.all()
+   return render(request, template_name="main/pedidos_processados_funcionario.html",context={"Pedido":pedidosSala, "Funcionarios": funcionarios, "PedidosConcluidos": pedidos_concluidos, "TemposProcessamento": tempos_processamento})
+
+
+
+### Tempo de Processamento ###
+
+###quantidade Pedidos ####
+def estatistica_tempo_processado(request):
+   
+       # Verificar se os registros já existem
+   if not EstatisticaPedido.objects.filter(Status='Em Análise').exists():
+        EstatisticaPedido.objects.create(Status='Em Análise')
+   if not EstatisticaPedido.objects.filter(Status='Registado').exists():
+        EstatisticaPedido.objects.create(Status='Registado')
+   if not EstatisticaPedido.objects.filter(Status='Concluído').exists():
+        EstatisticaPedido.objects.create(Status='Concluído')
+   
+    # Definir a data de início e fim dos últimos 30 dias
+   data_fim = datetime.now().date()
+   data_inicio = data_fim - timedelta(days=29)
+
+    # Obter todos os funcionários
+   funcionarios = Funcionario.objects.all()
+
+   tempos_processamento = []
+   pedidos_concluidos = []
+
+   for funcionario in funcionarios:
+        # Filtrar pedidos concluídos do funcionário nos últimos 30 dias
+        pedidos_funcionario = Pedido.objects.filter(Funcionario=funcionario, status='Concluído', diaCriado__range=[data_inicio, data_fim])
+        
+        total_tempos = 0
+        num_pedidos_concluidos = pedidos_funcionario.count()
+
+        for pedido in pedidos_funcionario:
+            # Calcular o tempo de processamento para cada pedido
+            dias_processamento = (pedido.diaFinal - pedido.diaCriado).days + 1
+            total_tempos += dias_processamento
+        
+        if num_pedidos_concluidos > 0:
+            media_tempos = total_tempos / num_pedidos_concluidos
+        else:
+            media_tempos = 0
+
+        tempos_processamento.append(media_tempos)
+        pedidos_concluidos.append(num_pedidos_concluidos)
+
+   num_pedidos = Pedido.objects.all().count()
+   
+   num_pedidos = Pedido.objects.all().count()
+   # Obter o número de pedidos com o status "Em Análise"
+   num_pedidos_em_analise = Pedido.objects.filter(status='Em Análise').count()
+   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Em Análise')
+   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
+   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
+   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
+   estatistica_pedido_em_analise.percetagem =texto_formatado
+   estatistica_pedido_em_analise.save()
+
+   # Obter o número de pedidos com o status "Concluido"
+   num_pedidos_em_analise = Pedido.objects.filter(status='Concluído').count()
+   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Concluido')
+   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
+   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
+   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
+   estatistica_pedido_em_analise.percetagem =texto_formatado
+   estatistica_pedido_em_analise.save()
+
+   # Obter o número de pedidos com o status "Rejeitado"
+   num_pedidos_em_analise = Pedido.objects.filter(status='Registado').count()
+   estatistica_pedido_em_analise = EstatisticaPedido.objects.get(Status='Registado')
+   estatistica_pedido_em_analise.NmrPedido = num_pedidos_em_analise
+   porcentagem_analise = (num_pedidos_em_analise / num_pedidos) * 100
+   texto_formatado = '{:.1f}%'.format(porcentagem_analise)
+   estatistica_pedido_em_analise.percetagem =texto_formatado
+   estatistica_pedido_em_analise.save()
+
+
+
+   pedidosSala = EstatisticaPedido.objects.all()
+   return render(request, template_name="main/tempo_processado.html",context={"Pedido":pedidosSala, "Funcionarios": funcionarios, "PedidosConcluidos": pedidos_concluidos, "TemposProcessamento": tempos_processamento})
 
 
 ### Coisa na minha opiniao nao são necessarias ###

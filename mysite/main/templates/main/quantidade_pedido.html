@@ -1,0 +1,91 @@
+{% extends 'main/app.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  .filters-column {
+    width: 30%;
+    margin-right: 20px;
+    float: left;
+  }
+
+  .chart-container {
+    width: 50%;
+    margin: 2% auto; /* Center the container horizontally */
+  }
+
+  </style>
+
+<h1 class="title has-text-centered">Estatisticas da Quantidade de Pedidos</h1>
+
+<!--grafico dos Pedidos */ -- !--> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="chart-container">
+    <canvas id="chart2"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+    //grafico dos Pedidos
+    // Obter os estados dos pedidos
+    var estados = [
+  "{% for n in Pedido %}",
+      "{{ n.Status }}",
+    "{% endfor %}"
+  ];
+
+  // Obter a quantidade de pedidos por estado
+  var quantidadePedidos = [
+  "{% for n in Pedido %}",
+      "{{ n.NmrPedido }}",
+    "{% endfor %}"
+  ];
+
+  // Configurar o gráfico
+  var chart = new Chart(document.getElementById('chart2'), {
+    type: 'bar',
+    data: {
+      labels: estados,
+      datasets: [{
+        label: 'Quantidade de Pedidos',
+        data: quantidadePedidos,
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          precision: 0,
+          title: {
+            display: true,
+            text: 'Quantidade de Pedidos (nº:)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Estados do Pedido (status:)'
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Quantidade de Pedidos'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      }
+    }
+  });
+
+</script>
+  
+{% endblock content %}
