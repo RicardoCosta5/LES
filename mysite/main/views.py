@@ -257,7 +257,7 @@ def PedidoSalas(request):
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas, "edificios": Edificios, "UC": UC})
 
       docente = Docente.objects.get(utilizador_ptr=user)
-      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente, AnoLetivo=ano_letivo_ativo)
+      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente, Anoletivo=ano_letivo_ativo)
       new_Pedido.save()
 
       for i in range(len(uc_list)):
