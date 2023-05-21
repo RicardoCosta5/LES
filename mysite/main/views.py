@@ -730,36 +730,25 @@ def uploadDSD(request):
         excel_file = request.FILES['file']
         excel_data = pd.ExcelFile(excel_file)
         sheetx = pd.read_excel(excel_data, sheet_name=0)
-        testes = sheetx[['Período', 'Cód. disciplina', 'Disciplina', 'Inst. discip.', 'Inst. disciplina', 'Depart. disciplina', 'Turma', 'Código curso', 'Curso',
-                         'Cód. Docente', 'Docente', 'Função docente', 'Inst. docente', 'Depart. docente', 'Horas semanais', 'Horas período', 'Factor', 
-                         'Horas serviço', 'Data início', 'Data fim', 'Nome Docente', 'Agrupamento']] 
+        testes = sheetx[['Período', 'Cód. disciplina', 'Disciplina', 'Inst. disciplina', 'Turma', 'Curso',
+                         'Cód. Docente', 'Docente', 'Depart. docente', 'Horas semanais' , 'Data início', 'Data fim']] 
 
         for index, row in testes.iterrows():
             Periodo = row['Período']
             codDisci = row['Cód. disciplina']
             disciplina = row['Disciplina']
-            instituic = row['Inst. discip.']
             instituto = row['Inst. disciplina']
-            departamento = row['Depart. disciplina']
             turma = row['Turma']
-            codCurso = row['Código curso']
             curso = row['Curso']
             codDocente = row['Cód. Docente']
             docente = row['Docente']
-            funcDocente = row['Função docente']
-            instDocente = row['Inst. docente']
             departDocente = row['Depart. docente']
             horasSem = row['Horas semanais']
-            horasPeri = row['Horas período']
-            factor = row['Factor']
-            horasServ = row['Horas serviço']
             Datainicial = row['Data início']
             DataFim = row['Data fim']
-            Nome = row['Nome Docente']
-            Agrupamento = row['Agrupamento']
-            novAUC = DSD(Periodo = Periodo, codDisci =  codDisci, disciplina = disciplina, instituic = instituic, instituto = instituto, departamento = departamento,
-                         turma = turma, codCurso = codCurso, curso = curso, codDocente = codDocente, docente = docente, funcDocente = funcDocente, instDocente = instDocente,
-                         horasSem = horasSem, horasPeri = horasPeri, factor = factor, Datainicial = Datainicial, DataFim = DataFim, Nome = Nome, Agrupamento = Agrupamento)
+            novAUC = DSD(Periodo = Periodo, codDisci =  codDisci, disciplina = disciplina, instituto = instituto,
+                         turma = turma, curso = curso, codDocente = codDocente, docente = docente, departDocente = departDocente,
+                         horasSem = horasSem, Datainicial = Datainicial, DataFim = DataFim)
             novAUC.save()
         success = 'Dados do DSD importados com sucesso'
         return render(request=request, template_name='main/upload_DSD.html', context={'success': success})
