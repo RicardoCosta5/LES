@@ -14,23 +14,32 @@
     <div class="column">
         <div class="columns is-centered">
             
-        <div class="column is-7">
+          <div class="column is-7">
             <h1 class="title has-text-centered">Pedidos Outros</h1>
-            <div class="field">
-              <label class="label">Assunto</label>
-              <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}" required>
-             
+            <div id="succes" {% if succes %}style="display: block;"{% endif %}>{{ succes }}
+              <p>Pedidos pendentes: {{ pending_pedidos }}</p>
+            <p>Número médio de pedidos processados por dia nos últimos 7 dias: {{ avg_processed_per_day }}</p>  
             </div>
-            <div class="field">
-              <label class="label">Descrição</label>
-              <div class="control">
-                <textarea class="textarea" id="desc"placeholder="Escreva os detalhes do pedido" name="desc" required>{{ desc }}</textarea>
+            <div id="error" {% if error %}style="display: block;"{% endif %}>{{ error }}</div>
+  
+            <div class="field ">
+                <label class="label">Assunto</label>
+                <input class="input" type="text" id="assunto" name="assunto" value="{{assunto}}" required>
+               
               </div>
+          
+         
+          
+          <div class="field">
+            <label class="label">Descrição</label>
+            <div class="control">
+              <textarea class="textarea" id="desc" placeholder="Escreva os detalhes do pedido" name="desc" required>{{ desc }}</textarea>
             </div>
+          </div>
           <div class="field">
             <label class="label">Dia</label>
            
-                <input type="date" id="data" name="dia" value="{{ dia|date:'Y-m-d' }}" required>
+                <input type="date" id="data" name="data" value="{{ dia|date:'Y-m-d' }}" required>
           </div>
 
           <a id="frase">Clique aqui para adicionar um Ficheiro</a>
@@ -125,13 +134,15 @@ const errorElement = document.getElementById('error');
     const desc = document.querySelector('#desc').value;
 
 
-    // Check if any of the required fields are empty
-    if (!assunto || !data || !desc)  {
-      console.log('Required fields are empty');
-      alert('Por favor, preencha todos os campos obrigatórios.');
+ // Check if any of the required fields are empty
+ if (!assunto || !desc || !data ){
+      const errorElement = document.getElementById('error');
+      errorElement.innerText = 'Preencha todos os campos corretamente!';
+      errorElement.style.display = 'block';
       return false;
     }
-
+    const errorElement = document.getElementById('error');
+    errorElement.style.display = 'none';
     return true;
   }
 
@@ -205,8 +216,10 @@ const errorElement = document.getElementById('error');
  button {
   margin-left: 10px;
 }
-
-#error {
+  select {
+  width: 200px;
+}
+  #error {
   display: none;
   background-color: red;
   text-align: center;
@@ -216,6 +229,17 @@ const errorElement = document.getElementById('error');
   top: 50%;
   left: 50%;
 }
+#succes {
+  display: none;
+  background-color: green;
+  text-align: center;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+ </style>
 </style>
   
 {% endblock content%}

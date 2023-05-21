@@ -44,11 +44,23 @@
         </div>
       </div>
       {% endif %}
+<<<<<<< HEAD
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Estatisticas
+        </a>
+      <div class="navbar-dropdown">
+        <a href="{% url 'main:quantidade'%}" class="navbar-item">Quantidade de Pedidos</a>
+        <a href="{% url 'main:pedido_processado_funcionario'%}" class="navbar-item">Pedidos Processados pelo Funcionario</a>
+        <a href="{% url 'main:tempo_processado'%}" class="navbar-item">Tempo Médio de Processamento do Pedido </a>
+      </div>
+=======
     <div class="navbar-item has-dropdown is-hoverable">
       <a href="{% url 'main:tableEstatisticaPedido' %}" class="navbar-item">Estatistica Pedidos</a>
     </div>
     <div class="navbar-item has-dropdown is-hoverable">
       <a href="{% url 'main:export' %}" class="navbar-item">Exportar</a>
+>>>>>>> 3f70598d08a8bd65e43e51907fa2fc999a749706
     </div>
     
     {% if request.user|has_group:'Administrador' %}

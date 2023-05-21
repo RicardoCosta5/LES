@@ -1,0 +1,96 @@
+{% extends 'main/app.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  .filters-column {
+    width: 30%;
+    margin-right: 20px;
+    float: left;
+  }
+
+  .chart-container {
+    width: 50%;
+    margin: 2% auto; /* Center the container horizontally */
+  }
+
+
+</style>
+
+
+
+<h1 class="title has-text-centered">Estatistica do Tempo Médio de Processamento por Funcionário </h1>
+
+<!--grafico dos tempo de processamneto do pedido */ -- !--> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="chart-container">
+    <canvas id="chart"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+//grafico tempo de processemento do pedido por funcionario
+  // Obter os funcionários
+  var funcionarios = [
+    "{% for funcionario in Funcionarios %}",
+      "{{ funcionario.username }}",
+    "{% endfor %}"
+  ];
+
+  // Obter os tempos de processamento médio por funcionário
+  var temposProcessamento = [
+    "{% for tempo in TemposProcessamento %}",
+      "{{ tempo }}",
+    "{% endfor %}"
+  ];
+
+  // Configurar o gráfico
+  var chart = new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+      labels: funcionarios,
+      datasets: [{
+        label: 'Tempo de Processamento',
+        data: temposProcessamento,
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Tempo de Processamento (dias:)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Funcionários (nome)'
+          },
+          ticks: {
+            maxRotation: 90, // Rotação máxima dos rótulos em graus
+            minRotation: 90 // Rotação mínima dos rótulos em graus
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Tempo de Processamento Médio por Funcionário'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      }
+    }
+  });
+
+</script>
+
+{% endblock content %}

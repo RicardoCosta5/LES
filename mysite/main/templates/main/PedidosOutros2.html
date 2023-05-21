@@ -1,0 +1,270 @@
+{% extends 'main/app.html' %}
+
+{% block title %}- Pedido Unidade Curricular{% endblock title %}
+
+{% block content %}
+
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<div>
+  <form id="form" method="POST">{% csrf_token %}
+    {{ form }}
+    <div class="section">
+      <div class="column">
+        <div class="columns is-centered">
+          <div class="column is-7">
+            <h1 class="title has-text-centered">Pedidos Outros</h1>
+            <div id="success" {% if success %}style="display: block;"{% endif %}>{{ success }}</div>
+            <div id="error" {% if error %}style="display: block;"{% endif %}>{{ error }}</div>
+            <div class="field">
+              <label class="label">Assunto</label>
+              <input class="input" type="text" id="assunto" name="assunto" value="{{ assunto }}" required>
+            </div>
+            <div class="field">
+              <label class="label">Descrição</label>
+              <div class="control">
+                <textarea class="textarea" id="desc" placeholder="Escreva os detalhes do pedido" name="desc"
+                  required>{{ desc }}</textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Dia</label>
+              <input type="date" id="data" name="data" value="{{ dia|date:'Y-m-d' }}" required>
+            </div>
+
+
+            
+            {% for arquivo_name in arquivo_names %}
+            <div class="field is-horizontal">
+              <div class="field-body">
+                <div class="field">
+                  <label class="label">Descarregar Documento</label>
+                  <div class="file is-normal has-name">
+                    <label class="file-label">
+                      <input class="file-input" type="file" name="resume" id="resume{{ forloop.counter }}">
+                      <span class="file-cta">
+                        <span class="file-icon">
+                          <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">
+                          Inserir ficheiro
+                        </span>
+                      </span>
+                      <span class="file-name">
+                        {{ arquivo_name }}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            
+                  
+                  <div class="control">
+                  </div>
+                <div class="field">
+                  <div class="control">
+                    <label class="label"></label>
+                    <br>
+                  </div>
+                </div>
+            <input type="hidden" id="num-requests-input" name="num_requests" value="0">
+
+          <div id="popup" class="modal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+              <div class="box">
+                <p>Submissão feita com sucesso!</p>
+                <div class="buttons">
+                  <button id="confirm-btn" class="button is-success">OK</button>
+                </div>
+              </div>
+            </div>
+            <button class="modal-close is-large" aria-label="close"></button>
+          </div>
+          
+          <div class="field is-grouped">
+            <div class="control">
+              <button id="submit-btn" class="button is-link">Submit</button>
+            </div>
+            <div class="control">
+              <button id="cancel-btn" class="button is-link is-light" onclick="window.location.reload()">Cancel</button>
+        
+            </div>
+          </div>
+    </div>
+  </div>
+</div>
+</div>
+</form>
+</div>
+<script>
+
+
+  
+    const cancelButton = document.querySelector('#cancel-btn');
+   cancelButton.addEventListener('click', function(event) {
+     event.preventDefault();
+     const form = document.querySelector('form');
+     form.reset();
+   });
+  
+   function showPopUp(event) {
+    event.preventDefault();
+  
+    if (validateForm()) {
+      // Get the pop-up element
+      var popup = document.getElementById("popup");
+  
+      // Show the pop-up
+      popup.classList.add("is-active");
+  
+      // Get the confirm and cancel buttons
+      var confirmBtn = document.getElementById("confirm-btn");
+  
+      // Add click listeners to the buttons
+      confirmBtn.addEventListener("click", submitForm);
+      setTimeout(function() {
+        popup.style.display = "none";
+      }, 5000); // Wait for 5 seconds before hiding the popup
+    } else {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+    }
+  }
+  
+    function hidePopUp() {
+      // Get the pop-up element
+      var popup = document.getElementById("popup");
+  
+      // Hide the pop-up
+      popup.classList.remove("is-active");
+    }
+  
+  const forms = document.getElementById('form');
+  const errorElement = document.getElementById('error');
+  
+    function submitForm() {
+      // Submit the form
+      document.getElementById("submit-btn").click();
+    }
+  
+  
+    function validateForm() {
+      // Get the values of the form inputs
+  
+      const assunto = document.querySelector('#assunto').value;
+      const data = document.querySelector('#data').value;
+      const desc = document.querySelector('#desc').value;
+  
+  
+   // Check if any of the required fields are empty
+   if (!assunto || !desc || !data ){
+        const errorElement = document.getElementById('error');
+        errorElement.innerText = 'Preencha todos os campos corretamente!';
+        errorElement.style.display = 'block';
+        return false;
+      }
+      const errorElement = document.getElementById('error');
+      errorElement.style.display = 'none';
+      return true;
+    }
+  
+    document.getElementById("frase").addEventListener("click", adicionarCampo);
+  // adiciona um campo para adicioanr arquivo 
+    function adicionarCampo() {
+    var novoCampo = document.createElement("div");
+    novoCampo.innerHTML =   '<div class="field is-horizontal">'+
+              '<div class="field-body">'+
+                '<div class="field">'+
+                  '<label class="label">Descarregar Documento</label>'+
+                  '<div class="file is-normal has-name">'+
+                    '<label class="file-label">'+
+                      '<<input class="file-input" type="file" name="resume" id="resume" multiple>">'+
+                      '<span class="file-cta">'+
+                        '<span class="file-icon">'+
+                          '<i class="fas fa-upload"></i>'+
+                        '</span>'+
+                        '<span class="file-label">'+
+                          'Inserir ficheiro'+
+                        '</span>'+
+                      '</span>'+
+                      '<span class="file-name">'+
+                        'Selecione um Ficheiro'+
+                      '</span>'+
+                    '</label>'+
+                  '</div>'+
+                  '<div class="control">'+
+                  '</div>'+
+                '</div>'+
+                '<div class="field  ">' +
+        '<div class="control">' +
+          '<label class="label"></label>'+
+          '<br>' +
+          '<button type="button" class="button is-danger is-active remover-campo">Remover</button>' +
+        '</div>' +
+      '</div>' +
+              '</div>'+
+            '</div>'
+  
+    var camposFicheiro = document.querySelector('#novo-campo-ficheiro');
+    camposFicheiro.appendChild(novoCampo);
+  
+    var botoesRemover = document.getElementsByClassName("remover-campo");
+    for (var i = 0; i < botoesRemover.length; i++) {
+      botoesRemover[i].addEventListener("click", function() {
+        this.closest('.field.is-horizontal').remove();
+      });
+    }
+  
+    var inputsFile = novoCampo.getElementsByTagName("input");
+    for (var i = 0; i < inputsFile.length; i++) {
+      inputsFile[i].addEventListener("change", function() {
+        var fileName = this.files[0].name;
+        this.parentNode.parentNode.parentNode.querySelector(".file-name").innerHTML = fileName;
+        var formData = new FormData();
+        formData.append("resume", this.files[0]);
+  
+        axios.post("/url/para/seu/view/", formData)
+          .then(function(response) {
+            console.log(response);
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+      });
+    }
+  }
+   </script>
+   <style>
+   button {
+    margin-left: 10px;
+  }
+    select {
+    width: 200px;
+  }
+    #error {
+    display: none;
+    background-color: red;
+    text-align: center;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    top: 50%;
+    left: 50%;
+  }
+  #succes {
+    display: none;
+    background-color: green;
+    text-align: center;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    top: 50%;
+    left: 50%;
+  }
+   </style>
+  </style>
+
+{% endblock content%}
+
