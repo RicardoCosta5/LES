@@ -69,6 +69,8 @@ urlpatterns = [
     path('ajax/load-cursos/', views.load_cursos, name='ajax_load_cursos'),
     path('validarpedido/<str:nome>/<int:id>/<int:pedidoid>', views.enviar_email_validarpedido,name='validarpedido'),
     path('rejeitarpedido/<str:nome>/<int:id>/<int:pedidoid>', views.enviar_email_rejeitarpedido,name='rejeitarpedido'),
+    path('validarp/<int:id>', views.validar_p,name='validarp'),
+    path('rejeitarp/<int:id>', views.rejeitar_p,name='rejeitarp'),
 
 
 
