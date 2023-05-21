@@ -1670,3 +1670,34 @@ def exportOutros(request):
         return response
 
     return render(request, 'main/export.html')
+
+def exportSalas(request):
+    if request.method == 'POST':
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="pedido_salas.xlsx"'
+
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = 'PedidoSalas'
+
+        # Set bold font style for column names
+        bold_font = Font(bold=True)
+
+        # Write header row
+        header_row = ['ID', 'Edificio', 'Sala', 'Unidade Curricular', 'Hora de Inicio', 'Hora de Fim', 'Descrição', 'Dia', 'Tarefa', 'ID do pedido']
+        worksheet.append(header_row)
+
+        # Apply bold font style to column names
+        for cell in worksheet[1]:
+            cell.font = bold_font
+
+        # Retrieve data from the database
+        pedido_uc_data = PedidoSala.objects.all()
+
+        # Write data rows
+        for pedido_uc in pedido_uc_data:
+            worksheet.append([ pedido_uc.id, pedido_uc.edi, pedido_uc.sal, pedido_uc.uc, pedido_uc.hora_de_inicio, pedido_uc.hora_de_fim, pedido_uc.descri, pedido_uc.dia, pedido_uc.tarefa, pedido_uc.pedido_id])  # Replace with your actual column names
+        workbook.save(response)
+        return response
+
+    return render(request, 'main/export.html')

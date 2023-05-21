@@ -23,7 +23,7 @@
                 </form>
             </div>
             <div class="has-text-centered">
-                <form method="POST" action="{% url 'main:export' %}">
+                <form method="POST" action="{% url 'main:exportSalas' %}">
                     {% csrf_token %}
                     <button class="export-button green" type="submit">Export Pedidos Sala</button>
                 </form>
