@@ -238,9 +238,15 @@ def PedidoSalas(request):
          except ValueError:
             error = 'Formato de hora inválido!'
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas , "edificios": Edificios,"UC": UC})
+            # Verifica se há um ano letivo ativo
+      try:
+            ano_letivo_ativo = AnoLetivo.objects.get(ativo=True)
+      except AnoLetivo.DoesNotExist:
+            error = 'É necessário ter um ano letivo ativo.'
+            return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas, "edificios": Edificios, "UC": UC})
 
       docente = Docente.objects.get(utilizador_ptr=user)
-      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente)
+      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente, AnoLetivo=ano_letivo_ativo)
       new_Pedido.save()
 
       for i in range(len(uc_list)):
