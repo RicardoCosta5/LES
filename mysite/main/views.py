@@ -25,8 +25,16 @@ from dateutil.parser import parse
 from django.db.models import Count, Avg
 from django.utils.timezone import datetime, timedelta
 import re
+<<<<<<< HEAD
 import datetime
 from datetime import datetime, timedelta
+=======
+import smtplib
+from smtplib import SMTPException
+from openpyxl import Workbook
+from openpyxl.styles import Font
+
+>>>>>>> 3f70598d08a8bd65e43e51907fa2fc999a749706
 
 def user_check(request, user_profile = None):
     ''' 
@@ -269,7 +277,7 @@ def PedidoSalas(request):
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas, "edificios": Edificios, "UC": UC})
 
       docente = Docente.objects.get(utilizador_ptr=user)
-      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente, AnoLetivo=ano_letivo_ativo)
+      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente, Anoletivo=ano_letivo_ativo)
       new_Pedido.save()
 
       for i in range(len(uc_list)):
@@ -281,7 +289,7 @@ def PedidoSalas(request):
             uc = uc_list[i],
             dia = dia2[i],
             pedido=new_Pedido
-         )
+         )  
 
          if PedidoSala.objects.filter(uc=uc_list[i], dia=dia2[i],hora_de_inicio=hora_de_inicio_list[i],hora_de_fim=hora_de_fim_list[i],tarefa=tarefa[i]).exists():
             error = 'Pedido de Horário igual!'
@@ -1775,3 +1783,131 @@ def load_cursos(request):
     faculdadeid = request.GET.get('faculdade')
     cursos = Curso.objects.filter(unidadeorganicaid=faculdadeid).order_by('nome')
     return render(request, 'main/curso_dropdown_list_options.html', {'cursos': cursos})
+
+
+
+def export(request):
+    if request.method == 'POST':
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="pedido_uc.xlsx"'
+
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = 'PedidoUC'
+
+        # Set bold font style for column names
+        bold_font = Font(bold=True)
+
+        # Write header row
+        header_row = ['ID', 'UnidadeCurricular', 'HoraInicio', 'HoraFim', 'Descrição', 'Tarefa', 'ID do Pedido']
+        worksheet.append(header_row)
+
+        # Apply bold font style to column names
+        for cell in worksheet[1]:
+            cell.font = bold_font
+
+        # Retrieve data from the database
+        pedido_uc_data = PedidoUC.objects.all()
+
+        # Write data rows
+        for pedido_uc in pedido_uc_data:
+            worksheet.append([ pedido_uc.id, pedido_uc.uc, pedido_uc.descri, pedido_uc.tipo, pedido_uc.tarefa, pedido_uc.regente, pedido_uc.pedido_id])  # Replace with your actual column names
+        workbook.save(response)
+        return response
+
+    return render(request, 'main/export.html')
+
+
+def exportHorarios(request):
+    if request.method == 'POST':
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="pedido_Horario.xlsx"'
+
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = 'PedidoHorario'
+
+        # Set bold font style for column names
+        bold_font = Font(bold=True)
+
+        # Write header row
+        header_row = ['ID', 'UnidadeCurricular', 'HoraInicio', 'HoraFim', 'Descrição', 'Tarefa', 'Dia', 'ID do Pedido']
+        worksheet.append(header_row)
+
+        # Apply bold font style to column names
+        for cell in worksheet[1]:
+            cell.font = bold_font
+
+        # Retrieve data from the database
+        pedido_uc_data = PedidoHorario.objects.all()
+
+        # Write data rows
+        for pedido_uc in pedido_uc_data:
+            worksheet.append([ pedido_uc.id, pedido_uc.uc, pedido_uc.hora_inicio, pedido_uc.hora_fim, pedido_uc.descri, pedido_uc.tarefa,pedido_uc.dia, pedido_uc.pedido_id])  # Replace with your actual column names
+        workbook.save(response)
+        return response
+
+    return render(request, 'main/export.html')
+
+
+def exportOutros(request):
+    if request.method == 'POST':
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="pedido_Outros.xlsx"'
+
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = 'PedidoOUT'
+
+        # Set bold font style for column names
+        bold_font = Font(bold=True)
+
+        # Write header row
+        header_row = ['ID', 'Arquivo', 'Pedido ID']
+        worksheet.append(header_row)
+
+        # Apply bold font style to column names
+        for cell in worksheet[1]:
+            cell.font = bold_font
+
+        # Retrieve data from the database
+        pedido_uc_data = PedidosOutros.objects.all()
+
+        # Write data rows
+        for pedido_uc in pedido_uc_data:
+            worksheet.append([ pedido_uc.id, str(pedido_uc.arquivo), pedido_uc.pedido_id])  # Replace with your actual column names
+        workbook.save(response)
+        return response
+
+    return render(request, 'main/export.html')
+
+def exportSalas(request):
+    if request.method == 'POST':
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="pedido_salas.xlsx"'
+
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = 'PedidoSalas'
+
+        # Set bold font style for column names
+        bold_font = Font(bold=True)
+
+        # Write header row
+        header_row = ['ID', 'Edificio', 'Sala', 'Unidade Curricular', 'Hora de Inicio', 'Hora de Fim', 'Descrição', 'Dia', 'Tarefa', 'ID do pedido']
+        worksheet.append(header_row)
+
+        # Apply bold font style to column names
+        for cell in worksheet[1]:
+            cell.font = bold_font
+
+        # Retrieve data from the database
+        pedido_uc_data = PedidoSala.objects.all()
+
+        # Write data rows
+        for pedido_uc in pedido_uc_data:
+            worksheet.append([ pedido_uc.id, pedido_uc.edi, pedido_uc.sal, pedido_uc.uc, pedido_uc.hora_de_inicio, pedido_uc.hora_de_fim, pedido_uc.descri, pedido_uc.dia, pedido_uc.tarefa, pedido_uc.pedido_id])  # Replace with your actual column names
+        workbook.save(response)
+        return response
+
+    return render(request, 'main/export.html')
