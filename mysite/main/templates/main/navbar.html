@@ -47,6 +47,9 @@
     <div class="navbar-item has-dropdown is-hoverable">
       <a href="tableEstatisticaPedido" class="navbar-item">Estatistica Pedidos</a>
     </div>
+    <div class="navbar-item has-dropdown is-hoverable">
+      <a href="{% url 'main:export' %}" class="navbar-item">Exportar</a>
+    </div>
     
     {% if request.user|has_group:'Administrador' %}
       <div class="navbar-item has-dropdown is-hoverable">
