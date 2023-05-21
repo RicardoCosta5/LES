@@ -87,8 +87,8 @@ urlpatterns = [
     path ("update_AL/<str:pk>/",views.updateAL,name="update_AL"),    
 
 
-
-    
+    path("export", views.export, name = "export"),
+    path("exportHorarios", views.exportHorarios, name = "exportHorarios"),
     
 
 
