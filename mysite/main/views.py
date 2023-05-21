@@ -259,8 +259,13 @@ def PedidoSalas(request):
             error = 'É necessário ter um ano letivo ativo.'
             return render(request, 'main/PedidoSala.html', {"error": error, "salaa": Salas, "edificios": Edificios, "UC": UC})
 
+<<<<<<< HEAD
       
       new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala", Anoletivo=ano_letivo_ativo)
+=======
+      docente = Docente.objects.get(utilizador_ptr=user)
+      new_Pedido = Pedido(assunto = assunto, desc = desc, dia = dia, tipo = "Sala",Docente=docente, Anoletivo=ano_letivo_ativo)
+>>>>>>> 0cdbf8bd036d1f6d235bffdc1c98b6ba68ecc1db
       new_Pedido.save()
 
       for i in range(len(uc_list)):
