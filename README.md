@@ -13,3 +13,4 @@ despacho aos diversos pedidos dos docentes da faculdade
 -HTML
 -CSS
 -Python(Django)
+-javascript
